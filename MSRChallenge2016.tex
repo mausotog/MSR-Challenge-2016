@@ -227,57 +227,6 @@ In this article we study the frequency with which human programmers replace, del
 \section{Methodology}
 Our methodology is applied to the latest official data dump of Github as of September 2015 provided by \cite{robert}.
 
-\subsection{Statements}
-Statements are the building blocks of software. There are several kinds of statements in which software can be divided into. In our approach we are trying to find patterns in the way human programmers replace, delete or append statements in order to fix a bug in their code.
-
-The definitions of statements vary slightly depending on the programming language being used, but regardless of this, the vast majority of statements classifications are very similar independent of the language used. For our study we took a very standard classification of statements provided by the Java Development Tools package.
-
-In this classification we have twenty two kinds of statements, from which we took fifteen of them for the gathering and analysis of our data. The list of statements taken for our analysis is the following:
-
-\begin{verbatim}
-AssertStatement
-BreakStatement
-ContinueStatement 
-DoStatement 
-ForStatement 
-IfStatement 
-LabeledStatement
-ReturnStatement 
-SwitchCase 
-SwitchStatement 
-SynchronizedStatement
-ThrowStatement 
-TryStatement 
-TypeDeclarationStatement
-WhileStatement
-\end{verbatim}
-
-The remaining six kinds of statements were not considered to be part of our analysis for three main reasons. We will start with this following statement type:
-
-\begin{verbatim}
-Block
-\end{verbatim}
-
-The statement type known as "Block" was not included since our main goal is to provide guidelines to automatic bug repair software to be able to create patches in a more guided way. It is irrelevant for an automatic bug repair software to know that an statement was replaced by a "Block", since a Block is an unknown amount of statements concatenated together and knowing that there is an infinite amount of possible permutations of statements that can be a Block, makes it useless to know that an statement was replaced by a Block, since a Block can be basically any possible combination of statements.
-
-The next statement type:
-\begin{verbatim}
-EmptyStatement 
-\end{verbatim}
-
-The statement known as "EmptyStatement" is an statement that doesn't perform any action. Therefore, replacing any statement for an empty statement is equivalent to deleting that statement, and that case is treated separately.
-
-The third reason of why the remaining five statement types were not included in the analysis is because these statement types are not supported by Boa as a StatementKind to the best of our knowledge. The remaining five statement types are the following:
-
-\begin{verbatim}
-ConstructorInvocation
-EnhancedForStatement
-ExpressionStatement
-SuperConstructorInvocation
-VariableDeclarationStatement
-\end{verbatim}
-
-We focused on the initial list of fifteen statement kinds mentioned at the beginning of the section.
 
 \begin{table*}
 \centering
@@ -320,7 +269,6 @@ We focused on the initial list of fifteen statement kinds mentioned at the begin
 }
 \end{table*}
 
-
 \subsection{Data Collection}
 We used the Boa platform \cite{robert} to be able to query the Github repository looking for patterns that humans use to patch errors in the their code. Our main goal is to provide automatic error fixing approaches with the data necessary to be able to replace, delete and append statements in the patches being created by them.
  
@@ -348,13 +296,7 @@ The numbers in the slots represent the amount of files in which that replacement
 
 It is important to notice  that this analysis doesn't consider replacing an statement kind for a different version of the statement kind, since it is counting the amount of appearances of each statement kind. So, if for example, the developer modifies the condition inside of an if statement, the amount of if statements in the file is going to remain the same
 
-\subsubsection{Delete/Append Query}
 
-The Delete/Append Query is similar to the Replace Query with some variations to count for the amount of times that a file was changed and a particular statement kind was either deleted or append, and the rest of the statement kinds remained the same.
-
-We created a Boa file in which first we create an output variable to count all the amount of files in which a statement kind was deleted or appended. Similar to the previous query, we visit all the files labeled as fixing revisions, then visit every node of the previous version of the revision, counting the amount of statement kinds of each one of the possible fifteen different ones. We then do the same for the later version of the revision, counting the different statement kinds.
-
-Finally, we compare the amounts of the previous version, with the new version. For each of the revisions, we ask if the amount of statements stays the same for all the statement kinds, except for X kind of statement. When the amount of statements is different in the previous version than the latest version for X kind of statement. Then we ask if X kinds of statement is greater in the previous version or the latest version. If the amount of appearances of X kind of statement is greater in the previous version than the latest version, and all the remaining fourteen statement kinds have the same amount in the previous than the latest version, then we say that one or more of the statements of kind X were deleted. Otherwise, if the latest version has a greater amount of appearances of X kind of statement and the rest have the same amount of appearances in both the previous and the latest version, then we say that one or more statements of kind X were appended or added to the fixing revision.
 
 
 

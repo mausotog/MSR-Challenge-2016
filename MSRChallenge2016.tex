@@ -128,23 +128,29 @@ Mauricio Soto\\
        \affaddr{Carnegie Mellon University}\\
        \affaddr{Pittsburgh, PA}\\
        \email{mauriciosoto@cmu.edu}
+       % 3rd. author
+\alignauthor Ferdian Thung\\
+       \affaddr{University}\\
+       \affaddr{City}\\
+       \email{email@domain.com}
 % 2nd. author
-\alignauthor Chu Pan Wong   
+\alignauthor Chu Pan Wong   \\
        \affaddr{Carnegie Mellon University}\\
        \affaddr{Pittsburgh, PA}\\
        \email{email@domain.com}       
 \and  % use '\and' if you need 'another row' of author names
-% 3rd. author
-\alignauthor Ferdinand Lastname
-       \affaddr{Carnegie Mellon University}\\
-       \affaddr{Pittsburgh, PA}\\
-       \email{email@domain.com}
 % 4th. author
 \alignauthor
 Claire Le Goues\\
        \affaddr{Carnegie Mellon University}\\
        \affaddr{Pittsburgh, PA}\\
        \email{clegoues@cs.cmu.edu}
+% 5th. author
+\alignauthor
+David\\
+       \affaddr{University}\\
+       \affaddr{City}\\
+       \email{clegoues@cs.cmu.edu}       
 }
 % There's nothing stopping you putting the seventh, eighth, etc.
 % author on the opening page (as the 'third row') but we ask,
@@ -217,7 +223,9 @@ We found very valuable information to guide automatic software repair, such as t
 \keywords{Automatic error repair; Maintainability; Human-like patches}
 
 \section{Introduction}
-Automatic bug repair is the branch of computer science that deals with automated ways to repair errors in software. There have been several approaches taken towards improving the different methodologies to repair bugs in software automatically \cite{dongsun}\cite{weimer}\cite{claire} \cite{kai}, one of the most accepted approaches so far has been GenProg \cite{weimer}\cite{claire}, which is an evolutionary program repair tool and applies four different kinds of possible changes to code in order to find a patch for a given bug. These changes are the following: Delete, Replace, Swap and Append.
+Automatic bug repair is the branch of computer science that deals with automated ways to repair errors in software. There have been several approaches taken towards improving the different methodologies to repair bugs in software automatically \cite{dongsun}\cite{weimer}\cite{claire} \cite{kai}, one of the most accepted approaches so far has been GenProg \cite{weimer}\cite{claire}, an evolutionary program repair tool which applies four different kinds of possible edits to code in order to find a patch for a given bug. These changes are the following: Delete, Replace, Swap and Append. 
+
+Another well known approach is PAR \cite{dongsun}, which creates 10 different repair templates and applies them to the buggy code in an effort to repair it. In this paper we have taken 7 out of the 10 PAR templates and tested how common they are in the repairs made by programmers in the latest official data dump of Github as of September 2015 provided by \cite{robert}.
 
 Our research aims to provide guidelines to improve three out of four of these possible changes: Delete, Replace and Append. It will provide the data necessary for this tool and other approaches to have a guide on what is the way in which human programmers change their code when coding a fix for a bug. This way it will make it more likely for automatic error repair approaches to succeed in finding a patch for a particular error, and also, to provide automatic error repair software with heuristics to make the patches more human-like and therefore more readable and maintainable by human developers.
 
@@ -233,7 +241,7 @@ Our methodology is applied to the latest official data dump of Github as of Sept
 \caption{Amount of appearances per replace kind}
 \resizebox{\textwidth}{100pt}{
 \begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|} \hline
- &Assert&Break&Continue&Do& For&If&Label&Return&Switch&Switch& Synchronized&Throw&Try&TypeDecl&While
+ &Assert&Break&Continue&Do& For&If&Label&Return&Case&Switch& Synchronized&Throw&Try&TypeDecl&While
 \\ \hline
 \texttt{Assert}	&-&340&	232	&27	&517	&1764&	14&	1260	&211	&191&	82&	1004	&352	&0	&206
 \\ \hline

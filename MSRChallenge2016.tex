@@ -233,56 +233,105 @@ In this article we study the frequency with which human programmers replace, del
 
 
 \section{Methodology}
-Our methodology is applied to the latest official data dump of Github as of September 2015 provided by \cite{robert}.
-
+Our methodology is applied to the latest official data dump of Github as of September 2015 provided by \cite{robert}. In the following subsections, we first describe data source and objective of our study. We then describe how we detect bug fixing patterns in PAR to find out how common they are the dataset. Last but not least, we describe our approach to detect Delete, Replace, and Append bug-fixing patterns.
 
 \begin{table*}
-\centering
-\caption{Amount of appearances per replace kind}
-\resizebox{\textwidth}{100pt}{
-\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|} \hline
- &Assert&Break&Continue&Do& For&If&Label&Return&Case&Switch& Synchronized&Throw&Try&TypeDecl&While
-\\ \hline
-\texttt{Assert}	&-&340&	232	&27	&517	&1764&	14&	1260	&211	&191&	82&	1004	&352	&0	&206
-\\ \hline
-\texttt{Break} &455	&-&	1254&	176	&3757	&9096&	90&	10538&	771	&455&	672	&3123&	3660&	18&	2278
- \\ \hline
-\texttt{Continue} & 229	&1384	&-&	221	&1909	&3094&	85&	3486	&772&	635	&233&	1227&	1493&	30&	1086
- \\   \hline
-\texttt{Do} &32	&205&	171	&-&	474	&648	&12&	543	&106	&92&	44	&227	&325&	4&	558
-  \\ \hline
-\texttt{For} &505	&3366	&1516	&316	&-&	14547	&56	&14924	&2791	&1852	&1044&	5642&	5796	&41	&6582
- \\ \hline
-\texttt{If}& 1402&	8820&	2430&	476	&13703&-&		247	&30489	&8639	&5710	&2472&	8960&	13714&	84&	5622
- \\ \hline
-\texttt{Label} &19&	44	&46	&6&	56	&255	&-&	270	&44	&22	&5	&80&	53&	2	&33
-\\ \hline
-\texttt{Return} &1219&	8603	&3009	&531	&12620	&28536&	164	&-&	6088&	3657&	2021&	15346&	11486&	71	&4684
- \\ \hline
-\texttt{Case} &298	&839&	506	&125&	3002&	8039&	33&	6261	&-&	126	&649&	2206&	2784&	24&	1864
-\\ \hline
-\texttt{Switch}&281	&533&	379	&56	&1997	&5175&	22	&4090&	126	&-&	212	&1571	&1311	&7&	878
- \\ \hline
-\texttt{Synchronized} &79&	606&	289&	66	&1122&	3070&	158&	2853	&562&	256	&-&	1303&	1274&	8	&466
- \\ \hline
-\texttt{Throw} &821&	2844&	1195	&197&	5993	&10664&	113&	16688&	2002	&1446&	936		&-&4443&	37&	1934
- \\ \hline
-\texttt{Try}& 440&	3976&	1254&	214	&6414&	16294&	45	&14119	&3178	&1509	&1243&	4795	&-&	46&	2218
- \\ \hline
-\texttt{TypeDecl} &2&	35&	15	&1&	49	&83&	1&	137	&21&	9&	4&	35&	46	&-&	11
- \\ \hline
-\texttt{While}& 301&	2295&	1016&	937	&8257&	6587&	41	&6280&	1866&	766	&606&	2028&	2677&	27	&-
- \\ \hline
-\end{tabular}
-}
+	\centering
+	\caption{Amount of appearances per replace kind}
+	\resizebox{\textwidth}{100pt}{
+		\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|} \hline
+			&Assert&Break&Continue&Do& For&If&Label&Return&Case&Switch& Synchronized&Throw&Try&TypeDecl&While
+			\\ \hline
+			\texttt{Assert}	&-&340&	232	&27	&517	&1764&	14&	1260	&211	&191&	82&	1004	&352	&0	&206
+			\\ \hline
+			\texttt{Break} &455	&-&	1254&	176	&3757	&9096&	90&	10538&	771	&455&	672	&3123&	3660&	18&	2278
+			\\ \hline
+			\texttt{Continue} & 229	&1384	&-&	221	&1909	&3094&	85&	3486	&772&	635	&233&	1227&	1493&	30&	1086
+			\\   \hline
+			\texttt{Do} &32	&205&	171	&-&	474	&648	&12&	543	&106	&92&	44	&227	&325&	4&	558
+			\\ \hline
+			\texttt{For} &505	&3366	&1516	&316	&-&	14547	&56	&14924	&2791	&1852	&1044&	5642&	5796	&41	&6582
+			\\ \hline
+			\texttt{If}& 1402&	8820&	2430&	476	&13703&-&		247	&30489	&8639	&5710	&2472&	8960&	13714&	84&	5622
+			\\ \hline
+			\texttt{Label} &19&	44	&46	&6&	56	&255	&-&	270	&44	&22	&5	&80&	53&	2	&33
+			\\ \hline
+			\texttt{Return} &1219&	8603	&3009	&531	&12620	&28536&	164	&-&	6088&	3657&	2021&	15346&	11486&	71	&4684
+			\\ \hline
+			\texttt{Case} &298	&839&	506	&125&	3002&	8039&	33&	6261	&-&	126	&649&	2206&	2784&	24&	1864
+			\\ \hline
+			\texttt{Switch}&281	&533&	379	&56	&1997	&5175&	22	&4090&	126	&-&	212	&1571	&1311	&7&	878
+			\\ \hline
+			\texttt{Synchronized} &79&	606&	289&	66	&1122&	3070&	158&	2853	&562&	256	&-&	1303&	1274&	8	&466
+			\\ \hline
+			\texttt{Throw} &821&	2844&	1195	&197&	5993	&10664&	113&	16688&	2002	&1446&	936		&-&4443&	37&	1934
+			\\ \hline
+			\texttt{Try}& 440&	3976&	1254&	214	&6414&	16294&	45	&14119	&3178	&1509	&1243&	4795	&-&	46&	2218
+			\\ \hline
+			\texttt{TypeDecl} &2&	35&	15	&1&	49	&83&	1&	137	&21&	9&	4&	35&	46	&-&	11
+			\\ \hline
+			\texttt{While}& 301&	2295&	1016&	937	&8257&	6587&	41	&6280&	1866&	766	&606&	2028&	2677&	27	&-
+			\\ \hline
+		\end{tabular}
+	}
 \end{table*}
 
-\subsection{Data Collection}
-We used the Boa platform \cite{robert} to be able to query the Github repository looking for patterns that humans use to patch errors in the their code. Our main goal is to provide automatic error fixing approaches with the data necessary to be able to replace, delete and append statements in the patches being created by them.
- 
-Our Boa queries are divided in two types:
+\subsection{Data Source and Research Objective}
+We used the Boa platform \cite{robert} to be able to query the Github repository looking for patterns that humans use to patch errors in the their code. Our main goal is to provide guidelines for automatic error fixing approaches by providing necessary information regarding historical replace, delete and append statements in human written patches.
 
-\subsubsection{Replace Query}
+\subsection{Detecting PAR Bug Fixing Pattern}\label{sec:method}
+The bug fixing patterns that we analyze in this work are adopted from Kim et al. paper~\cite{dongsun}. The following is the description of each considered pattern.
+\begin{enumerate}
+	\item {\bf Altering method parameters (AMP)}\\
+	{\bf Example:} obj.method(v1,v2) $\rightarrow$ obj.method(v1,v3)\\
+	{\bf Description:} This pattern changes the input for method parameters.
+	\item {\bf Calling another method with the same parameters (MSM)}\\
+	{\bf Example:} obj.method1(param) $\rightarrow$ obj.method2(param)\\
+	{\bf Description:} This pattern changes the method name.
+	\item {\bf Calling another overloaded method with one more parameter (COM)}\\
+	{\bf Example:} obj.method(v1) $\rightarrow$ obj.method(v1,v2)\\
+	{\bf Description:} This pattern adds one more parameter to the method.
+	\item {\bf Changing a branch condition (CBC)}\\
+	{\bf Example:} if(a != b) $\rightarrow$ if(a != b \&\& c == 0)\\
+	{\bf Description:} This pattern adds or removes condition.
+	\item {\bf Initializing an object (IAO)}\\
+	{\bf Example:} Type obj $\rightarrow$ Type obj = new Type()\\
+	{\bf Description:} This pattern adds a initialization to object declaration.
+	\item {\bf Adding a null checker (ANC)}\\
+	{\bf Example:} obj.m1() $\rightarrow$ if(obj!=null){obj.m1()}\\
+	{\bf Description:} This pattern inserts a condition to check whether an object is null or not in order to prevent unexpected state.
+	\item {\bf Adding an array out of bound checker (AOB)}\\
+	{\bf Example:} arr[idx]=0 $\rightarrow$ if(idx<arr.length){arr[idx]=0}\\
+	{\bf Description:} This pattern inserts a condition to check that an array index is within bound right before the index is used.
+\end{enumerate}
+
+To analyze bug fixing patterns, we utilizes Boa's language infrastructure~\cite{robert}. It contains a large number of dataset and provide a domain specific language to perform analysis on source code. Despite this advantage, Boa still have limited capability that prevents us from performing precise detection of bug fixing patterns. For example, it is unable to perform a diff between two file versions, which is needed to compare the pre-fix and the post-fix version of a buggy file. Thus, rather than finding the exact count of bug fixing patterns, we will find an approximate count of those patterns. The following are descriptions on how we detect each pattern. 
+
+\begin{enumerate}
+	\item {\bf AMP Pattern}\\
+	To detect AMP pattern, for both pre-fix and post-fix version of a buggy file, we create a custom method call signature. This signature contains method name, literal parameter, and variable parameter. we consider parameter containing custom expression as OTHER. This is due to inexistence of function that can print Abstract Syntax Tree (AST) back to source code. we discard method signatures that appear both in pre-fix and post-fix version. We then find whether there exists method with the same name and the same number of parameters, but different parameter signatures in pre-fix and post-fix version. If it exists, we consider that AMP pattern is found.
+	
+	\item {\bf MSM Pattern}\\
+	To detect MSM pattern, we create method signature similar like when detecting AMP pattern. This time, we find whether there exists method with the exact same parameter signature but different name in pre-fix and post-fix version. If it exists, we consider that MSM pattern is found.
+	
+	\item {\bf COM Pattern}\\
+	To detect COM pattern, we create method signature similar like when detecting AMP and COM pattern. This time, we find whether there are exists method with the same name, but the number of parameters in pre-fix and post-fix version differs by one. If it exists, we consider that COM pattern is found.
+	
+	\item {\bf CBC Pattern}\\ 
+	To detect CBC pattern, we count the number of { \em logical and} and {\em logical or} inside if conditional expression for both pre-fix and post-fix version. we assume that the addition/removal of logical operators indicate addition/removal of condition. If there are count differences between pre-fix and post-fix version, we consider that CBC pattern is found.
+	
+	\item {\bf IAO Pattern}\\
+	To detect IAO pattern, we count the number of NEW expression in variable declaration for both pre-fix and post-fix version. If there are count differences between pre-fix and post-fix version, we consider that IAO pattern is found.
+	
+	\item {\bf ANC Pattern}\\
+	To detect ANC pattern, we count the number of if conditional expression that contains {\em !=null} or {\em ==null} for both pre-fix and post-fix version. If there are count differences between pre-fix and post-fix version, we consider that ANC pattern is found.
+	
+	\item {\bf AOB Pattern}\\
+	To detect AOB pattern, we count the number of if conditional expression that contains  {\em expr<var.length} or {\em var.length>expr} for both pre-fix and post-fix version. If there are count differences between pre-fix and post-fix version, we consider that AOB pattern is found.
+	
+\end{enumerate}
+
+\subsection{Replace Query}
 The replace query is a query in which first we set the project that we are going to use, which is the Github dump of September 2015 provided by \cite{robert}. 
 
 We then create a visitor to traverse all the nodes of this repository. First thing the visitor does is to ask weather the node is a Revision, and if it is, then it asks if it is a fixing revision. Therefore we are analyzing only files that were already committed and are now being reviewed to fix an error. We use Boa's infrastructure to do this by visiting the node they label as "Revision" and then calling the function defined by Boa "isfixingrevision()".
@@ -304,34 +353,12 @@ The numbers in the slots represent the amount of files in which that replacement
 
 It is important to notice  that this analysis doesn't consider replacing an statement kind for a different version of the statement kind, since it is counting the amount of appearances of each statement kind. So, if for example, the developer modifies the condition inside of an if statement, the amount of if statements in the file is going to remain the same
 
+\subsection{Delete/Append Query}
+The Delete/Append Query is similar to the Replace Query with some variations to count for the amount of times that a file was changed and a particular statement kind was ei- ther deleted or append, and the rest of the statement kinds remained the same.
 
+We created a Boa file in which first we create an output variable to count all the amount of files in which a statement kind was deleted or appended. Similar to the previous query, we visit all the files labeled as fixing revisions, then visit ev- ery node of the previous version of the revision, counting the amount of statement kinds of each one of the possible fifteen different ones. We then do the same for the later version of the revision, counting the different statement kinds.
 
-
-
-
-%\begin{table}
-%\centering
-%\caption{Amount of appearances of replaces}
-%\begin{tabular}{ | c | c | c | }\hline
-% &Deleted&Appended
-%\\ \hline
-%\texttt{Assert} & &\\ \hline
-%\texttt{Break} &   & \\ \hline
-%\texttt{Continue} & & \\   \hline
-%\texttt{Do} & &  \\ \hline
-%\texttt{For} & & \\ \hline
-%\texttt{If} &  &  \\ \hline
-%\texttt{Label} & & \\ \hline
-%\texttt{Return} &  & \\ \hline
-%\texttt{Case} &  & \\ \hline
-%\texttt{Switch} &  & \\ \hline
-%\texttt{Synchronized} & & \\ \hline
-%\texttt{Throw} &  &\\ \hline
-%\texttt{Try} &   & \\ \hline
-%\texttt{TypeDecl} &&    \\ \hline
-%\texttt{While} &   &   \\ \hline
-%\end{tabular}
-%\end{table}
+Finally, we compare the amounts of the previous version, with the new version. For each of the revisions, we ask if the amount of statements stays the same for all the statement kinds, except for X kind of statement. When the amount of statements is different in the previous version than the latest version for X kind of statement. Then we ask if X kinds of statement is greater in the previous version or the latest ver- sion. If the amount of appearances of X kind of statement is greater in the previous version than the latest version, and all the remaining fourteen statement kinds have the same amount in the previous than the latest version, then we say that one or more of the statements of kind X were deleted. Otherwise, if the latest version has a greater amount of ap- pearances of X kind of statement and the rest have the same amount of appearances in both the previous and the latest version, then we say that one or more statements of kind X were appended or added to the fixing revision.
 
 
 \subsection{Data Analysis}

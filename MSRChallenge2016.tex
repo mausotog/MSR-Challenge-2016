@@ -236,6 +236,8 @@ We found very valuable information to guide automatic software repair, such as t
 \todo{High level todo, probably for Mau since I think it's his bibtex: please
   change the bibtex keys to take the form ``lastnameYear'', and then fix the
   citations.}
+\todo{Please move the bibitems included explicitly in this document into sigproc.bib
+   and use bibtex.}
 \todo{Also, please always include a non-breaking space (a tilde, look at the
   latex for an example) between a word and the cite tag, and include multiple
   references on a line in a single citation tag (again, look at the latex for an
@@ -248,6 +250,15 @@ most accepted approaches so far has been GenProg \cite{weimer}\cite{claire}, an
 evolutionary program repair tool which applies four different kinds of possible
 edits to code in order to find a patch for a given bug. These changes are the
 following: Delete, Replace, Swap and Append.
+
+\todo{We need to integrate the PAR and operator discussion a bit better.  Let's
+  take it up a level of abstraction: there is initial work in applying these
+  techniques to Java that propose a number of mutation operators, and we study
+  the degree to which they apply in practice and make recommendations based on
+  human-provided repairs.  Doing so is a good idea, because patches inspired by
+  human-created repairs are empirically demonstrated to be rated more highly by
+  developers (cite PAR).}
+\todo{I also thought we were doing Par first, and then the replacement studies?}
 
 Another well known approach is PAR \cite{dongsun}, which creates 10 different
 repair templates and applies them to the buggy code in an effort to repair
@@ -319,11 +330,19 @@ bug-fixing patterns.
 \end{table*}
 
 \subsection{Data Source and Research Objective}
-We used the Boa platform \cite{robert} to be able to query the Github repository looking for patterns that humans use to patch errors in the their code. Our main goal is to provide guidelines for automatic error fixing approaches by providing necessary information regarding historical replace, delete and append statements in human written patches.
+We used the Boa platform \cite{robert} to be able to query the Github repository
+looking for patterns that humans use to patch errors in the their code. Our main
+goal is to provide guidelines for automatic error fixing approaches by providing
+necessary information regarding historical replace, delete and append statements
+in human written patches. 
 
 \subsection{Detecting PAR Bug Fixing Pattern}\label{sec:method}
-The bug fixing patterns that we analyze in this work are adopted from Kim et al. paper~\cite{dongsun}. The following is the description of each considered pattern.
-\begin{enumerate}
+The bug fixing patterns that we analyze in this work are adopted from Kim et
+al. paper~\cite{dongsun}. The following is the description of each considered
+pattern. 
+\todo{Ferdian: why are we only studying 7?  It's OK to not study all of them,
+  but we need to explain why.}
+  \begin{enumerate}
 	\item {\bf Altering method parameters (AMP)}\\
 	{\bf Example:} obj.method(v1,v2) $\rightarrow$ obj.method(v1,v3)\\
 	{\bf Description:} This pattern changes the input for method parameters.
@@ -407,6 +426,8 @@ following are descriptions on how we detect each pattern.
   version, we consider that AOB pattern is found.
 	
 \end{enumerate}
+\todo{IMPORTANT: Ferdian, where did the results go?  Please add the results of
+  the Par study into results somewhere where it fits.}
 
 \subsection{Replace Query}
 The replace query is a query in which first we set the project that we are going
@@ -460,72 +481,38 @@ The numbers in the slots represent the amount of files in which that replacement
 It is important to notice  that this analysis doesn't consider replacing an statement kind for a different version of the statement kind, since it is counting the amount of appearances of each statement kind. So, if for example, the developer modifies the condition inside of an if statement, the amount of if statements in the file is going to remain the same
 
 \subsection{Delete/Append Query}
-The Delete/Append Query is similar to the Replace Query with some variations to count for the amount of times that a file was changed and a particular statement kind was ei- ther deleted or append, and the rest of the statement kinds remained the same.
+The Delete/Append Query is similar to the Replace Query with some variations to
+count for the amount of times that a file was changed and a particular statement
+kind was ei- ther deleted or append, and the rest of the statement kinds
+remained the same.
 
-We created a Boa file in which first we create an output variable to count all the amount of files in which a statement kind was deleted or appended. Similar to the previous query, we visit all the files labeled as fixing revisions, then visit ev- ery node of the previous version of the revision, counting the amount of statement kinds of each one of the possible fifteen different ones. We then do the same for the later version of the revision, counting the different statement kinds.
+We created a Boa file in which first we create an output variable to count all
+the amount of files in which a statement kind was deleted or appended. Similar
+to the previous query, we visit all the files labeled as fixing revisions, then
+visit ev- ery node of the previous version of the revision, counting the amount
+of statement kinds of each one of the possible fifteen different ones. We then
+do the same for the later version of the revision, counting the different
+statement kinds.
 
-Finally, we compare the amounts of the previous version, with the new version. For each of the revisions, we ask if the amount of statements stays the same for all the statement kinds, except for X kind of statement. When the amount of statements is different in the previous version than the latest version for X kind of statement. Then we ask if X kinds of statement is greater in the previous version or the latest ver- sion. If the amount of appearances of X kind of statement is greater in the previous version than the latest version, and all the remaining fourteen statement kinds have the same amount in the previous than the latest version, then we say that one or more of the statements of kind X were deleted. Otherwise, if the latest version has a greater amount of ap- pearances of X kind of statement and the rest have the same amount of appearances in both the previous and the latest version, then we say that one or more statements of kind X were appended or added to the fixing revision.
+Finally, we compare the amounts of the previous version, with the new
+version. For each of the revisions, we ask if the amount of statements stays the
+same for all the statement kinds, except for X kind of statement. When the
+amount of statements is different in the previous version than the latest
+version for X kind of statement. Then we ask if X kinds of statement is greater
+in the previous version or the latest ver- sion. If the amount of appearances of
+X kind of statement is greater in the previous version than the latest version,
+and all the remaining fourteen statement kinds have the same amount in the
+previous than the latest version, then we say that one or more of the statements
+of kind X were deleted. Otherwise, if the latest version has a greater amount of
+ap- pearances of X kind of statement and the rest have the same amount of
+appearances in both the previous and the latest version, then we say that one or
+more statements of kind X were appended or added to the fixing revision.
 
-
-\subsection{Data Analysis}
-Our queries were ran on the dump of Github of September 2015. In these real life projects we found 46,301,429 files being fixed. In these files, there is a total of 517,281 statement kinds being replaced, and 511,198 replacing these statements kinds.
-
-We analyzed each of these files looking for statement kinds being either replaced by other kinds, deleted or appended to the file.
-
-We found that the most common Replacer statement kind, meaning the statement kind that most commonly replaces others is the \textbf{If Statement} with 101,366 appearances. The least common Replacer, meaning the statement kind which is less likely to replace other statement kinds is the \textbf{Type Declaration Statement} with 447 appearances.
-
-The most common Replacee, which is the most likely statement kind to be replaced by another statement kind is the \textbf{Return Statement} with 111,938 appearances. The least common Replacee, which is the least common statement to be replaced by another statement kind is the \textbf{Type Declaration Statement} with 399 appearances.
-
-\subsubsection{Likeliness of replacement}
-This study is directly applicable to automatic software repair. Most common tools for automatic software repair \cite{dongsun}\cite{weimer}\cite{claire} first find a faulty statement using several different fault localization techniques \cite{zach}, and once they have that faulty statement, they apply different kinds of edits to it, usually at random. Which makes it equally likely to replace an statement for another without looking at the kinds of statements being replaced.
-
-With this study, we are able to make a more accurate guess, when having a known faulty statement, to which statement it is more likely to replace it for. By performing simple math with the data of Table 1, we can find the most likely replacements that will end up being a successful patch. 
-
-For example, if we have a faulty statement that happens to be a For Statement. Then we can look up in Table 1 the For Statement Column (6th column). If we add all the values in that column, we get 59,870 changes in which a For Statement was replaced by some other kind of statement. Then we calculate the percentage of each of the values in the column to see the likeliness of each of the statements to replace it for, and in this example we see that the top 3 most likely statements to replace a For Statement are an If statement with a 22.88\% likeliness, followed by a return statement with a 21.08\%, and third is a While statement with a 13.73\% of likeliness to replace a For Statement.
-
-
-\subsubsection{Most common replacements}
-Our results show that the most common replacement is when developers replace a Return statement for an If statement. This showed up in 30,489 files in the code database. The second most common replacement is an If statement being replaced by a Return statement, which had 28,536 appearances in the code database. Third to that, is a Return statement being replaced by a Throw statement.
-
-\includegraphics[scale=0.5]{g1.png}
-
-\subsubsection{Least common replacements}
-On the opposite side of the data, we can see that the least common replacement was an Assert statement replacing a Type Declaration statement. This was the only replacement to have zero appearances in our search through the 46,301,429 files being fixed. Close to it, as the second least common replacement was replacing a Do statement for a Type Declaration statement, with one appearance in our code database, and on third place, the replacement of a Label being replaced by a Type Declaration Statement had one appearance in our code database.
-
-\includegraphics[scale=0.5]{g2.png}
-
-\section{Related Work}
-A similar study was performed by Dongsun Kim et al. \cite{dongsun} in which they look for the most common ways in which programmers patch bugs in software. The researchers developed a variation of the tool Genprog \cite{weimer}\cite{claire} with several different templates resembling patters programmers use to patch bugs. 
-
-A good complement for this paper is \cite{hao}, where they search additions and deletions in a smaller data set. In this paper, we focus on the replacements, which have been left out of the analysis of \cite{hao}. 
-
-
-
-\section{Conclusions}
-The findings of our study provide a set of useful guidelines for automatic program repair tools with which their search for a patch can be now improved by having the knowledge of how likely it is to replace a faulty statement by the different kinds of statements available.
-
-
-%\end{document}  % This is where a 'short' article might terminate
-
-
-%
-% The following two commands are all you need in the
-% initial runs of your .tex file to
-% produce the bibliography for the citations in your paper.
-\bibliographystyle{abbrv}
-\bibliography{sigproc}  % sigproc.bib is the name of the Bibliography in this case
-% You must have a proper ".bib" file
-%  and remember to run:
-% latex bibtex latex latex
-% to resolve all references
-%
-% ACM needs 'a single self-contained file'!
-%
-%APPENDICES are optional
-%\balancecolumns
 
 
 \section{Results}
+
+\todo{What is the dataset?}
 
 This section investigates how do developer fix bugs from three different
 perspectives. To begin with, we show some characteristics of real-world bug
@@ -649,6 +636,94 @@ the state of the class when fixing Java programs.
   \caption{File Types of Changed Files}
   \label{tbl:new}
 \end{table}
+
+\todo{Is there room/call to include any element of Chu Pan's replacement
+  analysis in here?}
+
+\subsection{Data Analysis}
+Our queries were ran on the dump of Github of September 2015. In these real life
+projects we found 46,301,429 files being fixed. In these files, there is a total
+of 517,281 statement kinds being replaced, and 511,198 replacing these
+statements kinds.
+
+We analyzed each of these files looking for statement kinds being either replaced by other kinds, deleted or appended to the file.
+
+We found that the most common Replacer statement kind, meaning the statement
+kind that most commonly replaces others is the \textbf{If Statement} with
+101,366 appearances. The least common Replacer, meaning the statement kind which
+is less likely to replace other statement kinds is the \textbf{Type Declaration
+  Statement} with 447 appearances.
+
+The most common Replacee, which is the most likely statement kind to be replaced
+by another statement kind is the \textbf{Return Statement} with 111,938
+appearances. The least common Replacee, which is the least common statement to
+be replaced by another statement kind is the \textbf{Type Declaration Statement}
+with 399 appearances.
+
+\subsubsection{Likeliness of replacement}
+This study is directly applicable to automatic software repair. Most common
+tools for automatic software repair \cite{dongsun}\cite{weimer}\cite{claire}
+first find a faulty statement using several different fault localization
+techniques \cite{zach}, and once they have that faulty statement, they apply
+different kinds of edits to it, usually at random. Which makes it equally likely
+to replace an statement for another without looking at the kinds of statements
+being replaced.
+
+With this study, we are able to make a more accurate guess, when having a known faulty statement, to which statement it is more likely to replace it for. By performing simple math with the data of Table 1, we can find the most likely replacements that will end up being a successful patch. 
+
+For example, if we have a faulty statement that happens to be a For Statement. Then we can look up in Table 1 the For Statement Column (6th column). If we add all the values in that column, we get 59,870 changes in which a For Statement was replaced by some other kind of statement. Then we calculate the percentage of each of the values in the column to see the likeliness of each of the statements to replace it for, and in this example we see that the top 3 most likely statements to replace a For Statement are an If statement with a 22.88\% likeliness, followed by a return statement with a 21.08\%, and third is a While statement with a 13.73\% of likeliness to replace a For Statement.
+
+
+\subsubsection{Most common replacements}
+Our results show that the most common replacement is when developers replace a Return statement for an If statement. This showed up in 30,489 files in the code database. The second most common replacement is an If statement being replaced by a Return statement, which had 28,536 appearances in the code database. Third to that, is a Return statement being replaced by a Throw statement.
+
+\includegraphics[scale=0.5]{g1.png}
+
+\subsubsection{Least common replacements}
+On the opposite side of the data, we can see that the least common replacement was an Assert statement replacing a Type Declaration statement. This was the only replacement to have zero appearances in our search through the 46,301,429 files being fixed. Close to it, as the second least common replacement was replacing a Do statement for a Type Declaration statement, with one appearance in our code database, and on third place, the replacement of a Label being replaced by a Type Declaration Statement had one appearance in our code database.
+
+\includegraphics[scale=0.5]{g2.png}
+
+
+\section{Related Work}
+A similar study was performed by Dongsun Kim et al. \cite{dongsun} in which they
+look for the most common ways in which programmers patch bugs in software. The
+researchers developed a variation of the tool Genprog \cite{weimer}\cite{claire}
+with several different templates resembling patters programmers use to patch
+bugs.
+
+A good complement for this paper is \cite{hao}, where they search additions and
+deletions in a smaller data set. In this paper, we focus on the replacements,
+which have been left out of the analysis of \cite{hao}.
+
+
+
+\section{Conclusions}
+The findings of our study provide a set of useful guidelines for automatic
+program repair tools with which their search for a patch can be now improved by
+having the knowledge of how likely it is to replace a faulty statement by the
+different kinds of statements available.
+\todo{Expand to include summary of actual conclusions}
+
+
+%\end{document}  % This is where a 'short' article might terminate
+
+
+%
+% The following two commands are all you need in the
+% initial runs of your .tex file to
+% produce the bibliography for the citations in your paper.
+\bibliographystyle{abbrv}
+\bibliography{sigproc}  % sigproc.bib is the name of the Bibliography in this case
+% You must have a proper ".bib" file
+%  and remember to run:
+% latex bibtex latex latex
+% to resolve all references
+%
+% ACM needs 'a single self-contained file'!
+%
+%APPENDICES are optional
+%\balancecolumns
 
 
 

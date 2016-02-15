@@ -392,6 +392,136 @@ The findings of our study provide a set of useful guidelines for automatic progr
 %\balancecolumns
 
 
+\section{Results}
+
+This section investigates how do developer fix bugs from three different
+perspectives. To begin with, we show some characteristics of real-world bug
+fixes.  Afterwards, we look deeper to find out what kinds of statements are
+usually added, modified or deleted by human developers to fix bugs. Lastly, we
+show how common PAR's fixing templates are in our dataset. 
+
+\subsection{Characteristics}
+
+This subsection shows a bird's-eye view of real-world bug fixes at
+ultra-large-scale. We did our analysis on the \emph{2015 September/Github}
+dataset on Boa. This dataset includes $7,830,023$ Java projects with
+$23,229,406$ revisions. Among all the revisions, $4,590,679$ revisions are
+identified by Boa as bug fixing revisions. Our analysis in this subsection
+focuses on these bug fixing revisions. We hope that this population
+is big enough to reflect the bug fixing practice.
+
+To begin with, we are interested in:
+
+\begin{quote}
+	How many files are changed to fix a bug?
+\end{quote}
+
+To answer this question, we identified all the bug fixing revisions in our
+dataset and count the number of changed files. In total, $52,052,571$ files got
+changed. Thus, on average each bug fixing revision changes 11.3 files.  This
+number is surprisingly high because most automatic program repair techniques
+assume that bugs are local in most cases. There could be several reasons behind
+this number. It could be the case that other software artifacts (e.g.
+documentation) are updated after bug fixing. It could also be the case that bug
+fixing commit also contains changes that are not related to fixing bug (e.g. new
+features, refactoring). To better understand why so many files are changed, we
+continue to ask:
+
+\begin{quote}
+	What are the file types of those changed files?
+\end{quote}
+
+In Boa, each changed file is represented by a \emph{ChangedFile} node, and it
+has a field called \emph{FileKind}, describing the type of each file.
+Table~\ref{tbl:fileType} shows the file types that Boa could identify. To answer
+this question, we iterate all the changed files in each bug fixing revision and
+count the total number for each file type. Results are shown in
+Table~\ref{tbl:fileType}.
+
+\begin{table}
+\centering
+  \begin{tabular}{| c | r | r |}
+  \hline
+  File Kind & Total Number & Average \\ \hline \hline
+  BINARY & 752,945 & 0.16 \\ \hline
+  SOURCE\_JAVA\_ERROR & 2,073,558 & 0.45 \\ \hline
+  SOURCE\_JAVA\_JLS2 & 2,607,413 & 0.57 \\ \hline
+  SOURCE\_JAVA\_JLS3 & 15,748,967 & 3.43 \\ \hline
+  SOURCE\_JAVA\_JLS4 & 83,798 & 0.02 \\ \hline
+  TEXT & 541,023 & 0.12 \\ \hline
+  XML & 6,818,299 & 1.49 \\ \hline
+  UNKNOWN & 23426568 & 5.10 \\ \hline
+  \end{tabular}
+  \caption{File Types of Changed Files}
+  \label{tbl:fileType}
+\end{table}
+
+\emph{SOURCE\_JAVA\_ERROR} file kind represents files that Boa failed to parse.
+\emph{JLS2} refers to Java files that are written in all versions of Java
+languages up to and including J2SE 1.4. \emph{JLS3} refers to J2SE 1.5, and JLS4
+refers to J2SE 1.6 and 1.7. Boa documentation does not explicitly explain what
+is \emph{TEXT} and what is \emph{UNKNOWN}. Our assumption is that \emph{TEXT}
+refers to files whose file name ends with ``.txt'', and \emph{UNKNOWN} refers to
+all other kinds of files (e.g. .c file, .cpp files).
+
+From Table~\ref{tbl:fileType}, we can see that \emph{TEXT} files and
+\emph{BINARY} files are changed least frequently. This is not surprising because
+\emph{TEXT} files are usually documentation files, and \emph{BINARY} files
+should only be changed in rare case (e.g.  milestone, new release, dependency
+update). If we consider all 4 kinds of Java files as one kind, then on average
+each bug fixing revision changes $4.47$ Java files. But still, it does not
+conform to our assumption of bug locality. \emph{XML} files in Java projects
+usually represents build files, thus changing one build file after each bug
+fixing is not surprising.  What surprises us is that \emph{UNKNOWN} files are
+changed most frequently. Note that all the projects in our dataset are Java
+projects, so it is reasonable to assume that these files are not source files
+that written in other programming languages.  One possible explanation is that
+they are test resources. However, due to the limitations of Boa, we can not look
+into the content of these \emph{UNKNOWN} files. 
+
+Since Boa does not distinguish Java files that related to functionality and Java
+files that related to testing, it could be the case that among those $4.47$
+changed Java files, some of them are related to testing, such as modifying the
+test cases and creating new test classes. To better understand what changes are
+usually made to Java source code files, we continue to ask:
+
+\begin{quote}
+	How often do developers introduce new classes, methods, fields, variables in
+	bug fixing commits?
+\end{quote}
+
+This research question is interesting because most automatic program repair
+approaches could not create new classes/methods/fields/variables to fix bugs.
+Most approaches guess and synthesize the patches based on existing source code.
+
+Table~\ref{tbl:new} shows our analysis results. This table shows that
+introducing new classes and new variables are rare. This is good news for
+automatic program repair approaches. On average, we still have $0.69$ new method
+per bug fix. If we consider the possibility of creating new test method (i.e.
+methods that annotated by @Test if JUnit is used), this number is not that
+scary. However, what surprises us is that $1.32$ fields are created per bug fix.
+This indicates that automatic program repair approaches should pay attention to
+the state of the class when fixing Java programs.
+
+\begin{table}
+\centering
+  \begin{tabular}{| c | r | r |}
+  \hline
+  Introducing & Total Number & Average \\ \hline \hline
+  Class & 729201 & 0.16 \\ \hline
+  Methods & 3186867 & 0.69 \\ \hline
+  Fields & 6076646 & 1.32 \\ \hline
+  Variables & 924259 & 0.2 \\ \hline
+  \end{tabular}
+  \caption{File Types of Changed Files}
+  \label{tbl:new}
+\end{table}
+
+
+
+
+
+
 \begin{thebibliography}{9}
 
 \bibitem{robert}

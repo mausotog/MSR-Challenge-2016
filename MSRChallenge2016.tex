@@ -640,6 +640,28 @@ the state of the class when fixing Java programs.
 \todo{Is there room/call to include any element of Chu Pan's replacement
   analysis in here?}
 
+\subsection{Frequency of PAR Bug Fixing Pattern}\label{sec:freqfixpattern}
+After running the bug pattern detection approach on Boa's dataset, I obtained the result shown in Table~\ref{tab:freqpattern}. The result shows that AMC, MSM, COM, CBC, IAO, ANC, and AOB pattern is found on 1.95\%, 1.69\%, 0.58\%, 4.23\%, 2.82\%, 2.90\%, and 0.28\% of buggy files. We can see that the most common pattern among these patterns is CBC and the least common pattern is AOB. If we assume that these patterns never appear together in the dataset, these patterns cover 14.21\% of buggy files. Kim et al. mentioned that the patterns that they use cover almost 30\% of real patches~\cite{dongsun}. Although we only detect 7 out of 10 bug fixing patterns, it is hard to believe that the remaining three patterns cover 15\% of buggy files, especially 14.21\% is a number we get when we assume that the patterns that we detect never appear together. Moreover, the percentage of each pattern is based on imprecise approximation which is likely to represent an upper bound rather than a lower bound. This suggests that common bug fixing patterns might not be as common as it appeared to be.
+
+\begin{table}[!htb]
+	\caption{Frequency of Bug Fixing Patterns}\label{tab:freqpattern}
+	\centering
+	\begin{tabular}{lr} 
+		\hline
+		& \textbf{GitHub}\\
+		\hline
+		\#Buggy Files & 46,301,429 \\ 
+		\#AMP Pattern & 901,083 \\
+		\#MSM Pattern & 783,073 \\
+		\#COM Pattern & 270,128 \\ 
+		\#CBC Pattern & 1,959,377 \\  
+		\#IAO Pattern & 1,308,006 \\  
+		\#ANC Pattern & 1,340,561 \\  
+		\#AOB Pattern & 128,016 \\  
+		\hline
+	\end{tabular}
+\end{table}
+
 \subsection{Data Analysis}
 Our queries were ran on the dump of Github of September 2015. In these real life
 projects we found 46,301,429 files being fixed. In these files, there is a total

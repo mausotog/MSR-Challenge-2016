@@ -160,7 +160,7 @@ Claire Le Goues\\
 David Lo\\
        \affaddr{University}\\
        \affaddr{City}\\
-       \email{clegoues@cs.cmu.edu}       
+       \email{author@edu}       
 }
 % There's nothing stopping you putting the seventh, eighth, etc.
 % author on the opening page (as the 'third row') but we ask,
@@ -233,20 +233,12 @@ We found very valuable information to guide automatic software repair, such as t
 \keywords{Automatic error repair; Maintainability; Human-like patches}
 
 \section{Introduction}
-\todo{High level todo, probably for Mau since I think it's his bibtex: please
-  change the bibtex keys to take the form ``lastnameYear'', and then fix the
-  citations.}
-\todo{Please move the bibitems included explicitly in this document into sigproc.bib
-   and use bibtex.}
-\todo{Also, please always include a non-breaking space (a tilde, look at the
-  latex for an example) between a word and the cite tag, and include multiple
-  references on a line in a single citation tag (again, look at the latex for an
-  example; I'll do this once, but would like you to fix the rest when appropriate.}
+
 Automatic bug repair is the branch of computer science that deals with automated
 ways to repair errors in software. There have been several approaches taken
 towards improving the different methodologies to repair bugs in software
-automatically \cite{dongsun,weimer,claire,kai}, one of the
-most accepted approaches so far has been GenProg \cite{weimer}\cite{claire}, an
+automatically~\cite{kim2013,weimer2009,legoues2012,pan2009}, one of the
+most accepted approaches so far has been GenProg~\cite{weimer2009,legoues2012}, an
 evolutionary program repair tool which applies four different kinds of possible
 edits to code in order to find a patch for a given bug. These changes are the
 following: Delete, Replace, Swap and Append.
@@ -260,11 +252,11 @@ following: Delete, Replace, Swap and Append.
   developers (cite PAR).}
 \todo{I also thought we were doing Par first, and then the replacement studies?}
 
-Another well known approach is PAR \cite{dongsun}, which creates 10 different
+Another well known approach is PAR~\cite{kim2013}, which creates 10 different
 repair templates and applies them to the buggy code in an effort to repair
 it. In this paper we have taken 7 out of the 10 PAR templates and tested how
 common they are in the repairs made by programmers in the latest official data
-dump of Github as of September 2015 provided by \cite{robert}.
+dump of Github as of September 2015 provided by~\cite{dyer2013}.
 
 Our research aims to provide guidelines to improve three out of four of these
 possible changes: Delete, Replace and Append. It will provide the data necessary
@@ -282,7 +274,7 @@ bug.
 
 \section{Methodology}
 Our methodology is applied to the latest official data dump of Github as of
-September 2015 provided by \cite{robert}. In the following subsections, we first
+September 2015 provided by~\cite{dyer2013}. In the following subsections, we first
 describe data source and objective of our study. We then describe how we detect
 bug fixing patterns in PAR to find out how common they are the dataset. Last but
 not least, we describe our approach to detect Delete, Replace, and Append
@@ -330,7 +322,7 @@ bug-fixing patterns.
 \end{table*}
 
 \subsection{Data Source and Research Objective}
-We used the Boa platform \cite{robert} to be able to query the Github repository
+We used the Boa platform~\cite{dyer2013} to be able to query the Github repository
 looking for patterns that humans use to patch errors in the their code. Our main
 goal is to provide guidelines for automatic error fixing approaches by providing
 necessary information regarding historical replace, delete and append statements
@@ -338,7 +330,7 @@ in human written patches.
 
 \subsection{Detecting PAR Bug Fixing Pattern}\label{sec:method}
 The bug fixing patterns that we analyze in this work are adopted from Kim et
-al. paper~\cite{dongsun}. The following is the description of each considered
+al. paper~\cite{kim2013}. The following is the description of each considered
 pattern. 
 \todo{Ferdian: why are we only studying 7?  It's OK to not study all of them,
   but we need to explain why.}
@@ -367,7 +359,7 @@ pattern.
 \end{enumerate}
 
 To analyze bug fixing patterns, we utilizes Boa's language
-infrastructure~\cite{robert}. It contains a large number of dataset and provide
+infrastructure~\cite{dyer2013}. It contains a large number of dataset and provide
 a domain specific language to perform analysis on source code. Despite this
 advantage, Boa still have limited capability that prevents us from performing
 precise detection of bug fixing patterns. For example, it is unable to perform a
@@ -431,7 +423,7 @@ following are descriptions on how we detect each pattern.
 
 \subsection{Replace Query}
 The replace query is a query in which first we set the project that we are going
-to use, which is the Github dump of September 2015 provided by \cite{robert}.
+to use, which is the Github dump of September 2015 provided by~\cite{dyer2013}.
 
 We then create a visitor to traverse all the nodes of this repository. First
 thing the visitor does is to ask weather the node is a Revision, and if it is,
@@ -641,7 +633,7 @@ the state of the class when fixing Java programs.
   analysis in here?}
 
 \subsection{Frequency of PAR Bug Fixing Pattern}\label{sec:freqfixpattern}
-After running the bug pattern detection approach on Boa's dataset, I obtained the result shown in Table~\ref{tab:freqpattern}. The result shows that AMC, MSM, COM, CBC, IAO, ANC, and AOB pattern is found on 1.95\%, 1.69\%, 0.58\%, 4.23\%, 2.82\%, 2.90\%, and 0.28\% of buggy files. We can see that the most common pattern among these patterns is CBC and the least common pattern is AOB. If we assume that these patterns never appear together in the dataset, these patterns cover 14.21\% of buggy files. Kim et al. mentioned that the patterns that they use cover almost 30\% of real patches~\cite{dongsun}. Although we only detect 7 out of 10 bug fixing patterns, it is hard to believe that the remaining three patterns cover 15\% of buggy files, especially 14.21\% is a number we get when we assume that the patterns that we detect never appear together. Moreover, the percentage of each pattern is based on imprecise approximation which is likely to represent an upper bound rather than a lower bound. This suggests that common bug fixing patterns might not be as common as it appeared to be.
+After running the bug pattern detection approach on Boa's dataset, I obtained the result shown in Table~\ref{tab:freqpattern}. The result shows that AMC, MSM, COM, CBC, IAO, ANC, and AOB pattern is found on 1.95\%, 1.69\%, 0.58\%, 4.23\%, 2.82\%, 2.90\%, and 0.28\% of buggy files. We can see that the most common pattern among these patterns is CBC and the least common pattern is AOB. If we assume that these patterns never appear together in the dataset, these patterns cover 14.21\% of buggy files. Kim et al. mentioned that the patterns that they use cover almost 30\% of real patches~\cite{kim2013}. Although we only detect 7 out of 10 bug fixing patterns, it is hard to believe that the remaining three patterns cover 15\% of buggy files, especially 14.21\% is a number we get when we assume that the patterns that we detect never appear together. Moreover, the percentage of each pattern is based on imprecise approximation which is likely to represent an upper bound rather than a lower bound. This suggests that common bug fixing patterns might not be as common as it appeared to be.
 
 \begin{table}[!htb]
 	\caption{Frequency of Bug Fixing Patterns}\label{tab:freqpattern}
@@ -684,9 +676,9 @@ with 399 appearances.
 
 \subsubsection{Likeliness of replacement}
 This study is directly applicable to automatic software repair. Most common
-tools for automatic software repair \cite{dongsun}\cite{weimer}\cite{claire}
+tools for automatic software repair~\cite{kim2013,weimer2009,legoues2012}
 first find a faulty statement using several different fault localization
-techniques \cite{zach}, and once they have that faulty statement, they apply
+techniques~\cite{fry2010}, and once they have that faulty statement, they apply
 different kinds of edits to it, usually at random. Which makes it equally likely
 to replace an statement for another without looking at the kinds of statements
 being replaced.
@@ -708,15 +700,15 @@ On the opposite side of the data, we can see that the least common replacement w
 
 
 \section{Related Work}
-A similar study was performed by Dongsun Kim et al. \cite{dongsun} in which they
+A similar study was performed by Dongsun Kim et al.~\cite{kim2013} in which they
 look for the most common ways in which programmers patch bugs in software. The
-researchers developed a variation of the tool Genprog \cite{weimer}\cite{claire}
+researchers developed a variation of the tool Genprog~\cite{weimer2009,legoues2012}
 with several different templates resembling patters programmers use to patch
 bugs.
 
-A good complement for this paper is \cite{hao}, where they search additions and
+A good complement for this paper is~\cite{zhong2015}, where they search additions and
 deletions in a smaller data set. In this paper, we focus on the replacements,
-which have been left out of the analysis of \cite{hao}.
+which have been left out of the analysis of~\cite{zhong2015}.
 
 
 
@@ -747,53 +739,6 @@ different kinds of statements available.
 %APPENDICES are optional
 %\balancecolumns
 
-
-
-
-
-
-\begin{thebibliography}{9}
-
-\bibitem{robert}
-  Robert Dyer et al.,
-  \emph{Boa: A Language and Infrastructure for Analyzing Ultra-Large-Scale Software Repositories},
-35th International Conference on Software Engineering; ICSE 2013, San Francisco CA, USA
-
-\bibitem{hao}
-Hao Zhong, Zhendong Su
-\emph{An Empirical Study on Real Bug Fixes},
-In Proceedings of ICSE 2015, Firenze, Italy, May 16-24, 2015.
-
-\bibitem{kai}
-Kai Pan et al.
-\emph{Towards an understanding of bug fix patterns},
-Journal
-Empirical Software Engineering
-Volume 14 Issue 3, June 2009 
-Pages 286 - 315 
-
-\bibitem{dongsun}
-Dongsun Kim et al.
-\emph{Automatic patch generation learned from human-written patches},
-Proceeding
-ICSE '13 Proceedings of the 2013 International Conference on Software Engineering
-
-\bibitem{zach}
-Zachary P.Fry and Westley Weimer
-\emph{A human study of fault localization accuracy},
-ICSM '10 Proceedings of the 2010 IEEE International Conference on Software Maintenance
-
-\bibitem{claire}
-Claire Le Goues, ThanhVu Nguyen, Stephanie Forrest, Westley Weimer
-\emph{GenProg: A Generic Method for Automated Software Repair.} 
-IEEE Trans. Software Engineering 38(1): 54-72 (January/February 2012) 
-
-\bibitem{weimer}
-Westley Weimer, ThanVu Nguyen, Claire Le Goues, Stephanie Forrest
-\emph{Automatically Finding Patches Using Genetic Programming.}
-International Conference on Software Engineering (ICSE) 2009: 364-374
-
-\end{thebibliography}
 
 %\balancecolumns % GM June 2007
 % That's all folks!

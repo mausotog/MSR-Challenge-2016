@@ -238,7 +238,7 @@ Automatic bug repair is the branch of computer science that deals with automated
 ways to repair errors in software. There have been several approaches taken
 towards improving the different methodologies to repair bugs in software
 automatically~\cite{kim2013,weimer2009,legoues2012,pan2009}. A well known approach is PAR~\cite{kim2013}, which creates 10 different repair templates and applies them to the buggy code in an effort to repair
-it. In this paper we have taken 7 out of the 10 PAR templates and tested how
+it. In this paper we have taken 8 out of the 10 PAR templates and tested how
 common they are in the repairs made by programmers in the latest official data
 dump of Github as of September 2015 provided by~\cite{dyer2013}.
 
@@ -306,7 +306,7 @@ pattern.
 	{\bf Description:} This pattern inserts a condition to check that a collection index is within bound before it is used.
 \end{enumerate}
 
-The above patterns only cover 8 \todo{inconsistent with intro} out of 10 bug fixing patterns in PAR. The other two patterns are: (1) checking that an object is an instance of a target class before casting it; and (2) replacing expression in an if condition by another expression in the same scope. Pattern (1) cannot be analyzed because Boa does not support {\em instanceof} expression. Similarly, pattern (2) requires us to track scope between pre-fix and post-fix version, which is not supported by Boa. Implementing them ourselves might be possible, but it might require too much effort than necessary. Investigating 8 out of 10 patterns should give us a good idea on how common the patterns actually are.
+The above patterns only cover 8 out of 10 bug fixing patterns in PAR. The other two patterns are: (1) checking that an object is an instance of a target class before casting it; and (2) replacing expression in an if condition by another expression in the same scope. Pattern (1) cannot be analyzed because Boa does not support {\em instanceof} expression. Similarly, pattern (2) requires us to track scope between pre-fix and post-fix version, which is not supported by Boa. Implementing them ourselves might be possible, but it might require too much effort than necessary. Investigating 8 out of 10 patterns should give us a good idea on how common the patterns actually are.
 
 As mentioned before, we analyze bug fixing patterns by utilizing Boa's language
 infrastructure~\cite{dyer2013}. It contains a large number of dataset and provide
@@ -382,7 +382,7 @@ version, we consider that COB pattern is found.
 	\centering
 	\resizebox{\textwidth}{100pt}{
 		\begin{tabular}{|l|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|} \hline
-			&Assert&Break&Continue&Do& For&If&Label&Return&Case&Switch& Synchronized&Throw&Try&TypeDecl&While
+			&Assert&Break&Continue&Do& For&If&Label&Return&Case&Switch& Synch&Throw&Try&TypeDecl&While
 			\\ \hline
 			
 \texttt{Assert}	&-&7.48&3.76&0.53&8.30&23.05&0.31&20.04&4.90&4.62&1.30&13.50&7.23&0.03&4.95
@@ -405,7 +405,7 @@ version, we consider that COB pattern is found.
 \\ \hline
 \texttt{Switch}&1.14&2.72&3.80&0.55&11.07&34.14&0.13&21.86&0.75&-&1.53&8.65&9.02&0.05&4.58
 \\ \hline
-\texttt{Synchronized} &0.80&6.57&2.28&0.43&10.21&24.18&0.05&19.77&6.35&2.07&-&9.16&12.16&0.04&5.93
+\texttt{Synch} &0.80&6.57&2.28&0.43&10.21&24.18&0.05&19.77&6.35&2.07&-&9.16&12.16&0.04&5.93
 \\ \hline
 \texttt{Throw} &2.11&6.57&2.58&0.48&11.87&18.84&0.17&32.28&4.64&3.30&2.74&-&10.08&0.07&4.27
 \\ \hline
@@ -460,11 +460,10 @@ It is important to notice  that this analysis doesn't consider replacing an stat
 This section shows our analysis results. To begin with, we discuss the dataset
 we are using, and some characteristics of real-world bug fixes. Afterwards, we
 provide insights for two main categories of automatic program repair approaches.
-On the one hand, many approaches \todo{citation} rely on mutation operators to
-modify the source code, but we have limited knowledge about what kinds of
+On the one hand, some approaches rely on mutation operators to
+modify the source code~\cite{legoues2012,weimer2009}, but we have limited knowledge about what kinds of
 statements are usually modified. Our analysis results will fill in this
-knowledge gap. On the other hand, some automatic program repair approaches
-\todo{citation} search for specific patterns and modify source code according to
+knowledge gap. On the other hand, some automatic program repair approaches~\cite{kim2013} search for specific patterns and modify source code according to
 predefined templates. Our results provide evidence of how common those
 patterns are in practice.
 

@@ -177,11 +177,11 @@ David Lo\\
 \maketitle
 \begin{abstract}
 
-With the rise of automated program repair in the last couple of years, there are a lot of questions to remain unanswered. We performed a study on the Github dump of September 2015 in which we analyzed all the fixing revisions of this dataset, and found all the replacements made in these 46,301,429 files from real life projects in Github.
+With the rise of automated program repair in the last couple of years, there are a lot of questions to remain unanswered. We performed a study on the Github dump of September 2015 in which we analyzed all the fixing revisions of this dataset, and found all the replacements, additions and deletions made to these files from real life projects in Github.
 
+We found valuable information to guide automatic software repair, such as the most common and least common replacements made by human developers in order to build a successful patch; we also analyzed what are the most likely statements to replace others. 
 
-
-We found very valuable information to guide automatic software repair, such as the most common and least common replacements made by human developers in order to build a successful patch; we analyzed the most and least common statement to replace others, and the most and least likely statement to get replaced by other. We also analyzed, once you have a statement that you want to replace (a faulty statement), what are the most likely statements to replace it for. These information will help automatic program repair tools to be more maintainable and user friendly, taking it one step closer to what humans developers do to repair their code.
+This information will help automatic program repair tools to be more likely to find a patch and also to be more maintainable and user friendly, taking it one step closer to what humans developers do to repair their code.
 
 
 \end{abstract}
@@ -247,16 +247,16 @@ finding a patch for a particular error, and also, to provide automatic error
 repair software with guidelines to make the patches more human-like and
 therefore more readable and maintainable by human developers, as studied empirically by~\cite{kim2013}.
 
-
-\section{Related Work}
 We take as reference the study performed by Dongsun Kim et al.~\cite{kim2013} in which they look for the most common ways in which programmers patch bugs in software. The
 researchers developed a variation of the tool Genprog~\cite{weimer2009,legoues2012}
 with several different templates resembling patterns programmers use to patch
 bugs, and then performed an empirical study to evaluate which patches do human programmers prefer.
 
-A good complement for this paper is~\cite{zhong2015}, where they search additions and
-deletions in a smaller data set. In this paper, we focus on the replacements,
-which have been left out of the analysis of~\cite{zhong2015}.
+Since automatic program repair has been well studied in the programming language C. We are now focusing on the programming language Java, and analyzing the behavior of programmers in this particular language.
+
+A good complement for this paper is~\cite{zhong2015}, where they look for additions and
+deletions in a smaller data set. In this paper, we focus more on the replacements,
+which have been left out of the analysis of~\cite{zhong2015}, and expand their results of the deletions and additions in a broader dataset~\cite{dyer2013}.
 
 \section{Methodology}
 Our methodology is applied to the latest official data dump of Github as of
@@ -381,42 +381,43 @@ version, we consider that COB pattern is found.
 \begin{table*}
 	\centering
 	\resizebox{\textwidth}{100pt}{
-		\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|} \hline
+		\begin{tabular}{|l|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|} \hline
 			&Assert&Break&Continue&Do& For&If&Label&Return&Case&Switch& Synchronized&Throw&Try&TypeDecl&While
 			\\ \hline
-			\texttt{Assert}	&-&340&	232	&27	&517	&1764&	14&	1260	&211	&191&	82&	1004	&352	&0	&206
-			\\ \hline
-			\texttt{Break} &455	&-&	1254&	176	&3757	&9096&	90&	10538&	771	&455&	672	&3123&	3660&	18&	2278
-			\\ \hline
-			\texttt{Continue} & 229	&1384	&-&	221	&1909	&3094&	85&	3486	&772&	635	&233&	1227&	1493&	30&	1086
-			\\   \hline
-			\texttt{Do} &32	&205&	171	&-&	474	&648	&12&	543	&106	&92&	44	&227	&325&	4&	558
-			\\ \hline
-			\texttt{For} &505	&3366	&1516	&316	&-&	14547	&56	&14924	&2791	&1852	&1044&	5642&	5796	&41	&6582
-			\\ \hline
-			\texttt{If}& 1402&	8820&	2430&	476	&13703&-&		247	&30489	&8639	&5710	&2472&	8960&	13714&	84&	5622
-			\\ \hline
-			\texttt{Label} &19&	44	&46	&6&	56	&255	&-&	270	&44	&22	&5	&80&	53&	2	&33
-			\\ \hline
-			\texttt{Return} &1219&	8603	&3009	&531	&12620	&28536&	164	&-&	6088&	3657&	2021&	15346&	11486&	71	&4684
-			\\ \hline
-			\texttt{Case} &298	&839&	506	&125&	3002&	8039&	33&	6261	&-&	126	&649&	2206&	2784&	24&	1864
-			\\ \hline
-			\texttt{Switch}&281	&533&	379	&56	&1997	&5175&	22	&4090&	126	&-&	212	&1571	&1311	&7&	878
-			\\ \hline
-			\texttt{Synchronized} &79&	606&	289&	66	&1122&	3070&	158&	2853	&562&	256	&-&	1303&	1274&	8	&466
-			\\ \hline
-			\texttt{Throw} &821&	2844&	1195	&197&	5993	&10664&	113&	16688&	2002	&1446&	936		&-&4443&	37&	1934
-			\\ \hline
-			\texttt{Try}& 440&	3976&	1254&	214	&6414&	16294&	45	&14119	&3178	&1509	&1243&	4795	&-&	46&	2218
-			\\ \hline
-			\texttt{TypeDecl} &2&	35&	15	&1&	49	&83&	1&	137	&21&	9&	4&	35&	46	&-&	11
-			\\ \hline
-			\texttt{While}& 301&	2295&	1016&	937	&8257&	6587&	41	&6280&	1866&	766	&606&	2028&	2677&	27	&-
+			
+\texttt{Assert}	&-&7.48&3.76&0.53&8.30&23.05&0.31&20.04&4.90&4.62&1.30&13.50&7.23&0.03&4.95
+\\ \hline
+\texttt{Break} &1.00&-&4.08&0.60&9.93&26.03&0.13&25.39&2.48&1.57&1.79&8.39&11.73&0.10&6.77
+\\ \hline
+\texttt{Continue} &1.74&9.42&-&1.28&11.39&18.25&0.35&22.60&3.80&2.85&2.17&8.98&9.42&0.11&7.63
+\\   \hline
+\texttt{Do} &0.81&5.26&6.60&0.00&9.44&14.21&0.18&15.86&3.73&1.67&1.97&5.88&6.39&0.03&27.98
+\\ \hline
+\texttt{For} &0.86&6.28&3.19&0.79&-&22.89&0.09&21.08&5.01&3.34&1.87&10.01&10.71&0.08&13.79
+\\ \hline
+\texttt{If}&1.64&8.43&2.87&0.60&13.49&-&0.24&26.46&7.45&4.80&2.85&9.89&15.11&0.08&6.11
+\\ \hline
+\texttt{Label} &1.30&8.33&7.86&1.11&5.18&22.85&-&15.17&3.05&2.04&14.62&10.45&4.16&0.09&3.79
+\\ \hline
+\texttt{Return} &1.13&9.41&3.11&0.49&13.33&27.24&0.24&-&5.59&3.65&2.55&14.91&12.61&0.12&5.61
+\\ \hline
+\texttt{Case} &0.78&2.84&2.84&0.39&10.27&31.79&0.16&22.40&-&0.46&2.07&7.37&11.69&0.08&6.87
+\\ \hline
+\texttt{Switch}&1.14&2.72&3.80&0.55&11.07&34.14&0.13&21.86&0.75&-&1.53&8.65&9.02&0.05&4.58
+\\ \hline
+\texttt{Synchronized} &0.80&6.57&2.28&0.43&10.21&24.18&0.05&19.77&6.35&2.07&-&9.16&12.16&0.04&5.93
+\\ \hline
+\texttt{Throw} &2.11&6.57&2.58&0.48&11.87&18.84&0.17&32.28&4.64&3.30&2.74&-&10.08&0.07&4.27
+\\ \hline
+\texttt{Try}&0.71&7.41&3.02&0.66&11.73&27.75&0.11&23.24&5.63&2.65&2.58&8.99&-&0.09&5.42
+\\ \hline
+\texttt{TypeDecl} &0.00&4.51&7.52&1.00&10.28&21.05&0.50&17.79&6.02&1.75&2.01&9.27&11.53&-&6.77
+\\ \hline
+\texttt{While}& 0.72&8.02&3.82&1.96&23.16&19.78&0.12&16.48&6.56&3.09&1.64&6.81&7.80&0.04&-
 			\\ \hline
 		\end{tabular}
 		}
-		\caption{Amount of appearances per replace kind}
+		\caption{Likelyness to replace the statement in the first column for the statement in the top row, in Java}
 \end{table*}
 
 
@@ -443,8 +444,7 @@ occurrences of the second statement decreased on the same file, we say that the
 second statement was replaced by the first statement in that file. We count the
 amount of files in which this happens for each of these two cases.
 
-\todo{Note to self (Mau): Change this paragraph to explain the table depending on how it is presented}
-The numbers in the slots represent the amount of files in which that replacement took place. In the first column we have the list of statements that are being replaced, and on the top row we have the list of statements for which that statement was replaced for. For example, if we take the intersection of row 5 (DoStatement row) and column 2 (AsserStatement column), we have a 32, which means that from the 46,301,429 files categorized by Boa as fixing revisions in Github in the month of September 2015, only 32 of them replaced a DoStatement for an AssertStatement.
+The numbers in the slots of Table 1, represent the percentage rate at which the elements of the leftmost column were replaced by the elements of the top row. In the first column we have the list of statements that are being replaced (faulty statements that were removed), and on the top row we have the list of statements for which that statement was replaced for (the new statement put instead). For example, if we take the intersection of row 5 (DoStatement row) and column 2 (AsserStatement column) of the data, we have a 0.81, which means that if we take all the instances in which a Do statement was replaced by something else, the amount of times that it was replaced by an Assert statement, represent a 0.81% of the times.
 
 It is important to notice  that this analysis doesn't consider replacing an statement kind for a different version of the same statement kind, since it is counting the amount of appearances of each statement kind. So, if for example, the developer modifies the condition inside of an if statement, the amount of if statements in the file will remain the same.
 
@@ -650,24 +650,15 @@ different kinds of edits to it, usually at random. Which makes it equally likely
 to replace an statement for another without looking at the kinds of statements
 being replaced.
 
-\todo{Note to self (Mau): Change this depending on the table}
-With this study, we are able to make a more accurate guess, when having a known faulty statement, to which statement it is more likely to replace it for. By performing simple math with the data of Table 1, we can find the most likely replacements that will end up being a successful patch. 
+With this study, we are able to make a more accurate guess, when having a known faulty statement, to which statement it is more likely to replace it for. By taking a look at the data of Table 1, we can find the most likely replacements that will end up being a successful patch. 
 
-For example, if we have a faulty statement that happens to be a For Statement. Then we can look up in Table 1 the For Statement Column (6th column). If we add all the values in that column, we get 59,870 changes in which a For Statement was replaced by some other kind of statement. Then we calculate the percentage of each of the values in the column to see the likeliness of each of the statements to replace it for, and in this example we see that the top 3 most likely statements to replace a For Statement are an If statement with a 22.88\% likeliness, followed by a return statement with a 21.08\%, and third is a While statement with a 13.73\% of likeliness to replace a For Statement.
-
+For example, if we are fixing a Java program, and we have a faulty statement that happens to be a For Statement. Then we can look up in Table 1 the For Statement Row (6th row), and take a look at the probability of that statement to be replaced by other kinds of statement. In this example we see that the top 3 most likely statements to replace a For Statement are an If statement with a 22.89\% likeliness, followed by a return statement with a 21.08\%, and third is a While statement with a 13.79\% of likeliness to replace a For Statement. This way we know that it is more likely for a programmer to replace a For Statement for those three different kinds of statements and this provides guidelines to the automatic bug repair approaches to consider this on their effort to find a patch.
 
 \subsubsection{Most common replacements}
-Our results show that the most common replacement is when developers replace a Return statement for an If statement. This showed up in 30,489 files in the code database. The second most common replacement is an If statement being replaced by a Return statement, which had 28,536 appearances in the code database. Third to that, is a Return statement being replaced by a Throw statement.
-
-
-
+Our results show that the most common replacement is when developers remove a Return statement and insert an If statement. This showed up in 30,489 files in the code database. The second most common replacement is removing an If statement and insert a Return statement instead, which had 28,536 appearances in the code database. Third to that, is to remove a Return statement and insert a Throw statement.
 
 \subsubsection{Least common replacements}
-On the opposite side of the data, we can see that the least common replacement was an Assert statement replacing a Type Declaration statement. This was the only replacement to have zero appearances in our search through the 46,301,429 files being fixed. Close to it, as the second least common replacement was replacing a Do statement for a Type Declaration statement, with one appearance in our code database, and on third place, the replacement of a Label being replaced by a Type Declaration Statement had one appearance in our code database.
-
-
-
-
+On the opposite side of the data, we can see that the least common replacement was an Assert statement replacing a Type Declaration statement. This was the only replacement to have zero appearances in our search through the 46,301,429 files being fixed. Close to it, as the second least common replacement was removing a Do statement and insert a Type Declaration statement, with one appearance in our code database, and on third place, removing a Label and insert a Type Declaration Statement had one appearance in our code database.
 
 \subsection{How common are the fixing templates of PAR?}\label{sec:freqfixpattern}
 After running the bug pattern detection approach on Boa's dataset, I obtained the result shown in Table~\ref{tab:freqpattern}. The result shows that AMC, MSM, COM, CBC, IAO, ANC, AOB, and COB pattern is found on 1.95\%, 1.69\%, 0.58\%, 4.23\%, 2.82\%, 2.90\%, 0.28\%, and 0.57\% of buggy files. We can see that the most common pattern among these patterns is CBC and the least common pattern is AOB. If we assume that these patterns never appear together in the dataset, these patterns cover 14.78\% of buggy files. Kim et al. mentioned that the patterns that they use cover almost 30\% of real patches~\cite{kim2013}. Although we only detect 8 out of 10 bug fixing patterns, it is hard to believe that the remaining two patterns cover 15\% of buggy files, especially 14.78\% is a number we get when we assume that the patterns that we detect never appear together. Moreover, the percentage of each pattern is based on imprecise approximation which is likely to represent an upper bound rather than a lower bound. This suggests that common bug fixing patterns might not be as common as it appeared to be.
@@ -724,7 +715,6 @@ different kinds of statements available.
 %\end{document}  % This is where a 'short' article might terminate
 
 
-\todo{Fix the BibTeX}
 
 \bibliographystyle{abbrv}
 \bibliography{sigproc}  % sigproc.bib is the name of the Bibliography in this case

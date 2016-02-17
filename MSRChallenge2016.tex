@@ -88,7 +88,7 @@
 %\crdata{0-12345-67-8/90/01}  % Allows default copyright data (0-89791-88-6/97/05) to be over-ridden - IF NEED BE.
 % --- End of Author Metadata ---
 
-\title{A deeper look into bug fixes: patterns, replacements, deletions, and additions}
+\title{A deeper look into bug fixes: Patterns, replacements, deletions, and additions}
 
 %
 % You need the command \numberofauthors to handle the 'placement
@@ -659,22 +659,11 @@ For example, if we have a faulty statement that happens to be a For Statement. T
 \subsubsection{Most common replacements}
 Our results show that the most common replacement is when developers replace a Return statement for an If statement. This showed up in 30,489 files in the code database. The second most common replacement is an If statement being replaced by a Return statement, which had 28,536 appearances in the code database. Third to that, is a Return statement being replaced by a Throw statement.
 
-\begin{figure}[!t]
-  \centering
-      \includegraphics[scale=0.5]{g1.png}
-  \caption{Most common replacements}
-\end{figure}
 
 
 
 \subsubsection{Least common replacements}
 On the opposite side of the data, we can see that the least common replacement was an Assert statement replacing a Type Declaration statement. This was the only replacement to have zero appearances in our search through the 46,301,429 files being fixed. Close to it, as the second least common replacement was replacing a Do statement for a Type Declaration statement, with one appearance in our code database, and on third place, the replacement of a Label being replaced by a Type Declaration Statement had one appearance in our code database.
-
-\begin{figure}[!t]
-  \centering
-\includegraphics[scale=0.5]{g2.png}
-\caption{Least common replacements}
-\end{figure}
 
 
 

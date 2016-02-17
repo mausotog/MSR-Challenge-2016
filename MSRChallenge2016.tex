@@ -143,7 +143,7 @@ Mauricio Soto\\
        \affaddr{City}\\
        \email{email@domain.com}
 % 2nd. author
-\alignauthor Chu Pan Wong   \\
+\alignauthor Chu-Pan Wong   \\
        \affaddr{Carnegie Mellon University}\\
        \affaddr{Pittsburgh, PA}\\
        \email{email@domain.com}       
@@ -251,8 +251,8 @@ therefore more readable and maintainable by human developers, as studied empiric
 \section{Related Work}
 We take as reference the study performed by Dongsun Kim et al.~\cite{kim2013} in which they look for the most common ways in which programmers patch bugs in software. The
 researchers developed a variation of the tool Genprog~\cite{weimer2009,legoues2012}
-with several different templates resembling patters programmers use to patch
-bugs, and then perform an empirical study to evaluate which patches do human programmers prefer.
+with several different templates resembling patterns programmers use to patch
+bugs, and then performed an empirical study to evaluate which patches do human programmers prefer.
 
 A good complement for this paper is~\cite{zhong2015}, where they search additions and
 deletions in a smaller data set. In this paper, we focus on the replacements,
@@ -306,7 +306,7 @@ pattern.
 	{\bf Description:} This pattern inserts a condition to check that a collection index is within bound before it is used.
 \end{enumerate}
 
-The above patterns only cover 8 out of 10 bug fixing patterns in PAR. The other two patterns are: (1) checking that an object is an instance of a target class before casting it; and (2) replacing expression in an if condition by another expression in the same scope. Pattern (1) cannot be analyzed because Boa does not support {\em instanceof} expression. Similarly, pattern (2) requires us to track scope between pre-fix and post-fix version, which is not supported by Boa. Implementing them ourselves might be possible, but it might require too much effort than necessary. Investigating 8 out of 10 patterns should give us a good idea on how common the patterns actually are.
+The above patterns only cover 8 \todo{inconsistent with intro} out of 10 bug fixing patterns in PAR. The other two patterns are: (1) checking that an object is an instance of a target class before casting it; and (2) replacing expression in an if condition by another expression in the same scope. Pattern (1) cannot be analyzed because Boa does not support {\em instanceof} expression. Similarly, pattern (2) requires us to track scope between pre-fix and post-fix version, which is not supported by Boa. Implementing them ourselves might be possible, but it might require too much effort than necessary. Investigating 8 out of 10 patterns should give us a good idea on how common the patterns actually are.
 
 As mentioned before, we analyze bug fixing patterns by utilizing Boa's language
 infrastructure~\cite{dyer2013}. It contains a large number of dataset and provide
@@ -324,7 +324,7 @@ following are descriptions on how we detect each pattern.
   we create a custom method call signature. This signature contains method name,
   literal parameter, and variable parameter. we consider parameter containing
   custom expression as OTHER. This is due to inexistence of function that can
-  print Abstract Syntax Tree (AST) back to source code. we discard method
+  print Abstract Syntax Tree (AST) back to source code in Boa. We discard method
   signatures that appear both in pre-fix and post-fix version. We then find
   whether there exists method with the same name and the same number of
   parameters, but different parameter signatures in pre-fix and post-fix
@@ -450,47 +450,59 @@ It is important to notice  that this analysis doesn't consider replacing an stat
 
 \section{Results}
 
-\todo{What is the dataset?}
+% (This is the old version)
+% This section investigates how do developer fix bugs from three different
+% perspectives. To begin with, we show some characteristics of real-world bug
+% fixes.  Afterwards, we look deeper to find out what kinds of statements are
+% usually added, modified or deleted by human developers to fix bugs. Lastly, we
+% show how common PAR's fixing templates are in our dataset. 
 
-This section investigates how do developer fix bugs from three different
-perspectives. To begin with, we show some characteristics of real-world bug
-fixes.  Afterwards, we look deeper to find out what kinds of statements are
-usually added, modified or deleted by human developers to fix bugs. Lastly, we
-show how common PAR's fixing templates are in our dataset. 
+This section shows our analysis results. To begin with, we discuss the dataset
+we are using, and some characteristics of real-world bug fixes. Afterwards, we
+provide insights for two main categories of automatic program repair approaches.
+On the one hand, many approaches \todo{citation} rely on mutation operators to
+modify the source code, but we have limited knowledge about what kinds of
+statements are usually modified. Our analysis results will fill in this
+knowledge gap. On the other hand, some automatic program repair approaches
+\todo{citation} search for specific patterns and modify source code according to
+predefined templates. Our results provide evidence of how common those
+patterns are in practice.
 
-\subsection{Characteristics}
+\subsection{Dataset and Characteristics}
 
-This subsection shows a bird's-eye view of real-world bug fixes at
-ultra-large-scale. We did our analysis on the \emph{2015 September/Github}
-dataset on Boa. This dataset includes $7,830,023$ Java projects with
-$23,229,406$ revisions. Among all the revisions, $4,590,679$ revisions are
-identified by Boa as bug fixing revisions. Our analysis in this subsection
-focuses on these bug fixing revisions. We hope that this population
-is big enough to reflect the bug fixing practice.
+We did our analysis on the \emph{2015 September/Github} dataset on Boa. This
+dataset includes $7,830,023$ Java projects with $23,229,406$ revisions. Among
+all the revisions, $4,590,679$ revisions are identified by Boa as bug fixing
+revisions. We hope that this population is big enough to reflect the bug fixing
+practice.
 
+The rest of this subsection shows some characteristics of real-world bug fixes.
 To begin with, we are interested in:
 
 \begin{quote}
 	How many files are changed to fix a bug?
 \end{quote}
 
-To answer this question, we identified all the bug fixing revisions in our
-dataset and count the number of changed files. In total, $52,052,571$ files got
-changed. Thus, on average each bug fixing revision changes 11.3 files.  This
-number is surprisingly high because most automatic program repair techniques
-assume that bugs are local in most cases. There could be several reasons behind
-this number. It could be the case that other software artifacts (e.g.
-documentation) are updated after bug fixing. It could also be the case that bug
-fixing commit also contains changes that are not related to fixing bug (e.g. new
-features, refactoring). To better understand why so many files are changed, we
-continue to ask:
+To answer this question, we identify all the bug fixing revisions in our dataset
+and count the number of changed files. A file was changed if (1) it was a new
+file; (2) or it was modified; (3) or it was deleted. In total, $52,052,571$
+files got changed. Thus, on average each bug fixing revision changes 11.3 files.
+This number is surprisingly high because most automatic program repair
+techniques assume that bugs are local in most cases. There could be several
+reasons behind this number. It could be the case that other software artifacts
+(e.g.  documentation) are updated after bug fixing. It could also be the case
+that bug fixing commit also contains changes that are not related to fixing bug
+(e.g. refactoring, adding new features by creating new files). To better
+understand why so many files are changed, we continue to ask:
 
 \begin{quote}
 	What are the file types of those changed files?
 \end{quote}
 
 In Boa, each changed file is represented by a \emph{ChangedFile} node, and it
-has a field called \emph{FileKind}, describing the type of each file.
+has a field called \emph{FileKind}, describing the type of each file. As
+mentioned earlier, a \emph{ChangedFile} could be either a new file or an
+existing file (if the bug fixing revision modified or deleted the file).
 Table~\ref{tbl:fileType} shows the file types that Boa could identify. To answer
 this question, we iterate all the changed files in each bug fixing revision and
 count the total number for each file type. Results are shown in
@@ -508,7 +520,7 @@ Table~\ref{tbl:fileType}.
   SOURCE\_JAVA\_JLS4 & 83,798 & 0.02 \\ \hline
   TEXT & 541,023 & 0.12 \\ \hline
   XML & 6,818,299 & 1.49 \\ \hline
-  UNKNOWN & 23426568 & 5.10 \\ \hline
+  UNKNOWN & 23,426,568 & 5.10 \\ \hline
   \end{tabular}
   \caption{File Types of Changed Files}
   \label{tbl:fileType}
@@ -549,7 +561,7 @@ usually made to Java source code files, we continue to ask:
 \end{quote}
 
 This research question is interesting because most automatic program repair
-approaches could not create new classes/methods/fields/variables to fix bugs.
+approaches often do not create new classes/methods/fields/variables to fix bugs.
 Most approaches guess and synthesize the patches based on existing source code.
 
 Table~\ref{tbl:new} shows our analysis results. This table shows that
@@ -575,37 +587,44 @@ the state of the class when fixing Java programs.
   \label{tbl:new}
 \end{table}
 
-\todo{Is there room/call to include any element of Chu Pan's replacement
-  analysis in here?}
-
-\subsection{Frequency of PAR Bug Fixing Pattern}\label{sec:freqfixpattern}
-After running the bug pattern detection approach on Boa's dataset, I obtained the result shown in Table~\ref{tab:freqpattern}. The result shows that AMC, MSM, COM, CBC, IAO, ANC, AOB, and COB pattern is found on 1.95\%, 1.69\%, 0.58\%, 4.23\%, 2.82\%, 2.90\%, 0.28\%, and 0.57\% of buggy files. We can see that the most common pattern among these patterns is CBC and the least common pattern is AOB. If we assume that these patterns never appear together in the dataset, these patterns cover 14.78\% of buggy files. Kim et al. mentioned that the patterns that they use cover almost 30\% of real patches~\cite{kim2013}. Although we only detect 8 out of 10 bug fixing patterns, it is hard to believe that the remaining two patterns cover 15\% of buggy files, especially 14.78\% is a number we get when we assume that the patterns that we detect never appear together. Moreover, the percentage of each pattern is based on imprecise approximation which is likely to represent an upper bound rather than a lower bound. This suggests that common bug fixing patterns might not be as common as it appeared to be.
-
-\begin{table}[!htb]
-	\caption{Frequency of Bug Fixing Patterns}\label{tab:freqpattern}
-	\centering
-	\begin{tabular}{lr} 
-		\hline
-		& \textbf{GitHub}\\
-		\hline
-		\#Buggy Files & 46,301,429 \\ 
-		\#AMP Pattern & 901,083 \\
-		\#MSM Pattern & 783,073 \\
-		\#COM Pattern & 270,128 \\ 
-		\#CBC Pattern & 1,959,377 \\  
-		\#IAO Pattern & 1,308,006 \\  
-		\#ANC Pattern & 1,340,561 \\  
-		\#AOB Pattern & 128,016 \\  
-		\#COB Pattern & 262,915 \\   
-		\hline
-	\end{tabular}
-\end{table}
+% \todo{Is there room/call to include any element of Chu Pan's replacement
+%   analysis in here?}
 
 
-\subsection{Data Analysis}
-Our queries were ran on the dump of Github of September 2015. In these real life
-projects we found 46,301,429 files being fixed. In these files, there is a total
-of 517,281 statement kinds being replaced, and 511,198 replacing these
+\subsection{What changes are common in real-world bug fixes?}
+
+Most automatic program repair approaches mutate source code using predefined
+mutation operators, which represent different ways of modifying source code. In
+order to generate patches that make more sense to human developers, it would be
+beneficial to first investigate how developers mutate source code to fix bugs. 
+
+For each bug fixing revision $r$ and each statement kind $k$, we count how many
+statements of kind $k$ are there in revision $r$ and $r-1$ ($r-1$ means the
+revision before revision $r$), and then compare the two numbers. For example, if
+the number of if statements in revision $r$ is more than the number in revision
+$r-1$, we say bug fixing revision $r$ introduce new if statements. Note that
+``introducing new if statements'' does not necessarily mean human developers
+introduce them to fix bugs. However, our hope is that this analysis could still
+provide us some hints, given the large number of bug fixing revisions we are
+analyzing.
+
+\begin{figure*}[!t] \centering
+	\includegraphics[width=0.95\textwidth]{StmtType} \caption{For each kind
+	of statement, how many bug fixing revisions add/delete statements of the
+same kind?} \label{fig:StmtType} \end{figure*}
+
+From Figure~\ref{fig:StmtType} \todo{fix the small fonts in this graph}, we can
+see that expression, if, return, for and try catch statements are added most
+often. On the other hand, the same types of statements are also deleted most
+often. This finding indicates that most bugs were fixed by changing the control
+flow of the program using if, return, for, while, and try catch statements. 
+
+For each bug fixing revision, the results discussed above consider both newly
+added files and existing files. Since most automatic program repair approaches
+do not generate new files to fix bugs, the rest of this section only considers
+files that were already in the repositories when developers fixed bugs. Our
+analysis shows that there are 46,301,429 of them. In these files, there is a
+total of 517,281 statement kinds being replaced, and 511,198 replacing these
 statements kinds.
 
 We analyzed each of these files looking for statement kinds being either replaced by other kinds, deleted or appended to the file.
@@ -640,7 +659,7 @@ For example, if we have a faulty statement that happens to be a For Statement. T
 \subsubsection{Most common replacements}
 Our results show that the most common replacement is when developers replace a Return statement for an If statement. This showed up in 30,489 files in the code database. The second most common replacement is an If statement being replaced by a Return statement, which had 28,536 appearances in the code database. Third to that, is a Return statement being replaced by a Throw statement.
 
-\begin{figure}[!ht]
+\begin{figure}[!t]
   \centering
       \includegraphics[scale=0.5]{g1.png}
   \caption{Most common replacements}
@@ -651,7 +670,7 @@ Our results show that the most common replacement is when developers replace a R
 \subsubsection{Least common replacements}
 On the opposite side of the data, we can see that the least common replacement was an Assert statement replacing a Type Declaration statement. This was the only replacement to have zero appearances in our search through the 46,301,429 files being fixed. Close to it, as the second least common replacement was replacing a Do statement for a Type Declaration statement, with one appearance in our code database, and on third place, the replacement of a Label being replaced by a Type Declaration Statement had one appearance in our code database.
 
-\begin{figure}
+\begin{figure}[!t]
   \centering
 \includegraphics[scale=0.5]{g2.png}
 \caption{Least common replacements}
@@ -659,6 +678,51 @@ On the opposite side of the data, we can see that the least common replacement w
 
 
 
+
+
+\subsection{How common are the fixing templates of PAR?}\label{sec:freqfixpattern}
+After running the bug pattern detection approach on Boa's dataset, I obtained the result shown in Table~\ref{tab:freqpattern}. The result shows that AMC, MSM, COM, CBC, IAO, ANC, AOB, and COB pattern is found on 1.95\%, 1.69\%, 0.58\%, 4.23\%, 2.82\%, 2.90\%, 0.28\%, and 0.57\% of buggy files. We can see that the most common pattern among these patterns is CBC and the least common pattern is AOB. If we assume that these patterns never appear together in the dataset, these patterns cover 14.78\% of buggy files. Kim et al. mentioned that the patterns that they use cover almost 30\% of real patches~\cite{kim2013}. Although we only detect 8 out of 10 bug fixing patterns, it is hard to believe that the remaining two patterns cover 15\% of buggy files, especially 14.78\% is a number we get when we assume that the patterns that we detect never appear together. Moreover, the percentage of each pattern is based on imprecise approximation which is likely to represent an upper bound rather than a lower bound. This suggests that common bug fixing patterns might not be as common as it appeared to be.
+
+\begin{table}[!htb]
+	\caption{Frequency of Bug Fixing Patterns}\label{tab:freqpattern}
+	\centering
+	\begin{tabular}{lr} 
+		\hline
+		& \textbf{GitHub}\\
+		\hline
+		\#Buggy Files & 46,301,429 \\ 
+		\#AMP Pattern & 901,083 \\
+		\#MSM Pattern & 783,073 \\
+		\#COM Pattern & 270,128 \\ 
+		\#CBC Pattern & 1,959,377 \\  
+		\#IAO Pattern & 1,308,006 \\  
+		\#ANC Pattern & 1,340,561 \\  
+		\#AOB Pattern & 128,016 \\  
+		\#COB Pattern & 262,915 \\   
+		\hline
+	\end{tabular}
+\end{table}
+
+\section{Threats to Validity} 
+
+Since we are using a DSL provided by Boa to implement our analysis, the
+correctness of our analysis depends on our programs as well as Boa itself. To
+prevent errors from our side, we open source our implementation on
+Github~\footnote{\url{https://github.com/}}.\todo{update
+this}
+
+Some threats to our study are due to the limitation of Boa. For example, we rely
+on Boa to identify bug fixing revisions, but it is unclear whether those
+identified revisions are actually related to bug fixing. Chances are that there
+exist some other bug fixing revisions, but Boa could not identify them. It is
+also possible that bug fixing revisions identified by Boa actually include other
+code changes, such as implementing new features, refactoring the code base.
+After all, identifying bug fixing revisions from revision history is still an
+open problem. Another big limitation of Boa is that there is no easy to get a
+precise statement-level diff between two revisions. Thus, our template matching
+and analysis of code changes (by counting each statement kind) could be
+inaccurate. However, our results should provide upper bounds for the questions
+we investigated. 
 
 \section{Conclusions}
 The findings of our study provide a set of useful guidelines for automatic
@@ -671,10 +735,8 @@ different kinds of statements available.
 %\end{document}  % This is where a 'short' article might terminate
 
 
-%
-% The following two commands are all you need in the
-% initial runs of your .tex file to
-% produce the bibliography for the citations in your paper.
+\todo{Fix the BibTeX}
+
 \bibliographystyle{abbrv}
 \bibliography{sigproc}  % sigproc.bib is the name of the Bibliography in this case
 % You must have a proper ".bib" file

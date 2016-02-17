@@ -234,29 +234,47 @@ This information will help automatic program repair tools to be more likely to f
 
 \section{Introduction}
 
-Automatic bug repair is the branch of computer science that deals with automated
-ways to repair errors in software. There have been several approaches taken
-towards improving the different methodologies to repair bugs in software
-automatically~\cite{kim2013,weimer2009,legoues2012,pan2009}. A well known approach is PAR~\cite{kim2013}, which creates 10 different repair templates and applies them to the buggy code in an effort to repair
-it. In this paper we have taken 8 out of the 10 PAR templates and tested how
-common they are in the repairs made by programmers in the latest official data
-dump of Github as of September 2015 provided by~\cite{dyer2013}.
+Automatic bug repair is the branch of computer science that deals with
+automated ways to repair errors in software. There have been several approaches
+taken towards improving the different methodologies to repair bugs in software
+automatically~\cite{kim2013,weimer2009,legoues2012,pan2009}. Roughly speaking,
+there are two main categories of approaches. 
 
-Some other well known approaches~\cite{weimer2009,legoues2012} have been based on the idea of applying a number of mutation operators to the buggy code in order to find a patch. In this opportunity, we study the degree to which these mutation operators apply in practice, taking as a subject of study several million human-made bug fixes from Github. This way it will make it more likely for automatic error repair approaches to succeed in
-finding a patch for a particular error, and also, to provide automatic error
-repair software with guidelines to make the patches more human-like and
-therefore more readable and maintainable by human developers, as studied empirically by~\cite{kim2013}.
+On the one hand, some approaches rely on mutation operators to modify the source
+code~\cite{legoues2012,weimer2009}. However, we have limited knowledge about
+what kinds of statements are usually modified. In this opportunity, we study the
+degree to which these mutation operators apply in practice, taking as a subject
+of study several million human-made bug fixes from Github. This way it will make
+it more likely for automatic error repair approaches to succeed in finding a
+patch for a particular error, and also, to provide automatic error repair
+software with guidelines to make the patches more human-like and therefore more
+readable and maintainable by human developers, as studied empirically
+by~\cite{kim2013}.
 
-We take as reference the study performed by Dongsun Kim et al.~\cite{kim2013} in which they look for the most common ways in which programmers patch bugs in software. The
-researchers developed a variation of the tool Genprog~\cite{weimer2009,legoues2012}
-with several different templates resembling patterns programmers use to patch
-bugs, and then performed an empirical study to evaluate which patches do human programmers prefer.
+On the other hand, some approaches~\cite{kim2013} search for specific patterns
+and modify source code according to predefined templates. A well known approach
+is PAR~\cite{kim2013}, which creates 10 different repair templates and applies
+them to the buggy code in an effort to repair it. In this paper we have taken 8
+out of the 10 PAR templates and tested how common they are in the repairs made
+by programmers in the latest official data dump of Github as of September 2015
+provided by~\cite{dyer2013}.  Our results provide evidence of how common those
+patterns are in practice. We take as reference the study performed by Dongsun
+Kim et al.~\cite{kim2013} in which they look for the most common ways in which
+programmers patch bugs in software. The researchers developed a variation of the
+tool Genprog~\cite{weimer2009,legoues2012} with several different templates
+resembling patterns programmers use to patch bugs, and then performed an
+empirical study to evaluate which patches do human programmers prefer.
 
-Since automatic program repair has been well studied in the programming language C. We are now focusing on the programming language Java, and analyzing the behavior of programmers in this particular language.
+Although automatic program repair has been well studied in the programming language
+C, not much study has been done on Java. Since the programming practice between
+C and Java is not trivial, we will also show some characteristics of how human
+developers fix bugs in Java.
 
-A good complement for this paper is~\cite{zhong2015}, where they look for additions and
-deletions in a smaller data set. In this paper, we focus more on the replacements,
-which have been left out of the analysis of~\cite{zhong2015}, and expand their results of the deletions and additions in a broader dataset~\cite{dyer2013}.
+A good complement for this paper is~\cite{zhong2015}, where they look for
+additions and deletions in a smaller data set. In this paper, we focus more on
+the replacements, which have been left out of the analysis of~\cite{zhong2015},
+and expand their results of the deletions and additions in a broader
+dataset~\cite{dyer2013}.
 
 \section{Methodology}
 Our methodology is applied to the latest official data dump of Github as of

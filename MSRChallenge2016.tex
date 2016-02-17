@@ -176,13 +176,13 @@ David Lo\\
 
 \maketitle
 \begin{abstract}
-\textbf{
-With the rise of automated program repair in the last couple of years, there are a lot of questions to remain unanswered. We performed a study on the Github dump of September 2015 in which we analyzed all the fixing revisions of this dataset, and found all the replacements made in these 46,301,429 files from real life projects in Github.
-}
 
-\textbf{
+With the rise of automated program repair in the last couple of years, there are a lot of questions to remain unanswered. We performed a study on the Github dump of September 2015 in which we analyzed all the fixing revisions of this dataset, and found all the replacements made in these 46,301,429 files from real life projects in Github.
+
+
+
 We found very valuable information to guide automatic software repair, such as the most common and least common replacements made by human developers in order to build a successful patch; we analyzed the most and least common statement to replace others, and the most and least likely statement to get replaced by other. We also analyzed, once you have a statement that you want to replace (a faulty statement), what are the most likely statements to replace it for. These information will help automatic program repair tools to be more maintainable and user friendly, taking it one step closer to what humans developers do to repair their code.
-}
+
 
 \end{abstract}
 
@@ -237,46 +237,22 @@ We found very valuable information to guide automatic software repair, such as t
 Automatic bug repair is the branch of computer science that deals with automated
 ways to repair errors in software. There have been several approaches taken
 towards improving the different methodologies to repair bugs in software
-automatically~\cite{kim2013,weimer2009,legoues2012,pan2009}, one of the
-most accepted approaches so far has been GenProg~\cite{weimer2009,legoues2012}, an
-evolutionary program repair tool which applies four different kinds of possible
-edits to code in order to find a patch for a given bug. These changes are the
-following: Delete, Replace, Swap and Append.
-
-\todo{We need to integrate the PAR and operator discussion a bit better.  Let's
-  take it up a level of abstraction: there is initial work in applying these
-  techniques to Java that propose a number of mutation operators, and we study
-  the degree to which they apply in practice and make recommendations based on
-  human-provided repairs.  Doing so is a good idea, because patches inspired by
-  human-created repairs are empirically demonstrated to be rated more highly by
-  developers (cite PAR).}
-\todo{I also thought we were doing Par first, and then the replacement studies?}
-
-Another well known approach is PAR~\cite{kim2013}, which creates 10 different
-repair templates and applies them to the buggy code in an effort to repair
+automatically~\cite{kim2013,weimer2009,legoues2012,pan2009}. A well known approach is PAR~\cite{kim2013}, which creates 10 different repair templates and applies them to the buggy code in an effort to repair
 it. In this paper we have taken 7 out of the 10 PAR templates and tested how
 common they are in the repairs made by programmers in the latest official data
 dump of Github as of September 2015 provided by~\cite{dyer2013}.
 
-Our research aims to provide guidelines to improve three out of four of these
-possible changes: Delete, Replace and Append. It will provide the data necessary
-for this tool and other approaches to have a guide on what is the way in which
-human programmers change their code when coding a fix for a bug. This way it
-will make it more likely for automatic error repair approaches to succeed in
+Some other well known approaches~\cite{weimer2009,legoues2012} have been based on the idea of applying a number of mutation operators to the buggy code in order to find a patch. In this opportunity, we study the degree to which these mutation operators apply in practice, taking as a subject of study several million human-made bug fixes from Github. This way it will make it more likely for automatic error repair approaches to succeed in
 finding a patch for a particular error, and also, to provide automatic error
-repair software with heuristics to make the patches more human-like and
-therefore more readable and maintainable by human developers.
+repair software with guidelines to make the patches more human-like and
+therefore more readable and maintainable by human developers, as studied empirically by~\cite{kim2013}.
 
-In this article we study the frequency with which human programmers replace,
-delete and append different statements to their source code in order to fix a
-bug.
 
 \section{Related Work}
-A similar study was performed by Dongsun Kim et al.~\cite{kim2013} in which they
-look for the most common ways in which programmers patch bugs in software. The
+We take as reference the study performed by Dongsun Kim et al.~\cite{kim2013} in which they look for the most common ways in which programmers patch bugs in software. The
 researchers developed a variation of the tool Genprog~\cite{weimer2009,legoues2012}
 with several different templates resembling patters programmers use to patch
-bugs.
+bugs, and then perform an empirical study to evaluate which patches do human programmers prefer.
 
 A good complement for this paper is~\cite{zhong2015}, where they search additions and
 deletions in a smaller data set. In this paper, we focus on the replacements,
@@ -289,47 +265,6 @@ describe data source and objective of our study. We then describe how we detect
 bug fixing patterns in PAR to find out how common they are the dataset. Last but
 not least, we describe our approach to detect Delete, Replace, and Append
 bug-fixing patterns.
-
-\begin{table*}
-	\centering
-	\caption{Amount of appearances per replace kind}
-	\resizebox{\textwidth}{100pt}{
-		\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|} \hline
-			&Assert&Break&Continue&Do& For&If&Label&Return&Case&Switch& Synchronized&Throw&Try&TypeDecl&While
-			\\ \hline
-			\texttt{Assert}	&-&340&	232	&27	&517	&1764&	14&	1260	&211	&191&	82&	1004	&352	&0	&206
-			\\ \hline
-			\texttt{Break} &455	&-&	1254&	176	&3757	&9096&	90&	10538&	771	&455&	672	&3123&	3660&	18&	2278
-			\\ \hline
-			\texttt{Continue} & 229	&1384	&-&	221	&1909	&3094&	85&	3486	&772&	635	&233&	1227&	1493&	30&	1086
-			\\   \hline
-			\texttt{Do} &32	&205&	171	&-&	474	&648	&12&	543	&106	&92&	44	&227	&325&	4&	558
-			\\ \hline
-			\texttt{For} &505	&3366	&1516	&316	&-&	14547	&56	&14924	&2791	&1852	&1044&	5642&	5796	&41	&6582
-			\\ \hline
-			\texttt{If}& 1402&	8820&	2430&	476	&13703&-&		247	&30489	&8639	&5710	&2472&	8960&	13714&	84&	5622
-			\\ \hline
-			\texttt{Label} &19&	44	&46	&6&	56	&255	&-&	270	&44	&22	&5	&80&	53&	2	&33
-			\\ \hline
-			\texttt{Return} &1219&	8603	&3009	&531	&12620	&28536&	164	&-&	6088&	3657&	2021&	15346&	11486&	71	&4684
-			\\ \hline
-			\texttt{Case} &298	&839&	506	&125&	3002&	8039&	33&	6261	&-&	126	&649&	2206&	2784&	24&	1864
-			\\ \hline
-			\texttt{Switch}&281	&533&	379	&56	&1997	&5175&	22	&4090&	126	&-&	212	&1571	&1311	&7&	878
-			\\ \hline
-			\texttt{Synchronized} &79&	606&	289&	66	&1122&	3070&	158&	2853	&562&	256	&-&	1303&	1274&	8	&466
-			\\ \hline
-			\texttt{Throw} &821&	2844&	1195	&197&	5993	&10664&	113&	16688&	2002	&1446&	936		&-&4443&	37&	1934
-			\\ \hline
-			\texttt{Try}& 440&	3976&	1254&	214	&6414&	16294&	45	&14119	&3178	&1509	&1243&	4795	&-&	46&	2218
-			\\ \hline
-			\texttt{TypeDecl} &2&	35&	15	&1&	49	&83&	1&	137	&21&	9&	4&	35&	46	&-&	11
-			\\ \hline
-			\texttt{While}& 301&	2295&	1016&	937	&8257&	6587&	41	&6280&	1866&	766	&606&	2028&	2677&	27	&-
-			\\ \hline
-		\end{tabular}
-	}
-\end{table*}
 
 \subsection{Data Source and Research Objective}
 We used the Boa platform~\cite{dyer2013} to be able to query the Github repository
@@ -431,26 +366,54 @@ following are descriptions on how we detect each pattern.
 \todo{IMPORTANT: Ferdian, where did the results go?  Please add the results of
   the Par study into results somewhere where it fits.}
 
+
+\begin{table*}
+	\centering
+	\resizebox{\textwidth}{100pt}{
+		\begin{tabular}{|l|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|} \hline
+			&Assert&Break&Continue&Do& For&If&Label&Return&Case&Switch& Synchronized&Throw&Try&TypeDecl&While
+			\\ \hline
+			\texttt{Assert}	&-&340&	232	&27	&517	&1764&	14&	1260	&211	&191&	82&	1004	&352	&0	&206
+			\\ \hline
+			\texttt{Break} &455	&-&	1254&	176	&3757	&9096&	90&	10538&	771	&455&	672	&3123&	3660&	18&	2278
+			\\ \hline
+			\texttt{Continue} & 229	&1384	&-&	221	&1909	&3094&	85&	3486	&772&	635	&233&	1227&	1493&	30&	1086
+			\\   \hline
+			\texttt{Do} &32	&205&	171	&-&	474	&648	&12&	543	&106	&92&	44	&227	&325&	4&	558
+			\\ \hline
+			\texttt{For} &505	&3366	&1516	&316	&-&	14547	&56	&14924	&2791	&1852	&1044&	5642&	5796	&41	&6582
+			\\ \hline
+			\texttt{If}& 1402&	8820&	2430&	476	&13703&-&		247	&30489	&8639	&5710	&2472&	8960&	13714&	84&	5622
+			\\ \hline
+			\texttt{Label} &19&	44	&46	&6&	56	&255	&-&	270	&44	&22	&5	&80&	53&	2	&33
+			\\ \hline
+			\texttt{Return} &1219&	8603	&3009	&531	&12620	&28536&	164	&-&	6088&	3657&	2021&	15346&	11486&	71	&4684
+			\\ \hline
+			\texttt{Case} &298	&839&	506	&125&	3002&	8039&	33&	6261	&-&	126	&649&	2206&	2784&	24&	1864
+			\\ \hline
+			\texttt{Switch}&281	&533&	379	&56	&1997	&5175&	22	&4090&	126	&-&	212	&1571	&1311	&7&	878
+			\\ \hline
+			\texttt{Synchronized} &79&	606&	289&	66	&1122&	3070&	158&	2853	&562&	256	&-&	1303&	1274&	8	&466
+			\\ \hline
+			\texttt{Throw} &821&	2844&	1195	&197&	5993	&10664&	113&	16688&	2002	&1446&	936		&-&4443&	37&	1934
+			\\ \hline
+			\texttt{Try}& 440&	3976&	1254&	214	&6414&	16294&	45	&14119	&3178	&1509	&1243&	4795	&-&	46&	2218
+			\\ \hline
+			\texttt{TypeDecl} &2&	35&	15	&1&	49	&83&	1&	137	&21&	9&	4&	35&	46	&-&	11
+			\\ \hline
+			\texttt{While}& 301&	2295&	1016&	937	&8257&	6587&	41	&6280&	1866&	766	&606&	2028&	2677&	27	&-
+			\\ \hline
+		\end{tabular}
+		}
+		\caption{Amount of appearances per replace kind}
+\end{table*}
+
+
 \subsection{Replace Query}
-The replace query is a query in which first we set the project that we are going
-to use, which is the Github dump of September 2015 provided by~\cite{dyer2013}.
+The replace query we designed, is a query in which we create a visitor to traverse all the fixing revisions in this repository~\cite{dyer2013}. Therefore we are analyzing only files
+that were already committed and are now being reviewed to fix an error. 
 
-We then create a visitor to traverse all the nodes of this repository. First
-thing the visitor does is to ask weather the node is a Revision, and if it is,
-then it asks if it is a fixing revision. Therefore we are analyzing only files
-that were already committed and are now being reviewed to fix an error. We use
-Boa's infrastructure to do this by visiting the node they label as "Revision"
-and then calling the function defined by Boa "isfixingrevision()".
-
-A replacement needs two statements, one that is deleted and another one that is
-inserted.  We then go through all the files that have been changed in this data
-set asking for two conditions: it must be a fixing revision and there must have
-been a previous version of this file before. If these conditions are met then we
-initialize two counters: one for the first statement we are analyzing (the one
-that was deleted), and another one for the second statement we are analyzing
-(the one that was inserted).
-
-At this point we visit each statement in the previous state of that changed
+We visit each statement in the previous state of that changed
 file, before the change was applied and we count the amount of appearances of
 the first statement we are analyzing (the one that was deleted), and then we
 count the amount of appearances of the second statement we are analyzing (the
@@ -469,48 +432,10 @@ occurrences of the second statement decreased on the same file, we say that the
 second statement was replaced by the first statement in that file. We count the
 amount of files in which this happens for each of these two cases.
 
-We need to test this with all the possible combinations of two different
-statement types since we want to know what is the probability of an specific
-statement to be replaced by another specific statement. For example, we want to
-know how often does a For loop gets replaced by a While loop in a successful
-human written patch, or how often does a Break statement gets replaced by a
-Continue statement in a successful human written patch.
-
-Because of this we have created Table 1 which records the amount of replaces happening from one kind of statement to another. It is a matrix of fifteen by fifteen slots that describes which statements are being replaced by which other. 
-
+\todo{Note to self (Mau): Change this paragraph to explain the table depending on how it is presented}
 The numbers in the slots represent the amount of files in which that replacement took place. In the first column we have the list of statements that are being replaced, and on the top row we have the list of statements for which that statement was replaced for. For example, if we take the intersection of row 5 (DoStatement row) and column 2 (AsserStatement column), we have a 32, which means that from the 46,301,429 files categorized by Boa as fixing revisions in Github in the month of September 2015, only 32 of them replaced a DoStatement for an AssertStatement.
 
-It is important to notice  that this analysis doesn't consider replacing an statement kind for a different version of the statement kind, since it is counting the amount of appearances of each statement kind. So, if for example, the developer modifies the condition inside of an if statement, the amount of if statements in the file is going to remain the same
-
-\subsection{Delete/Append Query}
-The Delete/Append Query is similar to the Replace Query with some variations to
-count for the amount of times that a file was changed and a particular statement
-kind was ei- ther deleted or append, and the rest of the statement kinds
-remained the same.
-
-We created a Boa file in which first we create an output variable to count all
-the amount of files in which a statement kind was deleted or appended. Similar
-to the previous query, we visit all the files labeled as fixing revisions, then
-visit ev- ery node of the previous version of the revision, counting the amount
-of statement kinds of each one of the possible fifteen different ones. We then
-do the same for the later version of the revision, counting the different
-statement kinds.
-
-Finally, we compare the amounts of the previous version, with the new
-version. For each of the revisions, we ask if the amount of statements stays the
-same for all the statement kinds, except for X kind of statement. When the
-amount of statements is different in the previous version than the latest
-version for X kind of statement. Then we ask if X kinds of statement is greater
-in the previous version or the latest ver- sion. If the amount of appearances of
-X kind of statement is greater in the previous version than the latest version,
-and all the remaining fourteen statement kinds have the same amount in the
-previous than the latest version, then we say that one or more of the statements
-of kind X were deleted. Otherwise, if the latest version has a greater amount of
-ap- pearances of X kind of statement and the rest have the same amount of
-appearances in both the previous and the latest version, then we say that one or
-more statements of kind X were appended or added to the fixing revision.
-
-
+It is important to notice  that this analysis doesn't consider replacing an statement kind for a different version of the same statement kind, since it is counting the amount of appearances of each statement kind. So, if for example, the developer modifies the condition inside of an if statement, the amount of if statements in the file will remain the same.
 
 \section{Results}
 
@@ -693,6 +618,7 @@ different kinds of edits to it, usually at random. Which makes it equally likely
 to replace an statement for another without looking at the kinds of statements
 being replaced.
 
+\todo{Note to self (Mau): Change this depending on the table}
 With this study, we are able to make a more accurate guess, when having a known faulty statement, to which statement it is more likely to replace it for. By performing simple math with the data of Table 1, we can find the most likely replacements that will end up being a successful patch. 
 
 For example, if we have a faulty statement that happens to be a For Statement. Then we can look up in Table 1 the For Statement Column (6th column). If we add all the values in that column, we get 59,870 changes in which a For Statement was replaced by some other kind of statement. Then we calculate the percentage of each of the values in the column to see the likeliness of each of the statements to replace it for, and in this example we see that the top 3 most likely statements to replace a For Statement are an If statement with a 22.88\% likeliness, followed by a return statement with a 21.08\%, and third is a While statement with a 13.73\% of likeliness to replace a For Statement.
@@ -701,13 +627,22 @@ For example, if we have a faulty statement that happens to be a For Statement. T
 \subsubsection{Most common replacements}
 Our results show that the most common replacement is when developers replace a Return statement for an If statement. This showed up in 30,489 files in the code database. The second most common replacement is an If statement being replaced by a Return statement, which had 28,536 appearances in the code database. Third to that, is a Return statement being replaced by a Throw statement.
 
-\includegraphics[scale=0.5]{g1.png}
+\begin{figure}[!ht]
+  \centering
+      \includegraphics[scale=0.5]{g1.png}
+  \caption{Most common replacements}
+\end{figure}
+
+
 
 \subsubsection{Least common replacements}
 On the opposite side of the data, we can see that the least common replacement was an Assert statement replacing a Type Declaration statement. This was the only replacement to have zero appearances in our search through the 46,301,429 files being fixed. Close to it, as the second least common replacement was replacing a Do statement for a Type Declaration statement, with one appearance in our code database, and on third place, the replacement of a Label being replaced by a Type Declaration Statement had one appearance in our code database.
 
+\begin{figure}
+  \centering
 \includegraphics[scale=0.5]{g2.png}
-
+\caption{Least common replacements}
+\end{figure}
 
 
 

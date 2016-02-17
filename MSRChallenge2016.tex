@@ -160,7 +160,7 @@ Claire Le Goues\\
 David Lo\\
        \affaddr{University}\\
        \affaddr{City}\\
-       \email{author@edu}       
+       \email{author@institution.edu}       
 }
 % There's nothing stopping you putting the seventh, eighth, etc.
 % author on the opening page (as the 'third row') but we ask,
@@ -271,6 +271,16 @@ In this article we study the frequency with which human programmers replace,
 delete and append different statements to their source code in order to fix a
 bug.
 
+\section{Related Work}
+A similar study was performed by Dongsun Kim et al.~\cite{kim2013} in which they
+look for the most common ways in which programmers patch bugs in software. The
+researchers developed a variation of the tool Genprog~\cite{weimer2009,legoues2012}
+with several different templates resembling patters programmers use to patch
+bugs.
+
+A good complement for this paper is~\cite{zhong2015}, where they search additions and
+deletions in a smaller data set. In this paper, we focus on the replacements,
+which have been left out of the analysis of~\cite{zhong2015}.
 
 \section{Methodology}
 Our methodology is applied to the latest official data dump of Github as of
@@ -699,16 +709,6 @@ On the opposite side of the data, we can see that the least common replacement w
 \includegraphics[scale=0.5]{g2.png}
 
 
-\section{Related Work}
-A similar study was performed by Dongsun Kim et al.~\cite{kim2013} in which they
-look for the most common ways in which programmers patch bugs in software. The
-researchers developed a variation of the tool Genprog~\cite{weimer2009,legoues2012}
-with several different templates resembling patters programmers use to patch
-bugs.
-
-A good complement for this paper is~\cite{zhong2015}, where they search additions and
-deletions in a smaller data set. In this paper, we focus on the replacements,
-which have been left out of the analysis of~\cite{zhong2015}.
 
 
 

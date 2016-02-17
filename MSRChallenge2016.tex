@@ -301,9 +301,14 @@ pattern.
 	\item {\bf Adding an array out of bound checker (AOB)}\\
 	{\bf Example:} arr[idx]=0 $\rightarrow$ if(idx<arr.length){arr[idx]=0}\\
 	{\bf Description:} This pattern inserts a condition to check that an array index is within bound right before the index is used.
+	\item {\bf Adding a collection out of bound checker (COB)}\\
+	{\bf Example:} x=col.get(idx) $\rightarrow$ if(idx<col.size()){x=col.get(idx)}\\
+	{\bf Description:} This pattern inserts a condition to check that a collection index is within bound before it is used.
 \end{enumerate}
 
-To analyze bug fixing patterns, we utilizes Boa's language
+The above patterns only cover 8 out of 10 bug fixing patterns in PAR. The other two patterns are: (1) checking that an object is an instance of a target class before casting it; and (2) replacing expression in an if condition by another expression in the same scope. Pattern (1) cannot be analyzed because Boa does not support {\em instanceof} expression. Similarly, pattern (2) requires us to track scope between pre-fix and post-fix version, which is not supported by Boa. Implementing them ourselves might be possible, but it might require too much effort than necessary. Investigating 8 out of 10 patterns should give us a good idea on how common the patterns actually are.
+
+As mentioned before, we analyze bug fixing patterns by utilizing Boa's language
 infrastructure~\cite{dyer2013}. It contains a large number of dataset and provide
 a domain specific language to perform analysis on source code. Despite this
 advantage, Boa still have limited capability that prevents us from performing
@@ -361,6 +366,12 @@ following are descriptions on how we detect each pattern.
   contains {\em expr<var.length} or {\em var.length>expr} for both pre-fix and
   post-fix version. If there are count differences between pre-fix and post-fix
   version, we consider that AOB pattern is found.
+  
+\item {\bf COB Pattern}\\
+To detect COB pattern, we count the number of if conditional expression that
+contains {\em expr<col.size()} or {\em col.size()>expr} for both pre-fix and
+post-fix version. If there are count differences between pre-fix and post-fix
+version, we consider that COB pattern is found.
 	
 \end{enumerate}
 \todo{IMPORTANT: Ferdian, where did the results go?  Please add the results of
@@ -568,7 +579,7 @@ the state of the class when fixing Java programs.
   analysis in here?}
 
 \subsection{Frequency of PAR Bug Fixing Pattern}\label{sec:freqfixpattern}
-After running the bug pattern detection approach on Boa's dataset, I obtained the result shown in Table~\ref{tab:freqpattern}. The result shows that AMC, MSM, COM, CBC, IAO, ANC, and AOB pattern is found on 1.95\%, 1.69\%, 0.58\%, 4.23\%, 2.82\%, 2.90\%, and 0.28\% of buggy files. We can see that the most common pattern among these patterns is CBC and the least common pattern is AOB. If we assume that these patterns never appear together in the dataset, these patterns cover 14.21\% of buggy files. Kim et al. mentioned that the patterns that they use cover almost 30\% of real patches~\cite{kim2013}. Although we only detect 7 out of 10 bug fixing patterns, it is hard to believe that the remaining three patterns cover 15\% of buggy files, especially 14.21\% is a number we get when we assume that the patterns that we detect never appear together. Moreover, the percentage of each pattern is based on imprecise approximation which is likely to represent an upper bound rather than a lower bound. This suggests that common bug fixing patterns might not be as common as it appeared to be.
+After running the bug pattern detection approach on Boa's dataset, I obtained the result shown in Table~\ref{tab:freqpattern}. The result shows that AMC, MSM, COM, CBC, IAO, ANC, AOB, and COB pattern is found on 1.95\%, 1.69\%, 0.58\%, 4.23\%, 2.82\%, 2.90\%, 0.28\%, and 0.57\% of buggy files. We can see that the most common pattern among these patterns is CBC and the least common pattern is AOB. If we assume that these patterns never appear together in the dataset, these patterns cover 14.78\% of buggy files. Kim et al. mentioned that the patterns that they use cover almost 30\% of real patches~\cite{kim2013}. Although we only detect 8 out of 10 bug fixing patterns, it is hard to believe that the remaining two patterns cover 15\% of buggy files, especially 14.78\% is a number we get when we assume that the patterns that we detect never appear together. Moreover, the percentage of each pattern is based on imprecise approximation which is likely to represent an upper bound rather than a lower bound. This suggests that common bug fixing patterns might not be as common as it appeared to be.
 
 \begin{table}[!htb]
 	\caption{Frequency of Bug Fixing Patterns}\label{tab:freqpattern}
@@ -585,9 +596,11 @@ After running the bug pattern detection approach on Boa's dataset, I obtained th
 		\#IAO Pattern & 1,308,006 \\  
 		\#ANC Pattern & 1,340,561 \\  
 		\#AOB Pattern & 128,016 \\  
+		\#COB Pattern & 262,915 \\   
 		\hline
 	\end{tabular}
 \end{table}
+
 
 \subsection{Data Analysis}
 Our queries were ran on the dump of Github of September 2015. In these real life

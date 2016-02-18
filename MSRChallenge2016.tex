@@ -492,7 +492,7 @@ post-fix version. If it exists, we consider that MSM pattern is found.
 pattern adds one more parameter to a method. 
 	{\bf Example:} obj.method(v1) $\rightarrow$ obj.method(v1,v2).
   To detect COM pattern, we create method signature similar like when detecting
-  AMP and COM pattern. This time, we find whether there are exists method with
+  AMP and COM pattern. This time, we find whether there exists method with
   the same name, but the number of parameters in pre-fix and post-fix version
   differs by one. If it exists, we consider that COM pattern is found.
 
@@ -503,15 +503,13 @@ pattern adds one more parameter to a method.
   To detect CBC pattern, we count the number of { \em logical and} and {\em
     logical or} inside if conditional expression for both pre-fix and post-fix
   version. we assume that the addition/removal of logical operators indicate
-  addition/removal of condition. If there are count differences between pre-fix
-  and post-fix version, we consider that CBC pattern is found.
+  addition/removal of condition. If there is a larger count in post-fix version, we consider that CBC pattern is found.
 
 \vspace{1ex}
 \noindent
  {\bf Initializing an object (IAO)}. This pattern adds a initialization to object declaration.
   To detect IAO pattern, we count the number of NEW expression in variable
-  declaration for both pre-fix and post-fix version. If there are count
-  differences between pre-fix and post-fix version, we consider that IAO pattern
+  declaration for both pre-fix and post-fix version. If there is a larger count in post-fix version, we consider that IAO pattern
   is found.
 	{\bf Example:} Type obj $\rightarrow$ Type obj = new Type(). 
 
@@ -522,7 +520,7 @@ pattern adds one more parameter to a method.
 	{\bf Example:} obj.m1() $\rightarrow$ if(obj!=null){obj.m1()}
   To detect ANC pattern, we count the number of if conditional expression that
   contains {\em !=null} or {\em ==null} for both pre-fix and post-fix
-  version. If there are count differences between pre-fix and post-fix version,
+  version. If there is a larger count in post-fix version,
   we consider that ANC pattern is found.
 
 \vspace{1ex}
@@ -532,8 +530,7 @@ pattern adds one more parameter to a method.
 	{\bf Example:} arr[idx]=0 $\rightarrow$ if(idx<arr.length){arr[idx]=0}.
   To detect AOB pattern, we count the number of if conditional expression that
   contains {\em expr<var.length} or {\em var.length>expr} for both pre-fix and
-  post-fix version. If there are count differences between pre-fix and post-fix
-  version, we consider that AOB pattern is found.
+  post-fix version. If there is a larger count in post-fix version, we consider that AOB pattern is found.
 
 \vspace{1ex}
 \noindent
@@ -549,7 +546,7 @@ version, we consider that COB pattern is found.
 PAR. The other two patterns are: (1) checking that an object is an instance of a
 target class before casting it; and (2) replacing expression in an if condition
 by another expression in the same scope. Pattern (1) cannot be analyzed because
-Boa does not support the {\em instanceof} expression. Similarly, pattern (2)
+Boa does not support {\em instanceof} expression. Similarly, pattern (2)
 requires us to track scope between pre-fix and post-fix version, which is not
 supported by Boa. Implementing them ourselves might be possible, but it might
 require too much effort than necessary. We speculate that investigating 8 out of
@@ -628,13 +625,12 @@ require too much effort than necessary. We speculate that investigating 8 out of
 After running the bug pattern detection approach on Boa's dataset, we obtained
 the result shown in Table~\ref{tab:freqpattern}. It shows that the
 most common pattern among these patterns is CBC and the least common pattern is
-AOB. If we assume that these patterns never appear together in the dataset,
-these patterns cover 14.78\% of buggy files. Kim et al. mentioned that the
+AOB. If we assume that these patterns never appear together,
+they cover 14.78\% of buggy files. Kim et al. mentioned that the
 patterns that they use cover almost 30\% of real
 patches~\cite{kim2013}. Although we only detect 8 out of 10 bug fixing patterns,
 it is hard to believe that the remaining two patterns cover 15\% of buggy files,
-especially 14.78\% is a number we get when we assume that the patterns that we
-detect never appear together. Moreover, the percentage of each pattern is based
+especially considering that 14.78\% is a number that we get when we assume that the patterns never appear together. Moreover, the percentage of each pattern is based
 on imprecise approximation which is likely to represent an upper bound rather
 than a lower bound. This suggests that common bug fixing patterns might not be
 as common as it appeared to be.
@@ -767,11 +763,23 @@ inaccurate. However, our results should provide upper bounds for the questions
 we investigated. 
 
 \section{Conclusions}
-The findings of our study provide a set of useful guidelines for automatic
-program repair tools with which their search for a patch can be now improved by
-having the knowledge of how likely it is to replace a faulty statement by the
-different kinds of statements available.
-\todo{Expand to include summary of actual conclusions}
+We have characterized bug fixing changes in Java.
+On average, a bug fixing revision changes 11.3 files and often introduces new
+fields and methods. We have also showed that 8 out of 10 bug fixing patterns in
+PAR cover only 15\% of bug fixes. Last but not least, we investigated statement
+level mutations and summarized the likelihood of statement insertion, deletion,
+and replacement. 
+
+The findings of our study provide a set of useful insights for automatic
+program repair tools in Java. It suggests that patterns in PAR are not enough to
+cover the entirety of bug fixes in Java. Adding more patterns is one solution,
+but may not be a permanent one. Our finding on Java bug fixes characteristic suggests that mutation based program repair may need to add new fields or methods
+to fix bugs in Java and achieve a human-like written patch. A deeper look suggests
+that it can also improve its search for a patch by having the knowledge of how
+likely it is to replace a faulty statement by the different kinds of statements
+available. Overall, our findings demonstrate that our knowledge of bug fixing
+properties in Java is still lacking and therefore more research on it are
+warranted.
 
 
 %\end{document}  % This is where a 'short' article might terminate

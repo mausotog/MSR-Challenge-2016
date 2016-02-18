@@ -558,7 +558,6 @@ require too much effort than necessary. We speculate that investigating 8 out of
 \subsection{Results} \label{sec:freqfixpattern}
 
 \begin{table}[!htb]
-	\caption{Frequency of Bug Fixing Patterns}\label{tab:freqpattern}
 	\centering
 	\begin{tabular}{lrr} 
 		\hline
@@ -575,23 +574,14 @@ require too much effort than necessary. We speculate that investigating 8 out of
 		COB Pattern & 262,915 & 0.57\%\\   
 		\hline
 	\end{tabular}
+	\caption{Frequency of Bug Fixing Patterns}\label{tab:freqpattern}
+	
 \end{table}
 
-After running the bug pattern detection approach on Boa's dataset, we obtained
-the result shown in Table~\ref{tab:freqpattern}. It shows that the
-most common pattern among these patterns is CBC and the least common pattern is
-AOB. If we assume that these patterns never appear together in the dataset,
-these patterns cover 14.78\% of buggy files. Kim et al. mentioned that the
-patterns that they use cover almost 30\% of real
-patches~\cite{kim2013}. Although we only detect 8 out of 10 bug fixing patterns,
-it is hard to believe that the remaining two patterns cover 15\% of buggy files,
-especially 14.78\% is a number we get when we assume that the patterns that we
-detect never appear together. Moreover, the percentage of each pattern is based
-on imprecise approximation which is likely to represent an upper bound rather
-than a lower bound. This suggests that common bug fixing patterns might not be
-as common as it appeared to be.
 
-\section{Statement-level mutations}
+
+
+
 
 \begin{table*}
 	\centering
@@ -632,27 +622,34 @@ as common as it appeared to be.
 			\\ \hline
 		\end{tabular}
 		}
-		\caption{Likeliness to replace the statement in the first column for the statement in the top row, in Java}
+		\caption{Likeliness to replace the statement in the first column for the statement in the top row, in Java}\label{tab:likeliness}
 \end{table*}
 
+After running the bug pattern detection approach on Boa's dataset, we obtained
+the result shown in Table~\ref{tab:freqpattern}. It shows that the
+most common pattern among these patterns is CBC and the least common pattern is
+AOB. If we assume that these patterns never appear together in the dataset,
+these patterns cover 14.78\% of buggy files. Kim et al. mentioned that the
+patterns that they use cover almost 30\% of real
+patches~\cite{kim2013}. Although we only detect 8 out of 10 bug fixing patterns,
+it is hard to believe that the remaining two patterns cover 15\% of buggy files,
+especially 14.78\% is a number we get when we assume that the patterns that we
+detect never appear together. Moreover, the percentage of each pattern is based
+on imprecise approximation which is likely to represent an upper bound rather
+than a lower bound. This suggests that common bug fixing patterns might not be
+as common as it appeared to be.
 
-Most automatic program repair approaches mutate source code using predefined
-mutation operators, which represent different ways of modifying source code. In
+
+
+
+
+\section{Statement-level mutations}
+Some automatic program repair approaches mutate source code using predefined
+mutation operators such as addition, deletion and replacement. In
 order to generate patches that make more sense to human developers, it would be
-beneficial to first investigate how developers mutate source code to fix bugs. 
-Thus, beyond characterizing the degree to which previously-proposed Java-specific
-operators apply in our dataset, we further characterized the nature of
-coarser-grained replacement operators, which are also commonly translated from C
-techniques to Java.  We did this via a query that visits all fixing revisions in
-the repository; as a result, we analyze files to which changes have been made
-and thuswere already committed and are now being reviewed to fix an error. 
+beneficial to analyze how developers mutate source code to fix bugs. 
 
 \subsection{Replacements}
-\todo{The biggest problem right now is the lack of integration between this
-  study and Chu Pan's.  Please work together to find a way to unify it.  One of
-  you will need to cut some of your text.  I don't care who, but we need to find
-  a way to tell one story.}
-
 Because direct diffs are difficult to identify, we heuristically approximate the
 extent to which one statement type appears to be ``replaced'' by another across
 this dataset.  To do this, for each modified file, we count the number of
@@ -661,12 +658,10 @@ compare the results to see how many of each statement type was removed, and how
 many inserted, to roughly characterize the types of replacement that happen at a
 per-file level.  For each statement type (as tagged by the Boa infrastructure
 for Java), we process the results as follows: 
-if number occurrences of one statement type decreased post-fix and the number of
+if number of occurrences of one statement type decreased post-fix and the number of
 another type increased, we say that
 the first statement type was replaced by the second statement type for that
-file.  We collate these results over all statement types and all files modified
-in bug fixing commits in the dataset. 
-
+file. 
 
 It is important to notice that this analysis doesn't consider replacing an
 statement kind for a different version of the same statement kind, since it is
@@ -674,42 +669,13 @@ counting the amount of appearances of each statement kind. So, if for example,
 the developer modifies the condition inside of an if statement, the amount of if
 statements in the file will remain the same.
 
-The numbers in the slots of Table 1, represent the percentage rate at which the
+The numbers in the slots of Table~\ref{tab:likeliness}, represent the percentage rate at which the
 elements of the leftmost column were replaced by the elements of the top row. In
 the first column we have the list of statements that are being replaced (faulty
 statements that were removed), and on the top row we have the list of statements
 for which that statement was replaced for (the new statement put instead). For
 example, if we take the intersection of row 5 (DoStatement row) and column 2
-(AsserStatement column) of the data, we have a 0.81, which means that if we take
-all the instances in which a Do statement was replaced by something else, the
-amount of times that it was replaced by an Assert statement, represent a
-0.81% of the times.
-
-
-This study is directly applicable to automatic software repair. Most common
-tools for automatic software repair~\cite{kim2013,weimer2009,legoues2012}
-first find a faulty statement using several different fault localization
-techniques~\cite{fry2010}, and once they have that faulty statement, they apply
-different kinds of edits to it, usually at random. Which makes it equally likely
-to replace an statement for another without looking at the kinds of statements
-being replaced.
-
-With this study, we are able to make a more accurate guess, when having a known
-faulty statement, to which statement it is more likely to replace it for. By
-taking a look at the data of Table 1, we can find the most likely replacements
-that will end up being a successful patch.
-
-For example, if we are fixing a Java program, and we have a faulty statement
-that happens to be a For Statement. Then we can look up in Table 1 the For
-Statement Row (6th row), and take a look at the probability of that statement to
-be replaced by other kinds of statement. In this example we see that the top 3
-most likely statements to replace a For Statement are an If statement with a
-22.89\% likeliness, followed by a return statement with a 21.08\%, and third is
-a While statement with a 13.79\% of likeliness to replace a For Statement. This
-way we know that it is more likely for a programmer to replace a For Statement
-for those three different kinds of statements and this provides guidelines to
-the automatic bug repair approaches to consider this on their effort to find a
-patch.
+(AsserStatement column) of the data, we have a 0.81, which means that Do statements were replaced by Assert statements 0.81\% of the times.
 
 \subsubsection{Most common replacements}
 Our results show that the most common replacement is when developers remove a
@@ -721,31 +687,23 @@ Throw statement.
 
 \subsubsection{Least common replacements}
 On the opposite side of the data, we can see that the least common replacement
-was an Assert statement replacing a Type Declaration statement. This was the
-only replacement to have zero appearances in our search through the 46,301,429
-files being fixed. Close to it, as the second least common replacement was
+was an Assert statement replacing a Type Declaration statement, which has zero appearances. The second least common replacement was
 removing a Do statement and insert a Type Declaration statement, with one
-appearance in our code database, and on third place, removing a Label and insert
-a Type Declaration Statement had one appearance in our code database.
+appearance in our search, and on third place, removing a Label and insert
+a Type Declaration Statement had one appearance in our search.
 
 
 \subsection{Deletions and insertions}
 
 
 \begin{figure*}[!t] \centering
-	\includegraphics[width=0.95\textwidth]{StmtType} \caption{For each kind
+	\includegraphics[height=0.3\textheight, width=1\textwidth]{StmtType} \caption{For each kind
 	of statement, how many bug fixing revisions add/delete statements of the
 same kind?} \label{fig:StmtType} \end{figure*}
-
+\todo{I'm not sure the percentages in Figure~\ref{fig:StmtType} are visible, maybe moving the numbers so they don't overlap with the bars?}
 For each bug fixing revision $r$ and each statement kind $k$, we count how many
 statements of kind $k$ are there in revision $r$ and $r-1$ ($r-1$ means the
-revision before revision $r$), and then compare the two numbers. For example, if
-the number of if statements in revision $r$ is more than the number in revision
-$r-1$, we say bug fixing revision $r$ introduce new if statements. Note that
-``introducing new if statements'' does not necessarily mean human developers
-introduce them to fix bugs. However, our hope is that this analysis could still
-provide us some hints, given the large number of bug fixing revisions we are
-analyzing.
+revision before revision $r$), and then compare the two numbers. 
 
 From Figure~\ref{fig:StmtType} \todo{fix the small fonts in this graph}, we can
 see that expression, if, return, for and try catch statements are added most
@@ -757,24 +715,35 @@ For each bug fixing revision, the results discussed above consider both newly
 added files and existing files. Since most automatic program repair approaches
 do not generate new files to fix bugs, the rest of this section only considers
 files that were already in the repositories when developers fixed bugs. Our
-analysis shows that there are 46,301,429 of them. In these files, there is a
-total of 517,281 statement kinds being replaced, and 511,198 replacing these
-statements kinds.
+analysis shows that there are 46,301,429 of them.
 
-We analyzed each of these files looking for statement kinds being either
-replaced by other kinds, deleted or appended to the file. 
-
-We found that the most common Replacer statement kind, meaning the statement
-kind that most commonly replaces others is the \textbf{If Statement} with
-101,366 appearances. The least common Replacer, meaning the statement kind which
-is less likely to replace other statement kinds is the \textbf{Type Declaration
+We found that the most common $Replacer$ statement kind (the statement
+kind that most commonly replaces others) is the \textbf{If Statement} with
+101,366 appearances; and the least common $Replacer$, is the \textbf{Type Declaration
   Statement} with 447 appearances.
 
-The most common Replacee, which is the most likely statement kind to be replaced
-by another statement kind is the \textbf{Return Statement} with 111,938
-appearances. The least common Replacee, which is the least common statement to
-be replaced by another statement kind is the \textbf{Type Declaration Statement}
+The most common $Replacee$ (the most likely statement kind to be replaced
+by another statement kind) is the \textbf{Return Statement} with 111,938
+appearances; and the least common $Replacee$ is the \textbf{Type Declaration Statement}
 with 399 appearances.
+
+\subsection{Applicability to Automatic Error Repair}
+This study is directly applicable to automatic software repair. Most common
+tools for automatic software repair~\cite{kim2013,weimer2009,legoues2012}
+first find a faulty statement using several different fault localization
+techniques~\cite{fry2010}, and once they have that faulty statement, they apply
+different kinds of edits to it, usually at random. Which makes it equally likely
+to replace an statement for another without looking at the kinds of statements
+being replaced.
+
+With this study, we are able to make a more accurate guess, when having a known
+faulty statement, of which statements more commonly replace that faulty one to build a successful patch based on the data from Table~\ref{tab:likeliness}. Similarly with Figure~\ref{fig:StmtType}, we can have an informed guess of how often programmers insert or delete that particular kind of statement.
+
+For example, if we are fixing a Java program, and we have a faulty statement
+that happens to be a For Statement. Then we can look for the most likely statements to replace a For Statement (row 6): If statement (22.89\% likeliness), Return statement (21.08\%), and a While statement (13.79\% of likeliness to replace a For Statement). We also know that there is a 7.9\% of cases in which human programmers deleted this kind of statement, and in 10.6\% of the cases, a For statement was added to patch a bug. This
+way we provide guidelines to
+the automatic bug repair approaches to consider this on their effort to find a
+patch.
 
 \section{Threats to Validity} 
 

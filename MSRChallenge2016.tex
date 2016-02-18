@@ -557,33 +557,28 @@ require too much effort than necessary. We speculate that investigating 8 out of
 
 \subsection{Results} \label{sec:freqfixpattern}
 
-
 \begin{table}[!htb]
 	\caption{Frequency of Bug Fixing Patterns}\label{tab:freqpattern}
 	\centering
-	\begin{tabular}{lr} 
+	\begin{tabular}{lrr} 
 		\hline
-		& \textbf{GitHub}\\
+		& \textbf{\#Appearance} & \textbf{Percentage}\\
 		\hline
-		\#Buggy Files & 46,301,429 \\ 
-		\#AMP Pattern & 901,083 \\
-		\#MSM Pattern & 783,073 \\
-		\#COM Pattern & 270,128 \\ 
-		\#CBC Pattern & 1,959,377 \\  
-		\#IAO Pattern & 1,308,006 \\  
-		\#ANC Pattern & 1,340,561 \\  
-		\#AOB Pattern & 128,016 \\  
-		\#COB Pattern & 262,915 \\   
+		%Buggy Files & 46,301,429 \\ 
+		AMP Pattern & 901,083 & 1.95\%\\
+		MSM Pattern & 783,073 & 1.69\%\\
+		COM Pattern & 270,128 & 0.58\%\\ 
+		CBC Pattern & 1,959,377 & 4.23\%\\  
+		IAO Pattern & 1,308,006 & 2.82\%\\  
+		ANC Pattern & 1,340,561 & 2.90\%\\  
+		AOB Pattern & 128,016 & 0.28\%\\  
+		COB Pattern & 262,915 & 0.57\%\\   
 		\hline
 	\end{tabular}
 \end{table}
-\todo{Ferdian: please add a column that shows the number sin terms of
-  percentages, not just raw numbers.}
 
-After running the bug pattern detection approach on Boa's dataset, I obtained
-the result shown in Table~\ref{tab:freqpattern}. The result shows that AMC, MSM,
-COM, CBC, IAO, ANC, AOB, and COB pattern is found on 1.95\%, 1.69\%, 0.58\%,
-4.23\%, 2.82\%, 2.90\%, 0.28\%, and 0.57\% of buggy files. We can see that the
+After running the bug pattern detection approach on Boa's dataset, we obtained
+the result shown in Table~\ref{tab:freqpattern}. It shows that the
 most common pattern among these patterns is CBC and the least common pattern is
 AOB. If we assume that these patterns never appear together in the dataset,
 these patterns cover 14.78\% of buggy files. Kim et al. mentioned that the

@@ -176,14 +176,21 @@ David Lo\\
 
 \maketitle
 \begin{abstract}
-
-With the rise of automated program repair in the last couple of years, there are a lot of questions to remain unanswered. We performed a study on the Github dump of September 2015 in which we analyzed all the fixing revisions of this dataset, and found all the replacements, additions and deletions made to these files from real life projects in Github.
-
-We found valuable information to guide automatic software repair, such as the most common and least common replacements made by human developers in order to build a successful patch; we also analyzed what are the most likely statements to replace others. 
-
-This information will help automatic program repair tools to be more likely to find a patch and also to be more maintainable and user friendly, taking it one step closer to what humans developers do to repair their code.
-
-
+  Many implementations of recent work to automatically repair bugs in software
+  target programs written in C. Work that targets Java often begins from, or at
+  least compares to, direct translations of such techniques to a Java context.
+  However, Java and C are very different languages, and these differences should be
+  studied and understood if existing approaches are to be profitably translated
+  from one to another.  We conducted a large-scale study of bug-fixing commits
+  to Java projects, focusing on assumptions underlying common
+  search-based repair approaches.  We make a number of observations that can be
+  leveraged to guide automatic software repair to target Java specifically,
+  including common and uncommon statement replacements as conducted by human
+  developers and the applicability of previously-proposed patch construction
+  operators in the Java context.  We anticipate that these observations can
+  inform more effective patch construction techniques for Java, both in raw
+  numbers of bugs fixed and the usability and maintainability of the resulting
+  patches. 
 \end{abstract}
 
 
@@ -234,272 +241,87 @@ This information will help automatic program repair tools to be more likely to f
 
 \section{Introduction}
 
-Automatic bug repair is the branch of computer science that deals with
-automated ways to repair errors in software. There have been several approaches
-taken towards improving the different methodologies to repair bugs in software
-automatically~\cite{kim2013,weimer2009,legoues2012,pan2009}. Roughly speaking,
-there are two main categories of approaches. 
+Research in automatic bug repair seeks to develop techniques that can
+automatically construct patches to repair software bugs, which are prevalent in
+practice. There has been considerable attention paid to this problem in recent
+years~\cite{kim2013,weimer2009,legoues2012,pan2009,so,many,more}.
+Mutation-based, or generate-and-validate approaches, typically operate by
+generating a large number of candidate patches using a pre-defined set of
+mutation operators, and then validating their correctness with respect to a set
+of test cases.  These mutation operators range from simple, coarse granularity
+statement-level mutations~\cite{examples} to human-constructed templates learned
+from a large corpus of previous human bug-fixing commits~\cite{kim2013}.
 
-On the one hand, some approaches rely on mutation operators to modify the source
-code~\cite{legoues2012,weimer2009}. However, we have limited knowledge about
-what kinds of statements are usually modified. In this opportunity, we study the
-degree to which these mutation operators apply in practice, taking as a subject
-of study several million human-made bug fixes from Github. This way it will make
-it more likely for automatic error repair approaches to succeed in finding a
-patch for a particular error, and also, to provide automatic error repair
-software with guidelines to make the patches more human-like and therefore more
-readable and maintainable by human developers, as studied empirically
-by~\cite{kim2013}.
+A considerable proportion of this previous work is implemented to target
+programs written in C, with only limited attention paid to programs in other
+languages, like Java~\cite{kim2013}.  At least partially as a result,
+researchers targeting Java must either start from or at least compare against
+imperfect baselines, that is, Java-based implementations of techniques
+originally implemented for C~\cite{nopol}. %  Even PAR~\cite{kim2013}, perhaps the
+% best-known previously-proposed Java-based program repair technique, both starts
+% from and is directly compared to a Java implementation of GenProg~\cite{genprog}, which
+% targets the C programming language.  
+This C focus extends to empirical studies
+of bug fixing practice, used to inform research questions in automatic
+repair~\cite{zhong2015}. 
 
-On the other hand, some approaches~\cite{kim2013} search for specific patterns
-and modify source code according to predefined templates. A well known approach
-is PAR~\cite{kim2013}, which creates 10 different repair templates and applies
-them to the buggy code in an effort to repair it. In this paper we have taken 8
-out of the 10 PAR templates and tested how common they are in the repairs made
-by programmers in the latest official data dump of Github as of September 2015
-provided by~\cite{dyer2013}.  Our results provide evidence of how common those
-patterns are in practice. We take as reference the study performed by Dongsun
-Kim et al.~\cite{kim2013} in which they look for the most common ways in which
-programmers patch bugs in software. The researchers developed a variation of the
-tool Genprog~\cite{weimer2009,legoues2012} with several different templates
-resembling patterns programmers use to patch bugs, and then performed an
-empirical study to evaluate which patches do human programmers prefer.
+This is an oversight, because, to put it simply: Java and C are very different
+languages.  Consider GenProg~\cite{genprog,cites}, a well-known technique in
+this space: GenProg uses a genetic programming heuristic to combine
+statement-level mutations into patches to address a particular defect.
+``Statement'' is a well-defined semantic unit in the C programming
+language~\cite{cspec}; to which semantic unit in Java does this concept map?
+Can we learn more
+intelligent rules to inform candidate modifications
+(cf. Prophet~\cite{rinardPopl2016}, for C)?  What types of
+semantic scoping rules should be used to limit mutations, given the relative
+stringence of the Java compilers? 
 
-Although automatic program repair has been well studied in the programming language
-C, not much study has been done on Java. Since the programming practice between
-C and Java is not trivial, we will also show some characteristics of how human
-developers fix bugs in Java.
+In this paper, we study bug-fixing commits to Java programs, taking as a subject
+of study several million human-made bug fixes from Github. We study broad
+characteristics of changes to fix bugs; the applicability of previously-proposed
+templates to repairing defects in Java programs~\cite{kim2013}; and the nature
+of additions, replacements, of statements in bug-fixing commits. We make
+observations to directly guide future research in automatic repair to Java
+programs, to increase the success rate of such techniques and the degree to
+which the patches are human-like and therefore more readable and maintainable by
+human developers; this is important, because patch quality is an important
+concern in this research area~\cite{Qi2013}.
+
+% On the other hand, some approaches~\cite{kim2013} search for specific patterns
+% and modify source code according to predefined templates. A well known approach
+% is PAR~\cite{kim2013}, which creates 10 different repair templates and applies
+% them to the buggy code in an effort to repair it. In this paper we have taken 8
+% out of the 10 PAR templates and tested how common they are in the repairs made
+% by programmers in the latest official data dump of Github as of September 2015
+% provided by~\cite{dyer2013}.  Our results provide evidence of how common those
+% patterns are in practice. We take as reference the study performed by Dongsun
+% Kim et al.~\cite{kim2013} in which they look for the most common ways in which
+% programmers patch bugs in software. The researchers developed a variation of the
+% tool Genprog~\cite{weimer2009,legoues2012} with several different templates
+% resembling patterns programmers use to patch bugs, and then performed an
+% empirical study to evaluate which patches do human programmers prefer.
 
 A good complement for this paper is~\cite{zhong2015}, where they look for
 additions and deletions in a smaller data set. In this paper, we focus more on
 the replacements, which have been left out of the analysis of~\cite{zhong2015},
 and expand their results of the deletions and additions in a broader
 dataset~\cite{dyer2013}.
+\todo{note to self (CLG) should mention the work from Earl, Yuriy, and others
+  that looked at the redundancy assumption.}
 
-\section{Methodology}
-Our methodology is applied to the latest official data dump of Github as of
-September 2015 provided by~\cite{dyer2013}. In the following subsections, we first
-describe data source and objective of our study. We then describe how we detect
-bug fixing patterns in PAR to find out how common they are the dataset. Last but
-not least, we describe our approach to detect Delete, Replace, and Append
-bug-fixing patterns.
+\todo{roadmap}
 
-\subsection{Data Source and Research Objective}
-We used the Boa platform~\cite{dyer2013} to be able to query the Github repository
-looking for patterns that humans use to patch errors in the their code. Our main
-goal is to provide guidelines for automatic error fixing approaches by providing
-necessary information regarding historical replace, delete and append statements
-in human written patches. 
+\section{Dataset and Characteristics}
 
-\subsection{Detecting PAR Bug Fixing Pattern}\label{sec:method}
-The bug fixing patterns that we analyze in this work are adopted from Kim et
-al. paper~\cite{kim2013}. The following is the description of each considered
-pattern. 
-\todo{Ferdian: why are we only studying 7?  It's OK to not study all of them,
-  but we need to explain why.}
-  \begin{enumerate}
-	\item {\bf Altering method parameters (AMP)}\\
-	{\bf Example:} obj.method(v1,v2) $\rightarrow$ obj.method(v1,v3)\\
-	{\bf Description:} This pattern changes the input for method parameters.
-	\item {\bf Calling another method with the same parameters (MSM)}\\
-	{\bf Example:} obj.method1(param) $\rightarrow$ obj.method2(param)\\
-	{\bf Description:} This pattern changes the method name.
-	\item {\bf Calling another overloaded method with one more parameter (COM)}\\
-	{\bf Example:} obj.method(v1) $\rightarrow$ obj.method(v1,v2)\\
-	{\bf Description:} This pattern adds one more parameter to the method.
-	\item {\bf Changing a branch condition (CBC)}\\
-	{\bf Example:} if(a != b) $\rightarrow$ if(a != b \&\& c == 0)\\
-	{\bf Description:} This pattern adds or removes condition.
-	\item {\bf Initializing an object (IAO)}\\
-	{\bf Example:} Type obj $\rightarrow$ Type obj = new Type()\\
-	{\bf Description:} This pattern adds a initialization to object declaration.
-	\item {\bf Adding a null checker (ANC)}\\
-	{\bf Example:} obj.m1() $\rightarrow$ if(obj!=null){obj.m1()}\\
-	{\bf Description:} This pattern inserts a condition to check whether an object is null or not in order to prevent unexpected state.
-	\item {\bf Adding an array out of bound checker (AOB)}\\
-	{\bf Example:} arr[idx]=0 $\rightarrow$ if(idx<arr.length){arr[idx]=0}\\
-	{\bf Description:} This pattern inserts a condition to check that an array index is within bound right before the index is used.
-	\item {\bf Adding a collection out of bound checker (COB)}\\
-	{\bf Example:} x=col.get(idx) $\rightarrow$ if(idx<col.size()){x=col.get(idx)}\\
-	{\bf Description:} This pattern inserts a condition to check that a collection index is within bound before it is used.
-\end{enumerate}
-
-The above patterns only cover 8 out of 10 bug fixing patterns in PAR. The other two patterns are: (1) checking that an object is an instance of a target class before casting it; and (2) replacing expression in an if condition by another expression in the same scope. Pattern (1) cannot be analyzed because Boa does not support {\em instanceof} expression. Similarly, pattern (2) requires us to track scope between pre-fix and post-fix version, which is not supported by Boa. Implementing them ourselves might be possible, but it might require too much effort than necessary. Investigating 8 out of 10 patterns should give us a good idea on how common the patterns actually are.
-
-As mentioned before, we analyze bug fixing patterns by utilizing Boa's language
-infrastructure~\cite{dyer2013}. It contains a large number of dataset and provide
-a domain specific language to perform analysis on source code. Despite this
-advantage, Boa still have limited capability that prevents us from performing
-precise detection of bug fixing patterns. For example, it is unable to perform a
-diff between two file versions, which is needed to compare the pre-fix and the
-post-fix version of a buggy file. Thus, rather than finding the exact count of
-bug fixing patterns, we will find an approximate count of those patterns. The
-following are descriptions on how we detect each pattern.
-
-\begin{enumerate}
-\item {\bf AMP Pattern}\\
-  To detect AMP pattern, for both pre-fix and post-fix version of a buggy file,
-  we create a custom method call signature. This signature contains method name,
-  literal parameter, and variable parameter. we consider parameter containing
-  custom expression as OTHER. This is due to inexistence of function that can
-  print Abstract Syntax Tree (AST) back to source code in Boa. We discard method
-  signatures that appear both in pre-fix and post-fix version. We then find
-  whether there exists method with the same name and the same number of
-  parameters, but different parameter signatures in pre-fix and post-fix
-  version. If it exists, we consider that AMP pattern is found.
-	
-\item {\bf MSM Pattern}\\
-  To detect MSM pattern, we create method signature similar like when detecting
-  AMP pattern. This time, we find whether there exists method with the exact
-  same parameter signature but different name in pre-fix and post-fix
-  version. If it exists, we consider that MSM pattern is found.
-	
-\item {\bf COM Pattern}\\
-  To detect COM pattern, we create method signature similar like when detecting
-  AMP and COM pattern. This time, we find whether there are exists method with
-  the same name, but the number of parameters in pre-fix and post-fix version
-  differs by one. If it exists, we consider that COM pattern is found.
-	
-\item {\bf CBC Pattern}\\
-  To detect CBC pattern, we count the number of { \em logical and} and {\em
-    logical or} inside if conditional expression for both pre-fix and post-fix
-  version. we assume that the addition/removal of logical operators indicate
-  addition/removal of condition. If there are count differences between pre-fix
-  and post-fix version, we consider that CBC pattern is found.
-	
-\item {\bf IAO Pattern}\\
-  To detect IAO pattern, we count the number of NEW expression in variable
-  declaration for both pre-fix and post-fix version. If there are count
-  differences between pre-fix and post-fix version, we consider that IAO pattern
-  is found.
-	
-\item {\bf ANC Pattern}\\
-  To detect ANC pattern, we count the number of if conditional expression that
-  contains {\em !=null} or {\em ==null} for both pre-fix and post-fix
-  version. If there are count differences between pre-fix and post-fix version,
-  we consider that ANC pattern is found.
-	
-\item {\bf AOB Pattern}\\
-  To detect AOB pattern, we count the number of if conditional expression that
-  contains {\em expr<var.length} or {\em var.length>expr} for both pre-fix and
-  post-fix version. If there are count differences between pre-fix and post-fix
-  version, we consider that AOB pattern is found.
-  
-\item {\bf COB Pattern}\\
-To detect COB pattern, we count the number of if conditional expression that
-contains {\em expr<col.size()} or {\em col.size()>expr} for both pre-fix and
-post-fix version. If there are count differences between pre-fix and post-fix
-version, we consider that COB pattern is found.
-	
-\end{enumerate}
-\todo{IMPORTANT: Ferdian, where did the results go?  Please add the results of
-  the Par study into results somewhere where it fits.}
-
-
-\begin{table*}
-	\centering
-	\resizebox{\textwidth}{100pt}{
-		\begin{tabular}{|l|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|} \hline
-			&Assert&Break&Continue&Do& For&If&Label&Return&Case&Switch& Synch&Throw&Try&TypeDecl&While
-			\\ \hline
-			
-\texttt{Assert}	&-&7.48&3.76&0.53&8.30&23.05&0.31&20.04&4.90&4.62&1.30&13.50&7.23&0.03&4.95
-\\ \hline
-\texttt{Break} &1.00&-&4.08&0.60&9.93&26.03&0.13&25.39&2.48&1.57&1.79&8.39&11.73&0.10&6.77
-\\ \hline
-\texttt{Continue} &1.74&9.42&-&1.28&11.39&18.25&0.35&22.60&3.80&2.85&2.17&8.98&9.42&0.11&7.63
-\\   \hline
-\texttt{Do} &0.81&5.26&6.60&0.00&9.44&14.21&0.18&15.86&3.73&1.67&1.97&5.88&6.39&0.03&27.98
-\\ \hline
-\texttt{For} &0.86&6.28&3.19&0.79&-&22.89&0.09&21.08&5.01&3.34&1.87&10.01&10.71&0.08&13.79
-\\ \hline
-\texttt{If}&1.64&8.43&2.87&0.60&13.49&-&0.24&26.46&7.45&4.80&2.85&9.89&15.11&0.08&6.11
-\\ \hline
-\texttt{Label} &1.30&8.33&7.86&1.11&5.18&22.85&-&15.17&3.05&2.04&14.62&10.45&4.16&0.09&3.79
-\\ \hline
-\texttt{Return} &1.13&9.41&3.11&0.49&13.33&27.24&0.24&-&5.59&3.65&2.55&14.91&12.61&0.12&5.61
-\\ \hline
-\texttt{Case} &0.78&2.84&2.84&0.39&10.27&31.79&0.16&22.40&-&0.46&2.07&7.37&11.69&0.08&6.87
-\\ \hline
-\texttt{Switch}&1.14&2.72&3.80&0.55&11.07&34.14&0.13&21.86&0.75&-&1.53&8.65&9.02&0.05&4.58
-\\ \hline
-\texttt{Synch} &0.80&6.57&2.28&0.43&10.21&24.18&0.05&19.77&6.35&2.07&-&9.16&12.16&0.04&5.93
-\\ \hline
-\texttt{Throw} &2.11&6.57&2.58&0.48&11.87&18.84&0.17&32.28&4.64&3.30&2.74&-&10.08&0.07&4.27
-\\ \hline
-\texttt{Try}&0.71&7.41&3.02&0.66&11.73&27.75&0.11&23.24&5.63&2.65&2.58&8.99&-&0.09&5.42
-\\ \hline
-\texttt{TypeDecl} &0.00&4.51&7.52&1.00&10.28&21.05&0.50&17.79&6.02&1.75&2.01&9.27&11.53&-&6.77
-\\ \hline
-\texttt{While}& 0.72&8.02&3.82&1.96&23.16&19.78&0.12&16.48&6.56&3.09&1.64&6.81&7.80&0.04&-
-			\\ \hline
-		\end{tabular}
-		}
-		\caption{Likelyness to replace the statement in the first column for the statement in the top row, in Java}
-\end{table*}
-
-
-\subsection{Replace Query}
-The replace query we designed, is a query in which we create a visitor to traverse all the fixing revisions in this repository~\cite{dyer2013}. Therefore we are analyzing only files
-that were already committed and are now being reviewed to fix an error. 
-
-We visit each statement in the previous state of that changed
-file, before the change was applied and we count the amount of appearances of
-the first statement we are analyzing (the one that was deleted), and then we
-count the amount of appearances of the second statement we are analyzing (the
-one that was inserted). We save these values, and do the same for the latest
-version of the file and save these values as well.
-
-We then compare these results to see if either the first and second statements
-being analyzed increased or decreased. Depending on these we have two
-conditionals:
-
-If the amount of occurrences of the first statement decreased and the amount of
-occurrences of the second statement increased on the same file, then we say that
-the first statement was replaced by the second statement in that file. Likewise,
-if the amount of occurrences of the first statement increased and the amount of
-occurrences of the second statement decreased on the same file, we say that the
-second statement was replaced by the first statement in that file. We count the
-amount of files in which this happens for each of these two cases.
-
-The numbers in the slots of Table 1, represent the percentage rate at which the elements of the leftmost column were replaced by the elements of the top row. In the first column we have the list of statements that are being replaced (faulty statements that were removed), and on the top row we have the list of statements for which that statement was replaced for (the new statement put instead). For example, if we take the intersection of row 5 (DoStatement row) and column 2 (AsserStatement column) of the data, we have a 0.81, which means that if we take all the instances in which a Do statement was replaced by something else, the amount of times that it was replaced by an Assert statement, represent a 0.81% of the times.
-
-It is important to notice  that this analysis doesn't consider replacing an statement kind for a different version of the same statement kind, since it is counting the amount of appearances of each statement kind. So, if for example, the developer modifies the condition inside of an if statement, the amount of if statements in the file will remain the same.
-
-\section{Results}
-
-% (This is the old version)
-% This section investigates how do developer fix bugs from three different
-% perspectives. To begin with, we show some characteristics of real-world bug
-% fixes.  Afterwards, we look deeper to find out what kinds of statements are
-% usually added, modified or deleted by human developers to fix bugs. Lastly, we
-% show how common PAR's fixing templates are in our dataset. 
-
-This section shows our analysis results. To begin with, we discuss the dataset
-we are using, and some characteristics of real-world bug fixes. Afterwards, we
-provide insights for two main categories of automatic program repair approaches.
-On the one hand, some approaches rely on mutation operators to
-modify the source code~\cite{legoues2012,weimer2009}, but we have limited knowledge about what kinds of
-statements are usually modified. Our analysis results will fill in this
-knowledge gap. On the other hand, some automatic program repair approaches~\cite{kim2013} search for specific patterns and modify source code according to
-predefined templates. Our results provide evidence of how common those
-patterns are in practice.
-
-\subsection{Dataset and Characteristics}
-
-We did our analysis on the \emph{2015 September/Github} dataset on Boa. This
-dataset includes $7,830,023$ Java projects with $23,229,406$ revisions. Among
+We begin by broadly characterizing the bug-fixing changes to Java code in our
+dataset. 
+We perform our analysis on the \emph{2015 September/Github} dataset on Boa, 
+which includes $7,830,023$ Java projects with $23,229,406$ revisions. Among
 all the revisions, $4,590,679$ revisions are identified by Boa as bug fixing
-revisions. We hope that this population is big enough to reflect the bug fixing
-practice.
+revisions.
 
-The rest of this subsection shows some characteristics of real-world bug fixes.
-To begin with, we are interested in:
-
-\begin{quote}
-	How many files are changed to fix a bug?
-\end{quote}
-
+\paragraph{How many files are changed to fix a bug?}
 To answer this question, we identify all the bug fixing revisions in our dataset
 and count the number of changed files. A file was changed if (1) it was a new
 file; (2) or it was modified; (3) or it was deleted. In total, $52,052,571$
@@ -512,10 +334,7 @@ that bug fixing commit also contains changes that are not related to fixing bug
 (e.g. refactoring, adding new features by creating new files). To better
 understand why so many files are changed, we continue to ask:
 
-\begin{quote}
-	What are the file types of those changed files?
-\end{quote}
-
+\paragraph{What are the file types of those changed files?}
 In Boa, each changed file is represented by a \emph{ChangedFile} node, and it
 has a field called \emph{FileKind}, describing the type of each file. As
 mentioned earlier, a \emph{ChangedFile} could be either a new file or an
@@ -572,14 +391,14 @@ changed Java files, some of them are related to testing, such as modifying the
 test cases and creating new test classes. To better understand what changes are
 usually made to Java source code files, we continue to ask:
 
-\begin{quote}
-	How often do developers introduce new classes, methods, fields, variables in
-	bug fixing commits?
-\end{quote}
-
+\paragraph{
+How often do developers introduce new classes, methods, fields, variables in
+	bug fixing commits?}
 This research question is interesting because most automatic program repair
 approaches often do not create new classes/methods/fields/variables to fix bugs.
-Most approaches guess and synthesize the patches based on existing source code.
+Most approaches guess and synthesize the patches based on existing source code,
+and direct translations of approaching from C to Java do not naturally consider
+object-oriented concerns, like fields or classes. 
 
 Table~\ref{tbl:new} shows our analysis results. This table shows that
 introducing new classes and new variables are rare. This is good news for
@@ -607,78 +426,137 @@ the state of the class when fixing Java programs.
 % \todo{Is there room/call to include any element of Chu Pan's replacement
 %   analysis in here?}
 
+\section{PAR Bug Fixing Patterns}\label{sec:method}
 
-\subsection{What changes are common in real-world bug fixes?}
+Par is a well-known technique for patch generation that 
+On the other hand, some approaches~\cite{kim2013} searches for specific patterns
+and modifies java code according to predefined templates, constructed by humans
+to cover a large set of bug fixes from an existing corpus.  As one of the only
+techniques to directly target Java, it is an important source of possible
+mutations to study to inform future directions. 
+We therefore search for and analyze most of the bug fixing patterns proposed by
+Kim et al.~\cite{kim2013} and assess their prevalence on this distinct
+dataset by using Boa's language infrastructure~\cite{dyer2013} to identify the patterns
+in the commits in the dataset.
 
-Most automatic program repair approaches mutate source code using predefined
-mutation operators, which represent different ways of modifying source code. In
-order to generate patches that make more sense to human developers, it would be
-beneficial to first investigate how developers mutate source code to fix bugs. 
+% A well known approach
+% is PAR~\cite{kim2013}, which creates 10 different repair templates and applies
+% them to the buggy code in an effort to repair it. In this paper we have taken 8
+% out of the 10 PAR templates and tested how common they are in the repairs made
+% by programmers in the latest official data dump of Github as of September 2015
+% provided by~\cite{dyer2013}.  Our results provide evidence of how common those
+% patterns are in practice. We take as reference the study performed by Dongsun
+% Kim et al.~\cite{kim2013} in which they look for the most common ways in which
+% programmers patch bugs in software. The researchers developed a variation of the
+% tool Genprog~\cite{weimer2009,legoues2012} with several different templates
+% resembling patterns programmers use to patch bugs, and then performed an
+% empirical study to evaluate which patches do human programmers prefer.
 
-For each bug fixing revision $r$ and each statement kind $k$, we count how many
-statements of kind $k$ are there in revision $r$ and $r-1$ ($r-1$ means the
-revision before revision $r$), and then compare the two numbers. For example, if
-the number of if statements in revision $r$ is more than the number in revision
-$r-1$, we say bug fixing revision $r$ introduce new if statements. Note that
-``introducing new if statements'' does not necessarily mean human developers
-introduce them to fix bugs. However, our hope is that this analysis could still
-provide us some hints, given the large number of bug fixing revisions we are
-analyzing.
+\subsection{Detecting PAR patterns in Boa}
 
-\begin{figure*}[!t] \centering
-	\includegraphics[width=0.95\textwidth]{StmtType} \caption{For each kind
-	of statement, how many bug fixing revisions add/delete statements of the
-same kind?} \label{fig:StmtType} \end{figure*}
+Boa's capabilities are powerful, but are limited in the precision it enables in
+our detection of these patterns. For example, it is unable to directly perform a
+diff between two file versions. Thus, rather than finding the exact count of
+bug fixing patterns, we will find an approximate count by processing pre- and
+post- fix files separately.  Additionally, there are
+two of the originally proposed 10 patterns that cannot be easily detected by
+Boa, as we describe below. 
 
-From Figure~\ref{fig:StmtType} \todo{fix the small fonts in this graph}, we can
-see that expression, if, return, for and try catch statements are added most
-often. On the other hand, the same types of statements are also deleted most
-often. This finding indicates that most bugs were fixed by changing the control
-flow of the program using if, return, for, while, and try catch statements. 
+The patterns we search for are as follows, including our mechanism for
+detecting them using Boa:
 
-For each bug fixing revision, the results discussed above consider both newly
-added files and existing files. Since most automatic program repair approaches
-do not generate new files to fix bugs, the rest of this section only considers
-files that were already in the repositories when developers fixed bugs. Our
-analysis shows that there are 46,301,429 of them. In these files, there is a
-total of 517,281 statement kinds being replaced, and 511,198 replacing these
-statements kinds.
+\vspace{1ex}
+\noindent {\bf Altering method parameters (AMP)}.  This pattern changes the
+input for method parameters.  {\bf Example:} obj.method(v1,v2) $\rightarrow$
+obj.method(v1,v3). To detect this pattern, for both pre-fix and post-fix version
+of a buggy file, we create a custom method call signature. This signature
+contains method name, literal parameter, and variable parameter. we consider
+parameter containing custom expression as OTHER. This is due to inexistence of
+function that can print Abstract Syntax Tree (AST) back to source code in
+Boa. We discard method signatures that appear both in pre-fix and post-fix
+version. We then find whether there exists method with the same name and the
+same number of parameters, but different parameter signatures in pre-fix and
+post-fix version. If it exists, we consider that AMP pattern is found.
 
-We analyzed each of these files looking for statement kinds being either replaced by other kinds, deleted or appended to the file.
+\vspace{1ex}
+\noindent {\bf Calling another method with the same parameters (MSM)}.  This
+pattern changes a method name.  {\bf Example:} obj.method1(param) $\rightarrow$
+obj.method2(param).  To detect this pattern, we create method signature similar
+like when detecting AMP pattern. This time, we find whether there exists method
+with the exact same parameter signature but different name in pre-fix and
+post-fix version. If it exists, we consider that MSM pattern is found.
 
-We found that the most common Replacer statement kind, meaning the statement
-kind that most commonly replaces others is the \textbf{If Statement} with
-101,366 appearances. The least common Replacer, meaning the statement kind which
-is less likely to replace other statement kinds is the \textbf{Type Declaration
-  Statement} with 447 appearances.
+\vspace{1ex}
+\noindent
+{\bf Calling another overloaded method with one more parameter (COM)}. This
+pattern adds one more parameter to a method. 
+	{\bf Example:} obj.method(v1) $\rightarrow$ obj.method(v1,v2).
+  To detect COM pattern, we create method signature similar like when detecting
+  AMP and COM pattern. This time, we find whether there are exists method with
+  the same name, but the number of parameters in pre-fix and post-fix version
+  differs by one. If it exists, we consider that COM pattern is found.
 
-The most common Replacee, which is the most likely statement kind to be replaced
-by another statement kind is the \textbf{Return Statement} with 111,938
-appearances. The least common Replacee, which is the least common statement to
-be replaced by another statement kind is the \textbf{Type Declaration Statement}
-with 399 appearances.
+\vspace{1ex}
+\noindent
+ {\bf Changing a branch condition (CBC)}. This pattern adds or removes a condition.
+	{\bf Example:} if(a != b) $\rightarrow$ if(a != b \&\& c == 0).
+  To detect CBC pattern, we count the number of { \em logical and} and {\em
+    logical or} inside if conditional expression for both pre-fix and post-fix
+  version. we assume that the addition/removal of logical operators indicate
+  addition/removal of condition. If there are count differences between pre-fix
+  and post-fix version, we consider that CBC pattern is found.
 
-\subsubsection{Likeliness of replacement}
-This study is directly applicable to automatic software repair. Most common
-tools for automatic software repair~\cite{kim2013,weimer2009,legoues2012}
-first find a faulty statement using several different fault localization
-techniques~\cite{fry2010}, and once they have that faulty statement, they apply
-different kinds of edits to it, usually at random. Which makes it equally likely
-to replace an statement for another without looking at the kinds of statements
-being replaced.
+\vspace{1ex}
+\noindent
+ {\bf Initializing an object (IAO)}. This pattern adds a initialization to object declaration.
+  To detect IAO pattern, we count the number of NEW expression in variable
+  declaration for both pre-fix and post-fix version. If there are count
+  differences between pre-fix and post-fix version, we consider that IAO pattern
+  is found.
+	{\bf Example:} Type obj $\rightarrow$ Type obj = new Type(). 
 
-With this study, we are able to make a more accurate guess, when having a known faulty statement, to which statement it is more likely to replace it for. By taking a look at the data of Table 1, we can find the most likely replacements that will end up being a successful patch. 
+\vspace{1ex}
+\noindent
+ {\bf Adding a null checker (ANC)}.  This pattern inserts a condition to check whether an
+    object is null or not in order to prevent unexpected state.
+	{\bf Example:} obj.m1() $\rightarrow$ if(obj!=null){obj.m1()}
+  To detect ANC pattern, we count the number of if conditional expression that
+  contains {\em !=null} or {\em ==null} for both pre-fix and post-fix
+  version. If there are count differences between pre-fix and post-fix version,
+  we consider that ANC pattern is found.
 
-For example, if we are fixing a Java program, and we have a faulty statement that happens to be a For Statement. Then we can look up in Table 1 the For Statement Row (6th row), and take a look at the probability of that statement to be replaced by other kinds of statement. In this example we see that the top 3 most likely statements to replace a For Statement are an If statement with a 22.89\% likeliness, followed by a return statement with a 21.08\%, and third is a While statement with a 13.79\% of likeliness to replace a For Statement. This way we know that it is more likely for a programmer to replace a For Statement for those three different kinds of statements and this provides guidelines to the automatic bug repair approaches to consider this on their effort to find a patch.
+\vspace{1ex}
+\noindent
+ {\bf Adding an array out of bound checker (AOB)}. This pattern inserts a condition to check that an array
+    index is within bound right before the index is used.
+	{\bf Example:} arr[idx]=0 $\rightarrow$ if(idx<arr.length){arr[idx]=0}.
+  To detect AOB pattern, we count the number of if conditional expression that
+  contains {\em expr<var.length} or {\em var.length>expr} for both pre-fix and
+  post-fix version. If there are count differences between pre-fix and post-fix
+  version, we consider that AOB pattern is found.
 
-\subsubsection{Most common replacements}
-Our results show that the most common replacement is when developers remove a Return statement and insert an If statement. This showed up in 30,489 files in the code database. The second most common replacement is removing an If statement and insert a Return statement instead, which had 28,536 appearances in the code database. Third to that, is to remove a Return statement and insert a Throw statement.
+\vspace{1ex}
+\noindent
+ {\bf Adding a collection out of bound checker (COB)}.  This pattern inserts a condition to check that a
+    collection index is within bound before it is used.
+	{\bf Example:} x=col.get(idx) $\rightarrow$ if(idx<col.size()){x=col.get(idx)}\\
+To detect COB pattern, we count the number of if conditional expression that
+contains {\em expr<col.size()} or {\em col.size()>expr} for both pre-fix and
+post-fix version. If there are count differences between pre-fix and post-fix
+version, we consider that COB pattern is found.
 
-\subsubsection{Least common replacements}
-On the opposite side of the data, we can see that the least common replacement was an Assert statement replacing a Type Declaration statement. This was the only replacement to have zero appearances in our search through the 46,301,429 files being fixed. Close to it, as the second least common replacement was removing a Do statement and insert a Type Declaration statement, with one appearance in our code database, and on third place, removing a Label and insert a Type Declaration Statement had one appearance in our code database.
+\vspace{1ex} The above patterns only cover 8 out of 10 bug fixing patterns in
+PAR. The other two patterns are: (1) checking that an object is an instance of a
+target class before casting it; and (2) replacing expression in an if condition
+by another expression in the same scope. Pattern (1) cannot be analyzed because
+Boa does not support the {\em instanceof} expression. Similarly, pattern (2)
+requires us to track scope between pre-fix and post-fix version, which is not
+supported by Boa. Implementing them ourselves might be possible, but it might
+require too much effort than necessary. We speculate that investigating 8 out of
+10 patterns should give us a good idea on how common the patterns actually are.
 
-\subsection{How common are the fixing templates of PAR?}\label{sec:freqfixpattern}
-After running the bug pattern detection approach on Boa's dataset, I obtained the result shown in Table~\ref{tab:freqpattern}. The result shows that AMC, MSM, COM, CBC, IAO, ANC, AOB, and COB pattern is found on 1.95\%, 1.69\%, 0.58\%, 4.23\%, 2.82\%, 2.90\%, 0.28\%, and 0.57\% of buggy files. We can see that the most common pattern among these patterns is CBC and the least common pattern is AOB. If we assume that these patterns never appear together in the dataset, these patterns cover 14.78\% of buggy files. Kim et al. mentioned that the patterns that they use cover almost 30\% of real patches~\cite{kim2013}. Although we only detect 8 out of 10 bug fixing patterns, it is hard to believe that the remaining two patterns cover 15\% of buggy files, especially 14.78\% is a number we get when we assume that the patterns that we detect never appear together. Moreover, the percentage of each pattern is based on imprecise approximation which is likely to represent an upper bound rather than a lower bound. This suggests that common bug fixing patterns might not be as common as it appeared to be.
+\subsection{Results} \label{sec:freqfixpattern}
+
 
 \begin{table}[!htb]
 	\caption{Frequency of Bug Fixing Patterns}\label{tab:freqpattern}
@@ -699,6 +577,209 @@ After running the bug pattern detection approach on Boa's dataset, I obtained th
 		\hline
 	\end{tabular}
 \end{table}
+\todo{Ferdian: please add a column that shows the number sin terms of
+  percentages, not just raw numbers.}
+
+After running the bug pattern detection approach on Boa's dataset, I obtained
+the result shown in Table~\ref{tab:freqpattern}. The result shows that AMC, MSM,
+COM, CBC, IAO, ANC, AOB, and COB pattern is found on 1.95\%, 1.69\%, 0.58\%,
+4.23\%, 2.82\%, 2.90\%, 0.28\%, and 0.57\% of buggy files. We can see that the
+most common pattern among these patterns is CBC and the least common pattern is
+AOB. If we assume that these patterns never appear together in the dataset,
+these patterns cover 14.78\% of buggy files. Kim et al. mentioned that the
+patterns that they use cover almost 30\% of real
+patches~\cite{kim2013}. Although we only detect 8 out of 10 bug fixing patterns,
+it is hard to believe that the remaining two patterns cover 15\% of buggy files,
+especially 14.78\% is a number we get when we assume that the patterns that we
+detect never appear together. Moreover, the percentage of each pattern is based
+on imprecise approximation which is likely to represent an upper bound rather
+than a lower bound. This suggests that common bug fixing patterns might not be
+as common as it appeared to be.
+
+\section{Statement-level mutations}
+
+\begin{table*}
+	\centering
+	\resizebox{\textwidth}{100pt}{
+		\begin{tabular}{|l|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|} \hline
+			&Assert&Break&Continue&Do& For&If&Label&Return&Case&Switch& Synch&Throw&Try&TypeDecl&While
+			\\ \hline
+			
+\texttt{Assert}	&-&7.48&3.76&0.53&8.30&23.05&0.31&20.04&4.90&4.62&1.30&13.50&7.23&0.03&4.95
+\\ \hline
+\texttt{Break} &1.00&-&4.08&0.60&9.93&26.03&0.13&25.39&2.48&1.57&1.79&8.39&11.73&0.10&6.77
+\\ \hline
+\texttt{Continue} &1.74&9.42&-&1.28&11.39&18.25&0.35&22.60&3.80&2.85&2.17&8.98&9.42&0.11&7.63
+\\   \hline
+\texttt{Do} &0.81&5.26&6.60&0.00&9.44&14.21&0.18&15.86&3.73&1.67&1.97&5.88&6.39&0.03&27.98
+\\ \hline
+\texttt{For} &0.86&6.28&3.19&0.79&-&22.89&0.09&21.08&5.01&3.34&1.87&10.01&10.71&0.08&13.79
+\\ \hline
+\texttt{If}&1.64&8.43&2.87&0.60&13.49&-&0.24&26.46&7.45&4.80&2.85&9.89&15.11&0.08&6.11
+\\ \hline
+\texttt{Label} &1.30&8.33&7.86&1.11&5.18&22.85&-&15.17&3.05&2.04&14.62&10.45&4.16&0.09&3.79
+\\ \hline
+\texttt{Return} &1.13&9.41&3.11&0.49&13.33&27.24&0.24&-&5.59&3.65&2.55&14.91&12.61&0.12&5.61
+\\ \hline
+\texttt{Case} &0.78&2.84&2.84&0.39&10.27&31.79&0.16&22.40&-&0.46&2.07&7.37&11.69&0.08&6.87
+\\ \hline
+\texttt{Switch}&1.14&2.72&3.80&0.55&11.07&34.14&0.13&21.86&0.75&-&1.53&8.65&9.02&0.05&4.58
+\\ \hline
+\texttt{Synch} &0.80&6.57&2.28&0.43&10.21&24.18&0.05&19.77&6.35&2.07&-&9.16&12.16&0.04&5.93
+\\ \hline
+\texttt{Throw} &2.11&6.57&2.58&0.48&11.87&18.84&0.17&32.28&4.64&3.30&2.74&-&10.08&0.07&4.27
+\\ \hline
+\texttt{Try}&0.71&7.41&3.02&0.66&11.73&27.75&0.11&23.24&5.63&2.65&2.58&8.99&-&0.09&5.42
+\\ \hline
+\texttt{TypeDecl} &0.00&4.51&7.52&1.00&10.28&21.05&0.50&17.79&6.02&1.75&2.01&9.27&11.53&-&6.77
+\\ \hline
+\texttt{While}& 0.72&8.02&3.82&1.96&23.16&19.78&0.12&16.48&6.56&3.09&1.64&6.81&7.80&0.04&-
+			\\ \hline
+		\end{tabular}
+		}
+		\caption{Likeliness to replace the statement in the first column for the statement in the top row, in Java}
+\end{table*}
+
+
+Most automatic program repair approaches mutate source code using predefined
+mutation operators, which represent different ways of modifying source code. In
+order to generate patches that make more sense to human developers, it would be
+beneficial to first investigate how developers mutate source code to fix bugs. 
+Thus, beyond characterizing the degree to which previously-proposed Java-specific
+operators apply in our dataset, we further characterized the nature of
+coarser-grained replacement operators, which are also commonly translated from C
+techniques to Java.  We did this via a query that visits all fixing revisions in
+the repository; as a result, we analyze files to which changes have been made
+and thuswere already committed and are now being reviewed to fix an error. 
+
+\subsection{Replacements}
+\todo{The biggest problem right now is the lack of integration between this
+  study and Chu Pan's.  Please work together to find a way to unify it.  One of
+  you will need to cut some of your text.  I don't care who, but we need to find
+  a way to tell one story.}
+
+Because direct diffs are difficult to identify, we heuristically approximate the
+extent to which one statement type appears to be ``replaced'' by another across
+this dataset.  To do this, for each modified file, we count the number of
+appearances of each statement type in the file pre- and post-commit.  We then
+compare the results to see how many of each statement type was removed, and how
+many inserted, to roughly characterize the types of replacement that happen at a
+per-file level.  For each statement type (as tagged by the Boa infrastructure
+for Java), we process the results as follows: 
+if number occurrences of one statement type decreased post-fix and the number of
+another type increased, we say that
+the first statement type was replaced by the second statement type for that
+file.  We collate these results over all statement types and all files modified
+in bug fixing commits in the dataset. 
+
+
+It is important to notice that this analysis doesn't consider replacing an
+statement kind for a different version of the same statement kind, since it is
+counting the amount of appearances of each statement kind. So, if for example,
+the developer modifies the condition inside of an if statement, the amount of if
+statements in the file will remain the same.
+
+The numbers in the slots of Table 1, represent the percentage rate at which the
+elements of the leftmost column were replaced by the elements of the top row. In
+the first column we have the list of statements that are being replaced (faulty
+statements that were removed), and on the top row we have the list of statements
+for which that statement was replaced for (the new statement put instead). For
+example, if we take the intersection of row 5 (DoStatement row) and column 2
+(AsserStatement column) of the data, we have a 0.81, which means that if we take
+all the instances in which a Do statement was replaced by something else, the
+amount of times that it was replaced by an Assert statement, represent a
+0.81% of the times.
+
+
+This study is directly applicable to automatic software repair. Most common
+tools for automatic software repair~\cite{kim2013,weimer2009,legoues2012}
+first find a faulty statement using several different fault localization
+techniques~\cite{fry2010}, and once they have that faulty statement, they apply
+different kinds of edits to it, usually at random. Which makes it equally likely
+to replace an statement for another without looking at the kinds of statements
+being replaced.
+
+With this study, we are able to make a more accurate guess, when having a known
+faulty statement, to which statement it is more likely to replace it for. By
+taking a look at the data of Table 1, we can find the most likely replacements
+that will end up being a successful patch.
+
+For example, if we are fixing a Java program, and we have a faulty statement
+that happens to be a For Statement. Then we can look up in Table 1 the For
+Statement Row (6th row), and take a look at the probability of that statement to
+be replaced by other kinds of statement. In this example we see that the top 3
+most likely statements to replace a For Statement are an If statement with a
+22.89\% likeliness, followed by a return statement with a 21.08\%, and third is
+a While statement with a 13.79\% of likeliness to replace a For Statement. This
+way we know that it is more likely for a programmer to replace a For Statement
+for those three different kinds of statements and this provides guidelines to
+the automatic bug repair approaches to consider this on their effort to find a
+patch.
+
+\subsubsection{Most common replacements}
+Our results show that the most common replacement is when developers remove a
+Return statement and insert an If statement. This showed up in 30,489 files in
+the code database. The second most common replacement is removing an If
+statement and insert a Return statement instead, which had 28,536 appearances in
+the code database. Third to that, is to remove a Return statement and insert a
+Throw statement.
+
+\subsubsection{Least common replacements}
+On the opposite side of the data, we can see that the least common replacement
+was an Assert statement replacing a Type Declaration statement. This was the
+only replacement to have zero appearances in our search through the 46,301,429
+files being fixed. Close to it, as the second least common replacement was
+removing a Do statement and insert a Type Declaration statement, with one
+appearance in our code database, and on third place, removing a Label and insert
+a Type Declaration Statement had one appearance in our code database.
+
+
+\subsection{Deletions and insertions}
+
+
+\begin{figure*}[!t] \centering
+	\includegraphics[width=0.95\textwidth]{StmtType} \caption{For each kind
+	of statement, how many bug fixing revisions add/delete statements of the
+same kind?} \label{fig:StmtType} \end{figure*}
+
+For each bug fixing revision $r$ and each statement kind $k$, we count how many
+statements of kind $k$ are there in revision $r$ and $r-1$ ($r-1$ means the
+revision before revision $r$), and then compare the two numbers. For example, if
+the number of if statements in revision $r$ is more than the number in revision
+$r-1$, we say bug fixing revision $r$ introduce new if statements. Note that
+``introducing new if statements'' does not necessarily mean human developers
+introduce them to fix bugs. However, our hope is that this analysis could still
+provide us some hints, given the large number of bug fixing revisions we are
+analyzing.
+
+From Figure~\ref{fig:StmtType} \todo{fix the small fonts in this graph}, we can
+see that expression, if, return, for and try catch statements are added most
+often. On the other hand, the same types of statements are also deleted most
+often. This finding indicates that most bugs were fixed by changing the control
+flow of the program using if, return, for, while, and try catch statements. 
+
+For each bug fixing revision, the results discussed above consider both newly
+added files and existing files. Since most automatic program repair approaches
+do not generate new files to fix bugs, the rest of this section only considers
+files that were already in the repositories when developers fixed bugs. Our
+analysis shows that there are 46,301,429 of them. In these files, there is a
+total of 517,281 statement kinds being replaced, and 511,198 replacing these
+statements kinds.
+
+We analyzed each of these files looking for statement kinds being either
+replaced by other kinds, deleted or appended to the file. 
+
+We found that the most common Replacer statement kind, meaning the statement
+kind that most commonly replaces others is the \textbf{If Statement} with
+101,366 appearances. The least common Replacer, meaning the statement kind which
+is less likely to replace other statement kinds is the \textbf{Type Declaration
+  Statement} with 447 appearances.
+
+The most common Replacee, which is the most likely statement kind to be replaced
+by another statement kind is the \textbf{Return Statement} with 111,938
+appearances. The least common Replacee, which is the least common statement to
+be replaced by another statement kind is the \textbf{Type Declaration Statement}
+with 399 appearances.
 
 \section{Threats to Validity} 
 

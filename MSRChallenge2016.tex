@@ -295,15 +295,15 @@ fixing.
 \vspace{1ex}
 \noindent\textbf{How many files are changed to fix a bug?}
 %
-We consider a file changed if it is new, modified, or
-deleted in a commit. In total, $52,052,571$ files were changed, an average of 
-$11.3$ files per bug-fixing commit.  This is surprisingly high:
-most automatic program repair techniques assume that bugs are local.
-We hypothesize several explanations: Other
-software artifacts (e.g.  documentation) may be updated after bug  
-fixing, or fixing commits may contain changes
-unrelated to fixing the bug (e.g. refactoring, feature addition). 
-To better understand this
+
+We consider a file changed if it is new, modified, or deleted in a commit. In
+total, $52,052,571$ files were changed, an average of $11.3$ files per
+bug-fixing commit, and the median number is $2$.  Although the median number
+conforms to our intuition, the average is surprisingly high: most automatic
+program repair techniques assume that bugs are local.  We hypothesize several
+explanations: Other software artifacts (e.g.  documentation) may be updated
+after bug  fixing, or fixing commits may contain changes unrelated to fixing
+the bug (e.g.  refactoring, feature addition).  To better understand this
 phenomenon, we ask:
 
 \begin{table}
@@ -332,20 +332,19 @@ To answer this question, we iterate over all changed files in each bug fixing
 revision and count the total number for each file type. Results are shown in
 Table~\ref{tbl:fileType}.
 %
-JAVA (ERROR) files are those that Boa failed to parse. JLS2,
-JLS3, and JLS4 represent Java files written in different J2SE versions.  We see that text and Binary files are
-changed least frequently. This is unsurprising, since text files are often
-documentation, and binaries should only be changed rarely. If we consider all 4 kinds of Java
-files as one kind, on average, each bug fixing revision changes $4.47$ Java
-files. This still does not conform to our assumption of bug locality. XML
-files in Java projects usually represent build files; changing a build
-file is unsurprising.  Rather more surprising is how frequently UNKNOWN files
-are changed. Given that all the projects are Java projects, 
-it is unclear whether these are written in other proramming
-languages. We hypothesize they might be test resources.
-\todo{possibly mention median, if Chu Pan gets that information}
-To better understand what changes are usually made to Java source code
-files, we next ask:
+
+JAVA (ERROR) files are those that Boa failed to parse. JLS2, JLS3, and JLS4
+represent Java files written in different J2SE versions.  We see that text and
+Binary files are changed least frequently. This is unsurprising, since text
+files are often documentation, and binaries should be changed rarely. If we
+consider all 4 kinds of Java files as one kind, on average, each bug fixing
+revision changes $4.47$ Java files. This does not conform to our assumption of
+bug locality. XML files in Java projects usually represent build files;
+changing build files is unsurprising.  Rather more surprising is how frequently
+UNKNOWN files are changed. Given that all projects are Java projects, it is
+unclear whether these are written in other programming languages. We
+hypothesize they might be test resources.  To better understand what changes
+are usually made to Java files, we next ask:
 
 \vspace{1ex}
 \noindent\textbf{How often do developers introduce new classes, methods, fields,
@@ -380,8 +379,6 @@ the class when fixing Java programs.
 \vspace{-0.5cm}
 \end{table}
 
-% \todo{Is there room/call to include any element of Chu Pan's replacement
-%   analysis in here?}
 
 \section{Bug Fixing Patterns}\label{sec:method}
 
@@ -661,7 +658,7 @@ provided by Boa, the correctness of our analysis
 depends on both our programs and Boa itself. For example, we rely on Boa to
 identify bug fixing revisions; however, precisely accomplishing this is an open
 problem.  To mitigate the risk of errors in
-implementation, we open source our scripts~\footnote{\todo{FIX THIS NOW}}.
+implementation, we open source our scripts~\footnote{\url{https://github.com/chupanw/BoaChallenge}}.
 Because Boa does not provide an easy mechanism
 to identify precise, statement-level diffs between revisions, our template
 matching and analysis of code changes (by counting each statement kind) only

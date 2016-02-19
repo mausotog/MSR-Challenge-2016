@@ -215,7 +215,7 @@ Mauricio Soto$^1$, Ferdian Thung$^2$, Chu-Pan Wong$^1$, Claire Le Goues$^1$, and
 
 There has been considerable attention paid to the problem of automatic
 program repair in recent
-years~\cite{kim2013,legoues2012,pan2009,Weimer13, Qi13,
+years~\cite{kim2013,legoues2012,pan2009,
   Mechtaev15,prophet}, among many others),
 %
 One broad class of techniques in this space take a generate-and-validate
@@ -269,16 +269,16 @@ concern in this research area~\cite{Qi15}.
 % empirical study to evaluate which patches do human programmers prefer.
 
 
-\noindent\textbf{Related work.} A good complement to this paper is~\cite{zhong2015}, which studies 
+\noindent\textbf{Related work.} Zhong and Su~\cite{zhong2015} study
 a similar set of questions in C.  Beyond focusing on Java, we focus more on
-replacements, ommitted from that previous analysis, and otherwise target a
+replacements, ommitted from that previous analysis, and target a
 larger dataset~\cite{dyer2013}.  Barr et al.~\cite{Barr14fse} studied changes to
 Java programs to understand the ``Plastic Surgery Hypothesis'' underlying
-certain types of program repair techniques, an important but orthogonal
+certain types of program repair, an important but orthogonal
 concern. Kim et al.~\cite{kim2013} manually analyze 
 changes to Java programs to inform an automated repair
 technique and show that doing so results in higher-quality repairs; 
-we attempt to validate their learned templates heuristically on
+we attempt to validate their templates heuristically on
 a different dataset, and take their results as
 motivation for understanding human repairs (as it may result in better patches).
 Long and Rinard learn probabilistic models from bug fixes to C
@@ -501,7 +501,7 @@ version, we consider that IAO pattern is found.
     collection index is within bound before it is used.
 To detect COB pattern, we count the number of if conditional expression that
 contains {\em expr<col.size()} or {\em col.size()>expr} for both pre-fix and
-post-fix version. If there are count differences between pre-fix and post-fix
+post-fix version. If the count is different between pre- and post-fix
 version, we consider the COB pattern found.
 
 \vspace{1ex} The above patterns cover 8 out of 10 bug fixing patterns in
@@ -538,9 +538,20 @@ easily supported by Boa.  Investigating 8 out of the
 
 
 
+Table~\ref{tab:freqpattern} estimates the prevelance of PAR templates in the
+Java dataset. The most common pattern we observed is CBC; and the least common
+pattern is AOB. If we assume that these patterns never appear together, they
+cover 14.78\% of buggy files. Kim et al. mentioned that the patterns that they
+use cover almost 30\% of real patches~\cite{kim2013}. Although we only detect 8
+out of 10 bug fixing patterns, it is unlikely the final two will cover the
+difference. Moreover, our detection is imprecise, and likely represents an upper
+bound;  This suggests that common bug fixing patterns might not generalize
+beyond an initial dataset, and that more work remains to identify a sufficiently
+expressive set of mutations for high-quality automated repair of Java.
 
 
 
+\section{Statement-level mutations}
 \begin{table*}
 	\centering
 	\resizebox{\textwidth}{100pt}{
@@ -583,146 +594,135 @@ easily supported by Boa.  Investigating 8 out of the
 		\caption{Likeliness to replace the statement in the first column for the statement in the top row, in Java}\label{tab:likeliness}
 \end{table*}
 
-After running the bug pattern detection approach on Boa's dataset, we obtained
-the result shown in Table~\ref{tab:freqpattern}. It shows that the
-most common pattern among these patterns is CBC and the least common pattern is
-AOB. If we assume that these patterns never appear together,
-they cover 14.78\% of buggy files. Kim et al. mentioned that the
-patterns that they use cover almost 30\% of real
-patches~\cite{kim2013}. Although we only detect 8 out of 10 bug fixing patterns,
-it is hard to believe that the remaining two patterns cover 15\% of buggy files,
-especially considering that 14.78\% is a number that we get when we assume that the patterns never appear together. Moreover, the percentage of each pattern is based
-on imprecise approximation which is likely to represent an upper bound rather
-than a lower bound. This suggests that common bug fixing patterns might not be
-as common as it appeared to be.
+\begin{figure*}[!t] \centering \includegraphics[height=0.3\textheight,
+	width=0.8\textwidth]{StmtType} \caption{For each kind of statement, how many
+	bug fixing revisions add/delete statements of the same kind?}
+	\label{fig:StmtType} \end{figure*}
 
 
-
-
-
-\section{Statement-level mutations}
 Some automatic program repair approaches mutate source code using predefined
-mutation operators such as addition, deletion and replacement. In
-order to generate patches that make more sense to human developers, it would be
-beneficial to analyze how developers mutate source code to fix bugs. 
+mutation operators such as addition, deletion and replacement. In order to
+generate patches that make more sense to human developers, it would be
+beneficial to analyze how developers mutate source code to fix bugs.
 
-\subsection{Replacements}
-
+\vspace{1ex}\textbf{Approach.}
 Because direct diffs are difficult to identify, we heuristically approximate the
 extent to which one statement type appears to be ``replaced'' by another across
 this dataset.  To do this, for each modified file, we count the number of
 appearances of each statement type in the file pre- and post-commit.  We then
 compare the results to see how many of each statement type was removed, and how
 many inserted, to roughly characterize the types of replacement that happen at a
-per-file level.  For each statement type (as tagged by the Boa infrastructure
-for Java), we process the results as follows: if number of occurrences of one
-statement type decreased post-fix and the number of another type increased, we
-say that the first statement type was replaced by the second statement type for
-that file. It is important to notice that this analysis doesn't distinguish the
+per-file level.
+%   For each statement type (as tagged by the Boa infrastructure
+% for Java), we process the results as follows: if number of occurrences of one
+% statement type decreased post-fix and the number of another type increased, we
+% say that the first statement type was replaced by the second statement type for
+% that file. 
+Note that this analysis doesn't distinguish the
 replacement of the same statement kind, since we are counting the amount of
 appearances of each statement kind.
 
-The numbers in the slots of Table~\ref{tab:likeliness} \todo{shall we add \% in
-this table?}, represent the percentage rate at which the elements of the
-leftmost column were replaced by the elements of the top row. In the first
-column we have the list of statements that are being replaced (faulty statements
-that were removed), and on the top row we have the list of statements for which
-that statement was replaced for (the new statement put instead). For example, if
-we take the intersection of row 5 (DoStatement row) and column 2 (AsserStatement
-column) of the data, we have a 0.81, which means that Do statements were
-replaced by Assert statements 0.81\% of the times.
-
-Our results show that the most common replacement is replacing Return statement
-with If statement, which showed up in 30,489 files. The second most common
-replacement is replacing an If statement with a Return statement, which had
-28,536 appearances. We found that the most common \emph{Replacer} statement kind
-(the statement kind that most commonly replaces others) is the \textbf{If
-Statement} with 101,366 appearances; and the least common \emph{Replacer} is the
-\textbf{Type Declaration Statement} with 447 appearances.
-
-On the opposite side of the data, the least common replacement was an Assert
-statement replacing a Type Declaration statement, which had zero appearances.
-The second least common replacement were replacing a Do statement with a Type
-Declaration statement and replacing a Label with a Type Declaration, both of
-which had one appearance respectively in our search. The most common $Replacee$
-(the most likely statement kind to be replaced by another statement kind) is the
-\textbf{Return Statement} with 111,938 appearances; and the least common
-$Replacee$ is the \textbf{Type Declaration Statement} with 399 appearances.
-
-\subsection{Deletions and Insertions}
-
-\begin{figure*}[!t] \centering \includegraphics[height=0.3\textheight,
-	width=0.8\textwidth]{StmtType} \caption{For each kind of statement, how many
-	bug fixing revisions add/delete statements of the same kind?}
-	\label{fig:StmtType} \end{figure*}
-
+We follow a similar approach to approximate a count of deletions and
+insertions. 
 For each bug fixing revision $r$ and each statement kind $k$, we count how many
 statements of kind $k$ are there in revision $r$ and $r-1$ ($r-1$ means the
 revision before revision $r$), and then compare the two numbers. 
 
-From Figure~\ref{fig:StmtType}, we can see that, expression, if, return, for and
-try catch statements are added most often. Meanwhile, the same types of
-statements are also deleted most often. This finding indicates that most bugs
-were fixed by changing the control flow of the program.
+\vspace{1ex}
+\noindent\textbf{Potential replacements.} Table~\ref{tab:likeliness} shows
+the replacement likelihood for our dataset 
+(each cell shows the percent of the time that the statement in the \emph{row}
+was replaced by a statement of the type in the \emph{column}). For example, if
+the cell in the DoStatement row (row 5) and AssertStatement column (column 2)
+shows 0.81, meaning that Do statements were
+replaced by Assert statements 0.81\% of the times.
+
+Additional results (raw numbers not shown) show that the most common replacement
+is replacing Return statement with If statement (appearing in 30,489 files). The
+second most common replacement is replacing an If statement with a Return
+statement, which had 28,536 appearances. 
+By contrast, the least common replacement was an Assert
+statement replacing a Type Declaration statement, which we did not observe. 
+The second least common replacement was a Do statement for a Type
+Declaration or a Label with a Type; we observed these once each.  
+
+The most common
+\emph{replacer} statement kind (the statement kind that most commonly replaces
+others) is the \texttt{If Statement} (101,366 appearances). The least
+common \emph{replacer} is the \texttt{Type Declaration Statement} with 447
+appearances.
+The most common \emph{replacee} was the
+\texttt{Return Statement} with 111,938 appearances; and the least common
+\emph{replacee} was the \texttt{Type Declaration}, with 399 appearances.
+
+\vspace{1ex}
+\noindent \textbf{Potential deletions and insertions} From Figure~\ref{fig:StmtType}, we
+can see that, expression, if, return, for and try catch statements are added
+most often. Meanwhile, the same types of statements are also deleted most
+often. This finding indicates that most bugs were fixed by changing the control
+flow of the program.
 
 
-\subsection{Applicability to Automatic Error Repair} 
+\section{Discussion}
 
-This study is directly applicable to automatic software repair. Most common
-tools for automatic software repair~\cite{kim2013,legoues2012} first
-find a faulty statement using several different fault localization
-techniques~\cite{fry2010}, and once they have that faulty statement, they apply
-different kinds of edits to it, usually at random. Which makes it equally likely
-to replace an statement for another without looking at the kinds of statements
-being replaced. With this study, we are able to make a more accurate guess based
-on the phenomenon we observed from Table~\ref{tab:likeliness} and
-Figure~\ref{fig:StmtType}.
+There exist threats to the validity of our study. Since we are using a DSL
+provided by Boa to implement our analysis, the correctness of our analysis
+depends on our programs as well as Boa itself. To mitigate the risk of errors in
+implementation, we open source our implementation on
+Github~\footnote{\url{https://github.com/}}.\todo{FIX THIS NOW.}  Some threats
+to our study arise from limitations of Boa. For example, we rely on Boa to
+identify bug fixing revisions; however, precisely accomplishing this is an open
+problem. Another big limitation is that Boa does not provide an easy mechanism
+to identify precise, statement-level diffs between revisions. Thus, our template
+matching and analysis of code changes (by counting each statement kind) could be
+inaccurate. However, our results should provide upper bounds.
 
-For example, if we are fixing a Java program, and we have a faulty statement
-that happens to be a For Statement. Then we can look for the most likely
-statements to replace a For Statement (row 6): If statement (22.89\%
-likeliness), Return statement (21.08\%), and a While statement (13.79\% of
-likeliness to replace a For Statement). We also know that there is a 7.9\% of
-cases in which human programmers deleted this kind of statement, and in 10.6\%
-of the cases, a For statement was added to patch a bug. This way we provide
-guidelines to the automatic bug repair approaches to consider this on their
-effort to find a patch.
-
-\section{Threats to Validity} 
-
-Since we are using a DSL provided by Boa to implement our analysis, the
-correctness of our analysis depends on our programs as well as Boa itself. To
-prevent errors from our side, we open source our implementation on
-Github~\footnote{\url{https://github.com/}}.\todo{update
-this}
-
-Some threats to our study are due to the limitation of Boa. For example, we rely
-on Boa to identify bug fixing revisions, but it is unclear whether those
-identified revisions are actually related to bug fixing. After all, identifying
-bug fixing revisions from revision history is still an open problem. Another big
-limitation of Boa is that there is no easy way to get a precise statement-level
-diff between two revisions. Thus, our template matching and analysis of code
-changes (by counting each statement kind) could be inaccurate. However, our
-results should provide upper bounds for the questions we investigated. 
-
-\section{Conclusions}
 We have characterized bug fixing changes in Java.
-On average, a bug fixing revision changes 11.3 files and often introduces new
-fields and methods. We have also showed that 8 out of 10 bug fixing patterns in
-PAR cover only 15\% of bug fixes. Last but not least, we investigated statement
-level mutations and summarized the likelihood of statement insertion, deletion,
-and replacement. 
-
 The findings of our study provide a set of useful insights for automatic
-program repair tools in Java. It suggests that patterns in PAR are not enough to
+program repair tools in Java. It suggests that patterns proposed by the
+state-of-the-art in generate and validate bug report for Java are not enough to
 cover the entirety of bug fixes in Java. Adding more patterns is one solution,
-but may not be a permanent one. Our finding on Java bug fixes characteristic suggests that mutation based program repair may need to add new fields or methods
-to fix bugs in Java and achieve a human-like written patch. A deeper look suggests
-that it can also improve its search for a patch by having the knowledge of how
+but may not be a permanent one. Our finding on Java bug fixes characteristic
+suggests that mutation based program repair may need to add new fields or
+methods to fix bugs in Java and achieve a human-like written patch. A deeper
+look suggests that it can also improve its search for a patch by having the knowledge of how
 likely it is to replace a faulty statement by the different kinds of statements
-available. Overall, our findings demonstrate that our knowledge of bug fixing
-properties in Java is still lacking and therefore more research on it are
-warranted.
+available. Overall, our findings motivate additional study of the problem of
+repair in Java, as assumptions that underlie approaches that target C are
+unlikely to translate directly to this domain. 
+% demonstrate that our knowledge of bug fixing
+% properties in Java is still lacking and therefore more research on it are
+% warranted.
+
+%   We studied the applicability of the state-of-the-art in
+% mutation operators to this dataset, 
+% showing that 8 out of 10 bug fixing patterns in PAR cover only 15\% of bug
+% fixes in this dataset.  Finally, investigated statement level mutations and
+% summarized the likelihood of statement insertion, deletion, and replacement.
+% These results suggest 
+
+% This study is directly applicable to automatic software repair. Most common
+% tools for automatic software repair~\cite{kim2013,legoues2012} first localize a
+% defect and then randomly select edits to 
+% find a faulty statement using several different fault localization
+% techniques~\cite{fry2010}, and once they have that faulty statement, they apply
+% different kinds of edits to it, usually at random. Which makes it equally likely
+% to replace an statement for another without looking at the kinds of statements
+% being replaced. With this study, we are able to make a more accurate guess based
+% on the phenomenon we observed from Table~\ref{tab:likeliness} and
+% Figure~\ref{fig:StmtType}.
+
+% For example, if we are fixing a Java program, and we have a faulty statement
+% that happens to be a For Statement. Then we can look for the most likely
+% statements to replace a For Statement (row 6): If statement (22.89\%
+% likeliness), Return statement (21.08\%), and a While statement (13.79\% of
+% likeliness to replace a For Statement). We also know that there is a 7.9\% of
+% cases in which human programmers deleted this kind of statement, and in 10.6\%
+% of the cases, a For statement was added to patch a bug. This way we provide
+% guidelines to the automatic bug repair approaches to consider this on their
+% effort to find a patch.
+
+
 
 
 %\end{document}  % This is where a 'short' article might terminate

@@ -288,99 +288,97 @@ point for research investigating the repair of bugs in Java code.
 
 \section{Dataset and Characteristics}
 
-We begin by broadly characterizing the bug-fixing changes to Java code in our
+We begin by broadly characterizing the bug-fixing changes to Java code in the
 dataset.  We perform our analysis on the \emph{2015 September/Github} dataset on
-Boa, which includes $7,830,023$ Java projects with $23,229,406$ revisions. Among
-all the revisions, $4,590,679$ revisions are identified by Boa as bug fixing
-revisions.
+Boa, including $7,830,023$ Java projects with $23,229,406$ revisions. Boa
+identifies $4,590,679$ as bug fixing.
 
-\subsubsection*{How many files are changed to fix a bug?} \vspace{-0.3em} 
-
-A file was changed if (1) it was a new file; (2) or it was modified; (3) or it
-was deleted. In total, $52,052,571$ files got changed. Thus, on average each bug
-fixing revision changes $11.3$ files.  This number is surprisingly high because
-most automatic program repair techniques assume that bugs are local in most
-cases. There could be several reasons behind this number. It could be the case
-that other software artifacts (e.g.  documentation) are updated after bug
+\vspace{1ex}
+\noindent\textbf{How many files are changed to fix a bug?}
+%
+We consider a file changed if it is new, modified, or
+deleted in a commit. In total, $52,052,571$ files were changed. Thus, on average each bug
+fixing revision changes $11.3$ files.  This is surprisingly high:
+most automatic program repair techniques assume that bugs are local.
+We hypothesize several explanations. Other
+software artifacts (e.g.  documentation) may be updated after bug  
 fixing. It could also be the case that bug fixing commit also contains changes
 that are not related to fixing bug (e.g. refactoring, adding new features by
-creating new files). To better understand why so many files are changed, we
-continue to ask:
+creating new files). To better understand this
+phenomenon, we ask:
 
-\subsubsection*{What are the file types of those changed files?} \vspace{-0.3em}
-
-To answer this question, we iterate all the changed files in each bug fixing
+\vspace{1ex}
+\noindent\textbf{What are the file types of those changed files?}
+%
+To answer this question, we iterate over all changed files in each bug fixing
 revision and count the total number for each file type. Results are shown in
 Table~\ref{tbl:fileType}.
 
 \begin{table}
 \centering
-  \begin{tabular}{| c | r | r |}
-  \hline
-  File Kind & Total Number & Average \\ \hline \hline
-  BINARY & 752,945 & 0.16 \\ \hline
-  SOURCE\_JAVA\_ERROR & 2,073,558 & 0.45 \\ \hline
-  SOURCE\_JAVA\_JLS2 & 2,607,413 & 0.57 \\ \hline
-  SOURCE\_JAVA\_JLS3 & 15,748,967 & 3.43 \\ \hline
-  SOURCE\_JAVA\_JLS4 & 83,798 & 0.02 \\ \hline
-  TEXT & 541,023 & 0.12 \\ \hline
-  XML & 6,818,299 & 1.49 \\ \hline
-  UNKNOWN & 23,426,568 & 5.10 \\ \hline
+  \begin{tabular}{ l | r  r }
+  \toprule
+  File Kind & Total & Average \\ 
+  \midrule
+  Binary & 752,945 & 0.16 \\ 
+  Java (ERROR) & 2,073,558 & 0.45 \\ 
+  Java (JLS2) & 2,607,413 & 0.57 \\ 
+  Java (JLS3) & 15,748,967 & 3.43 \\
+  Java (JLS4)  & 83,798 & 0.02 \\ 
+  Text & 541,023 & 0.12 \\ 
+  XML & 6,818,299 & 1.49 \\ 
+  UNKNOWN & 23,426,568 & 5.10 \\ 
   \end{tabular}
   \caption{File Types of Changed Files}
   \label{tbl:fileType}
 \end{table}
 
-SOURCE\_JAVA\_ERROR file kind represents files that Boa failed to parse. JLS2,
-JLS3, and JLS4 represent Java files written in different J2SE version. Boa
-documentation does not explicitly explain what is TEXT and what is UNKNOWN. From
-Table~\ref{tbl:fileType}, we can see that TEXT files and BINARY files are
-changed least frequently. This is not surprising because TEXT files are usually
-documentation files, and BINARY files should only be changed in rare case (e.g.
-milestone, new release, dependency update). If we consider all 4 kinds of Java
-files as one kind, then on average each bug fixing revision changes $4.47$ Java
-files. But still, it does not conform to our assumption of bug locality. XML
-files in Java projects usually represents build files, thus changing one build
-file after each bug fixing is not surprising.  What surprises us is that UNKNOWN
-files are changed most frequently. Note that all the projects in our dataset are
-Java projects, so it is reasonable to assume that these files are not source
-files that written in other programming languages.  One possible explanation is
+JAVA (ERROR) files are those that Boa failed to parse. JLS2,
+JLS3, and JLS4 represent Java files written in different J2SE versions. From
+Table~\ref{tbl:fileType}, we see that Text and Binary files are
+changed least frequently. This is unsurprising, since text are often
+documentation files, and binaries should only be changed rarely. If we consider all 4 kinds of Java
+files as one kind, on average, each bug fixing revision changes $4.47$ Java
+files. This still does not conform to our assumption of bug locality. XML
+files in Java projects usually represents build files; changing a build
+file is unsurprising.  Rather more surprising is how frequently UNKNOWN files
+are changed. Given that all the projects are Java projects, 
+it is unclear whether these are written in other proramming
+languages; One possibility is
 that they are test resources. However, due to the limitations of Boa, we can not
 look into the content of these files. 
+\todo{Possibly mention median.} 
+To better understand what changes are usually made to Java source code
+files, we next ask:
 
-It could be the case that among those $4.47$ changed Java files, some of them
-are related to testing, such as modifying the test cases and creating new test
-classes. To better understand what changes are usually made to Java source code
-files, we continue to ask:
-
-\subsubsection*{How often do developers introduce new classes, methods, fields,
+\vspace{1ex}
+\noindent\textbf{How often do developers introduce new classes, methods, fields,
 	local variables in
-bug fixing commits?} \vspace{-0.3em}
-
+bug fixing commits?} 
+%
 This question is interesting because most automatic program repair approaches
-often do not create new classes/methods/fields/local variables to fix bugs.
+often do not create new methods or variables to fix bugs in C.
 Most approaches guess and synthesize the patches based on existing source code,
 and direct translations of approaches from C to Java do not naturally consider
 object-oriented concerns, like fields or classes. 
 
-Table~\ref{tbl:new} shows our analysis results. It shows that introducing new
-classes and new variables are rare, which is good news for automatic program
-repair approaches. On average, we still have $0.69$ new method per bug fix. If
-we consider the possibility of creating new test method (i.e.  methods that
-annotated by @Test if JUnit is used), this number is not that scary. However,
+Table~\ref{tbl:new} shows that introducing new
+classes and new variables is rare. On average, we still have $0.69$ new methods
+per bug fix. These methods naturally contain new test methods (annotated by
+@Test, for example), which is not too alarming. However,
 what surprises us is that $1.32$ fields are created per bug fix.  This indicates
 that automatic program repair approaches should pay attention to the state of
 the class when fixing Java programs.
 
 \begin{table}
 \centering
-  \begin{tabular}{| c | r | r |}
-  \hline
-  Introducing & Total Number & Average \\ \hline \hline
-  Class & 729,201 & 0.16 \\ \hline
-  Methods & 3,186,867 & 0.69 \\ \hline
-  Fields & 6,076,646 & 1.32 \\ \hline
-  Variables & 924,259 & 0.2 \\ \hline
+  \begin{tabular}{l | r  r }
+  \toprule
+  Introducing & Total Number & Average \\ \midrule
+  Class & 729,201 & 0.16 \\ 
+  Methods & 3,186,867 & 0.69 \\ 
+  Fields & 6,076,646 & 1.32 \\ 
+  Variables & 924,259 & 0.2 \\ 
   \end{tabular}
   \caption{Introducing new classes, methods, fields, local variables to fix bugs}
   \label{tbl:new}
@@ -671,7 +669,7 @@ were fixed by changing the control flow of the program.
 \subsection{Applicability to Automatic Error Repair} 
 
 This study is directly applicable to automatic software repair. Most common
-tools for automatic software repair~\cite{kim2013,weimer2009,legoues2012} first
+tools for automatic software repair~\cite{kim2013,legoues2012} first
 find a faulty statement using several different fault localization
 techniques~\cite{fry2010}, and once they have that faulty statement, they apply
 different kinds of edits to it, usually at random. Which makes it equally likely

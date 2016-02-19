@@ -154,9 +154,9 @@ Mauricio Soto$^1$, Ferdian Thung$^2$, Chu-Pan Wong$^1$, Claire Le Goues$^1$, and
   Many implementations of research techniques that automatically repair software
   bugs target programs written in C. Work that targets Java often begins from, or at
   least compares to, direct translations of such techniques to a Java context.
-  However, Java and C are very different languages, and these differences should be
-  studied and understood if existing approaches are to be profitably translated
-  between them.  We conducted a large-scale study of bug-fixing commits
+  However, Java and C are very different languages, and so Java should be
+  studied to inform understanding of how to translate existing approaches to target it.
+  We conduct a large-scale study of bug-fixing commits
   to Java projects, focusing on assumptions underlying common
   search-based repair approaches.  We make observations that can be
   leveraged to guide high quality automatic software repair to target Java specifically,
@@ -213,21 +213,21 @@ Mauricio Soto$^1$, Ferdian Thung$^2$, Chu-Pan Wong$^1$, Claire Le Goues$^1$, and
 
 \section{Introduction}
 
-There has been considerable attention paid to the problem of automatic
+There has been considerable attention paid to automatic
 program repair in recent
 years~\cite{kim2013,legoues2012,pan2009,
   Mechtaev15,Long2016}, among many others),
 %
 One broad class of techniques in this space take a generate-and-validate
-approach, which involves generating a large number of candidate patches using a
-pre-defined set of mutation operators, and then validating correctness with
+approach: \emph{generating} a large number of candidate patches using a
+pre-defined set of mutation operators, and then \emph{validating} correctness with
 respect to a set of test cases.  Mutation operators range from simple, coarse
 granularity statement-level mutations to human-constructed templates learned
 from a large corpus of previous human bug-fixing commits.
 
 A considerable proportion of this works targets programs written in C.
-Researchers targeting Java often start from or compare against imperfect
-baselines, that is, Java-based implementations of techniques originally
+Indeed, researchers targeting Java often start from or compare against
+Java-based implementations of techniques originally
 implemented for C~\cite{nopol,kim2013}. % Even PAR~\cite{kim2013}, perhaps the
 % best-known previously-proposed Java-based program repair technique, both starts
 % from and is directly compared to a Java implementation of GenProg~\cite{genprog}, which
@@ -243,8 +243,8 @@ intelligent rules to inform candidate modifications
 should limit mutations, given the relative stringence of the Java
 compiler?
 
-In this paper, we study bug-fixing commits to Java programs, taking as a subject
-of study several million human-made bug fixes from Github. We study broad
+In this paper, we study bug-fixing commits to Java programs, 
+taken from several million human-made bug fixes from Github. We study broad
 characteristics of these changes; the applicability of previously-proposed
 Java repair templates~\cite{kim2013}; and the nature
 of additions and replacements of Java statements in bug-fixing commits. We make
@@ -252,7 +252,7 @@ observations to directly guide future research in automatic repair of Java
 programs, to increase the success rate of such techniques and the degree to
 which the patches are human-like and therefore more readable and maintainable by
 human developers. This is important, because patch quality is an important
-concern in this research area~\cite{Qi15}.
+concern in this area~\cite{Qi15}.
 
 % On the other hand, some approaches~\cite{kim2013} search for specific patterns
 % and modify source code according to predefined templates. A well known approach
@@ -268,51 +268,43 @@ concern in this research area~\cite{Qi15}.
 % resembling patterns programmers use to patch bugs, and then performed an
 % empirical study to evaluate which patches do human programmers prefer.
 
-
+\vspace{1ex}
 \noindent\textbf{Related work.} Zhong and Su~\cite{zhong2015} study
-a similar set of questions in C.  Beyond focusing on Java, we focus more on
-replacements, ommitted from that previous analysis, and target a
-larger dataset~\cite{dyer2013}.  Barr et al.~\cite{Barr14fse} studied changes to
+a similar set of questions as we do, for C.  Beyond focusing on Java in a larger dataset~\cite{dyer2013}, we also study
+replacements, ommitted from that analysis.  Barr et al.~\cite{Barr14fse} studied changes to
 Java programs to understand the ``Plastic Surgery Hypothesis'' underlying
-certain types of program repair, an important but orthogonal
+certain types of program repair, an orthogonal
 concern. Kim et al.~\cite{kim2013} manually analyze 
 changes to Java programs to inform an automated repair
-technique and show that doing so results in higher-quality repairs; 
-we attempt to validate their templates heuristically on
-a different dataset, and take their results as
-motivation for understanding human repairs (as it may result in better patches).
+technique, and show that doing so results in higher-quality repairs; 
+we study their templates heuristically on
+a different dataset. Their results motivate
+studies of human repairs, as it may result in better patches.
 Long and Rinard learn probabilistic models from bug fixes to C
 code~\cite{Long2016}. Our analysis is significantly less precise and does not
-inform a new repair technique.  Rather, it serves as a starting
-point for research investigating the repair of bugs in Java code.
+inform a new technique.  Rather, it serves as a starting
+point for research on the repair of Java bugs.
 
 \section{Dataset and Characteristics}
 
-We begin by broadly characterizing the bug-fixing changes to Java code in the
-dataset.  We perform our analysis on the \emph{2015 September/Github} dataset on
-Boa, including $7,830,023$ Java projects with $23,229,406$ revisions. Boa
-identifies $4,590,679$ as bug fixing.
+First, we broadly characterize bug-fixing commits to Java code.  In this paper,
+we study the \emph{2015 September/Github} dataset on Boa, including $7,830,023$
+Java projects with $23,229,406$ revisions. Boa identifies $4,590,679$ as bug
+fixing.
 
 \vspace{1ex}
 \noindent\textbf{How many files are changed to fix a bug?}
 %
 We consider a file changed if it is new, modified, or
-deleted in a commit. In total, $52,052,571$ files were changed. Thus, on average each bug
-fixing revision changes $11.3$ files.  This is surprisingly high:
+deleted in a commit. In total, $52,052,571$ files were changed, an average of 
+$11.3$ files per bug-fixing commit.  This is surprisingly high:
 most automatic program repair techniques assume that bugs are local.
-We hypothesize several explanations. Other
+We hypothesize several explanations: Other
 software artifacts (e.g.  documentation) may be updated after bug  
 fixing, or fixing commits may contain changes
-unrelated to fixing bug (e.g. refactoring, adding new features by
-creating new files). To better understand this
+unrelated to fixing the bug (e.g. refactoring, feature addition). 
+To better understand this
 phenomenon, we ask:
-
-\vspace{1ex}
-\noindent\textbf{What are the file types of those changed files?}
-%
-To answer this question, we iterate over all changed files in each bug fixing
-revision and count the total number for each file type. Results are shown in
-Table~\ref{tbl:fileType}.
 
 \begin{table}
 \centering
@@ -333,19 +325,25 @@ Table~\ref{tbl:fileType}.
   \caption{File Types of Changed Files}
   \label{tbl:fileType}
 \end{table}
-
+\vspace{1ex}
+\noindent\textbf{What are the types of those changed files?}
+%
+To answer this question, we iterate over all changed files in each bug fixing
+revision and count the total number for each file type. Results are shown in
+Table~\ref{tbl:fileType}.
+%
 JAVA (ERROR) files are those that Boa failed to parse. JLS2,
-JLS3, and JLS4 represent Java files written in different J2SE versions. From
-Table~\ref{tbl:fileType}, we see that Text and Binary files are
-changed least frequently. This is unsurprising, since text are often
-documentation files, and binaries should only be changed rarely. If we consider all 4 kinds of Java
+JLS3, and JLS4 represent Java files written in different J2SE versions.  We see that text and Binary files are
+changed least frequently. This is unsurprising, since text files are often
+documentation, and binaries should only be changed rarely. If we consider all 4 kinds of Java
 files as one kind, on average, each bug fixing revision changes $4.47$ Java
 files. This still does not conform to our assumption of bug locality. XML
-files in Java projects usually represents build files; changing a build
+files in Java projects usually represent build files; changing a build
 file is unsurprising.  Rather more surprising is how frequently UNKNOWN files
 are changed. Given that all the projects are Java projects, 
 it is unclear whether these are written in other proramming
 languages. We hypothesize they might be test resources.
+\todo{possibly mention median, if Chu Pan gets that information}
 To better understand what changes are usually made to Java source code
 files, we next ask:
 
@@ -355,8 +353,8 @@ files, we next ask:
 bug fixing commits?} 
 %
 This question is interesting because most automatic program repair approaches
-target C, and do not consider
-object-oriented concerns, like fields or classes. 
+do not create methods or variable declarations, nor do most explicitly consider
+object-oriented features, like fields or classes. 
 
 Table~\ref{tbl:new} shows that introducing new
 classes and new variables is rare. On average, we still have $0.69$ new methods
@@ -379,6 +377,7 @@ the class when fixing Java programs.
   \end{tabular}
   \caption{Introducing new classes, methods, fields, local variables to fix bugs}
   \label{tbl:new}
+\vspace{-0.5cm}
 \end{table}
 
 % \todo{Is there room/call to include any element of Chu Pan's replacement
@@ -387,13 +386,13 @@ the class when fixing Java programs.
 \section{Bug Fixing Patterns}\label{sec:method}
 
 One of the best-known program repair techniques to target Java is
-PAR~\cite{kim2013}.  Par searches for specific patterns
-and modifies java code according to predefined templates, constructed by humans
-to cover a large set of bug fixes from an existing corpus.  Par serves as an
+PAR~\cite{kim2013}.  PAR
+modifies Java code according to predefined templates, constructed by humans
+to cover a large set of bug fixes from an existing corpus.  These templates provide
 important source of possible 
 mutations to study to inform future directions. 
-We therefore search for and analyze most of the bug fixing patterns proposed by
-Kim et al. and estimate their prevalence in this
+We therefore search for most of the PAR bug fixing patterns,
+estimating their prevalence in this
 dataset.
 
 % A well known approach
@@ -409,56 +408,55 @@ dataset.
 % resembling patterns programmers use to patch bugs, and then performed an
 % empirical study to evaluate which patches do human programmers prefer.
 
-\subsection{Detecting PAR patterns in Boa}
+\subsection{Detecting PAR templates using Boa}
 
 Boa's capabilities are powerful, but limited in the precision it enables in
-our detection of Par bug-fixing patterns. For example, it is unable to directly perform a
-diff between two file versions. Thus, rather than finding the exact count of
-bug fixing patterns, we find an approximate count by processing pre- and
+our detection of Par bug-fixing patterns. For example, it cannot directly \texttt{diff}
+two files versions. Thus, rather than finding the exact count of
+bug fixing patterns, we approximate by processing pre- and
 post- fix files separately.  Additionally, there are
-two of the originally proposed 10 patterns that cannot be easily detected by
+two of the 10 patterns that cannot be easily detected by
 Boa, as we describe below. 
 %
 The patterns we search for are as follows, including our mechanism for
-detecting them using Boa:
+detecting them:
 
 \vspace{1ex}
-\noindent {\bf Altering method parameters (AMP)}.  This pattern changes 
+\noindent {\bf Altering method parameters (AMP)}.  This template changes 
 input method parameters. %(\texttt{obj.method(v1,v2) $\rightarrow$
 %obj.method(v1,v3)}). 
-To detect this pattern, for both pre-fix and post-fix version
+To detect this pattern, for both pre-fix and post-fix versions
 of a buggy file, we create a custom method call signature that
-contains the name, literal parameters, and variable parameters (more complex
+contains the name, literal parameters, and variable parameters (complex
 expressions are listed as OTHER).
 %  This is due to inexistence of
 % function that can print Abstract Syntax Tree (AST) back to source code in
 % Boa. 
 We discard method signatures that appear both in pre-fix and post-fix
 versions, and then identify methods with the same name and the
-same number of parameters, but different parameter signatures in pre- and
-post-fix versions.% If it exists, we consider that AMP pattern is found.
+same number of parameters, but different signatures between versions. 
 
 \vspace{1ex}
 \noindent {\bf Calling another method with the same parameters (MSM)}.  This
-pattern changes a method name. % (\texttt{obj.method1(param) $\rightarrow$
+template changes a method name. % (\texttt{obj.method1(param) $\rightarrow$
 %obj.method2(param)}).  
-To detect this pattern, we create method signature similar
-to the above for the AMP pattern, looking for methods
+To detect it, we create a method signature similar
+to the above for AMP, looking for methods
 with the exact same parameter signature but different names in pre- and
 post-fix versions. %If it exists, we consider that MSM pattern is found.
 
 \vspace{1ex}
 \noindent
 {\bf Calling another overloaded method with one more parameter (COM)}. This
-pattern adds one more parameter to a method. %(\texttt{obj.method(v1) $\rightarrow$ obj.method(v1,v2)}).
-We create method signature similar to the above, seeking methods with
+template adds a parameter to a method. %(\texttt{obj.method(v1) $\rightarrow$ obj.method(v1,v2)}).
+We create a method signature similar to the above, seeking methods with
   the same name, one more parameter in the post-fix version. 
 
 \vspace{1ex}
 \noindent
- {\bf Changing a branch condition (CBC)}. This pattern adds or removes a condition.
+ {\bf Changing a branch condition (CBC)}. This template adds or removes a condition.
 %(e.g., \texttt{if(a != b) $\rightarrow$ if(a != b \&\& c == 0)}).
-  To detect CBC pattern, we count the number of { \em logical and} and {\em
+We count the number of { \em logical and} and {\em
     logical or} inside if conditional expression sfor both pre-fix and post-fix
   version. We assume that the addition/removal of logical operators indicate
   addition/removal of condition. If there is a larger count in post-fix version,
@@ -466,14 +464,14 @@ We create method signature similar to the above, seeking methods with
 
 \vspace{1ex}
 \noindent
-{\bf Initializing an object (IAO)}. This pattern adds a initialization to object
+{\bf Initializing an object (IAO)}. This template adds a initialization to object
 declaration.  We count the number of NEW expressions in variable declarations
 for both pre- and post-fix versions. If there is a larger count in post-fix
 version, we consider that IAO pattern is found.
 
 \vspace{1ex}
 \noindent
- {\bf Adding a null checker (ANC)}.  This pattern inserts a condition to check whether an
+ {\bf Adding a null checker (ANC)}.  This template inserts a condition to check whether an
     object is null.
 %	{\bf Example:} obj.m1() $\rightarrow$ if(obj!=null){obj.m1()}
   To detect ANC pattern, we count the number of if conditional expressions that
@@ -538,56 +536,56 @@ use cover almost 30\% of real patches~\cite{kim2013}. Although we only detect 8
 out of 10 bug fixing patterns, it is unlikely the final two will cover the
 difference. Moreover, our detection is imprecise, and likely represents an upper
 bound.  This suggests that these fixing patterns might not generalize
-beyond an initial dataset, and that more work remains to categorize the programmer's fixing behavior.
+beyond an initial dataset, and that more work remains to expressively characterize human bug-fixing behavior.
 
 
 
 \section{Statement-level mutations}
 \begin{table*}
 	\centering
-	\resizebox{15cm}{!}{
+	\resizebox{\textwidth}{!}{
 	%\renewcommand{\arraystretch}{0.9}% Tighter
-		\begin{tabular}{|l|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|} \hline
-			&Assert&Break&Continue&Do& For&If&Label&Return&Case&Switch& Synch&Throw&Try&TypeDecl&While
-			\\ \hline
+		\begin{tabular}{l|rrrrrrrrrrrrrrr} \toprule
+			&\texttt{Assert}&\texttt{Break}&\texttt{Continue}&\texttt{Do}&\texttt{For}&\texttt{If}&\texttt{Label}&\texttt{Return}&\texttt{Case}&\texttt{Switch}& \texttt{Synch}&\texttt{Throw}&\texttt{Try}&\texttt{TypeDecl}&\texttt{While}
+			\\ \midrule
 			
 \texttt{Assert}	&-&7.48&3.76&0.53&8.30&23.05&0.31&20.04&4.90&4.62&1.30&13.50&7.23&0.03&4.95
-\\ \hline
+\\
 \texttt{Break} &1.00&-&4.08&0.60&9.93&26.03&0.13&25.39&2.48&1.57&1.79&8.39&11.73&0.10&6.77
-\\ \hline
+\\
 \texttt{Continue} &1.74&9.42&-&1.28&11.39&18.25&0.35&22.60&3.80&2.85&2.17&8.98&9.42&0.11&7.63
-\\   \hline
+\\
 \texttt{Do} &0.81&5.26&6.60&0.00&9.44&14.21&0.18&15.86&3.73&1.67&1.97&5.88&6.39&0.03&27.98
-\\ \hline
+\\
 \texttt{For} &0.86&6.28&3.19&0.79&-&22.89&0.09&21.08&5.01&3.34&1.87&10.01&10.71&0.08&13.79
-\\ \hline
+\\
 \texttt{If}&1.64&8.43&2.87&0.60&13.49&-&0.24&26.46&7.45&4.80&2.85&9.89&15.11&0.08&6.11
-\\ \hline
+\\
 \texttt{Label} &1.30&8.33&7.86&1.11&5.18&22.85&-&15.17&3.05&2.04&14.62&10.45&4.16&0.09&3.79
-\\ \hline
+\\
 \texttt{Return} &1.13&9.41&3.11&0.49&13.33&27.24&0.24&-&5.59&3.65&2.55&14.91&12.61&0.12&5.61
-\\ \hline
+\\
 \texttt{Case} &0.78&2.84&2.84&0.39&10.27&31.79&0.16&22.40&-&0.46&2.07&7.37&11.69&0.08&6.87
-\\ \hline
+\\
 \texttt{Switch}&1.14&2.72&3.80&0.55&11.07&34.14&0.13&21.86&0.75&-&1.53&8.65&9.02&0.05&4.58
-\\ \hline
+\\
 \texttt{Synch} &0.80&6.57&2.28&0.43&10.21&24.18&0.05&19.77&6.35&2.07&-&9.16&12.16&0.04&5.93
-\\ \hline
+\\
 \texttt{Throw} &2.11&6.57&2.58&0.48&11.87&18.84&0.17&32.28&4.64&3.30&2.74&-&10.08&0.07&4.27
-\\ \hline
+\\
 \texttt{Try}&0.71&7.41&3.02&0.66&11.73&27.75&0.11&23.24&5.63&2.65&2.58&8.99&-&0.09&5.42
-\\ \hline
+\\
 \texttt{TypeDecl} &0.00&4.51&7.52&1.00&10.28&21.05&0.50&17.79&6.02&1.75&2.01&9.27&11.53&-&6.77
-\\ \hline
+\\
 \texttt{While}& 0.72&8.02&3.82&1.96&23.16&19.78&0.12&16.48&6.56&3.09&1.64&6.81&7.80&0.04&-
-			\\ \hline
+			\\ \bottomrule
 		\end{tabular}
 		}
-		\caption{Likeliness to replace the statement in the first column for the statement in the top row, in Java}\label{tab:likeliness}
+		\caption{Likelihood of replacing a statement type (row) by a statement of
+          another type (column), for Java.}\label{tab:likeliness}
 \end{table*}
 
-\begin{figure*}[!t] \centering \includegraphics[height=0.23\textheight,
-	width=0.8\textwidth]{StmtType} \caption{For each kind of statement, how many
+\begin{figure*}[!t] \centering \includegraphics[width=\textwidth]{StmtType} \caption{For each kind of statement, how many
 	bug fixing revisions add/delete statements of the same kind?}
 	\label{fig:StmtType} \end{figure*}
 

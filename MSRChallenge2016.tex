@@ -527,12 +527,11 @@ easily supported by Boa). Investigating 8 out of
 \end{table}
 
 
-
 Table~\ref{tab:freqpattern} estimates the prevelance of PAR templates in the
-Java dataset. The most common pattern we observed is CBC; and the least common
-pattern is AOB. If we assume that these patterns never appear together, they
-cover 14.78\% of buggy files. Kim et al. mentioned that the patterns that they
-use cover almost 30\% of real patches~\cite{kim2013}. Although we only detect 8
+Java dataset. The most common pattern we observed is CBC (changing a branch condition); and the least common
+pattern is AOB (adding an array out of bound checker). If we conservatively assume that these patterns never appear together, they
+cover 14.78\% of buggy files. In the dataset studied by Kim et al., the overall
+10 patterns cover almost 30\% of real patches~\cite{kim2013}. Although we only analyze 8
 out of 10 bug fixing patterns, it is unlikely the final two will cover the
 difference. Moreover, our detection is imprecise, and likely represents an upper
 bound.  This suggests that these fixing patterns might not generalize
@@ -590,15 +589,16 @@ beyond an initial dataset, and that more work remains to expressively characteri
 	\label{fig:StmtType} \end{figure*}
 
 
-Some automatic program repair approaches mutate source code using predefined
-mutation operators such as addition, deletion and replacement. In order to
-generate patches that make more sense to human developers, it would be
-beneficial to analyze how developers mutate source code to fix bugs.
+Some automatic program repair approaches seek generality by using
+higher-granularity mutation operators such as statement-level addition, deletion and replacement. To
+support the generation of high-quality patches, we 
+next analyze how developers mutate source code to fix bugs at this granularity
+level. 
 
-\vspace{1ex}\textbf{Approach.}
-Because direct diffs are difficult to identify, we heuristically approximate the
-extent to which one statement type appears to be ``replaced'' by another across
-this dataset.  To do this, for each modified file, we count the number of
+\subsection{Detection Approach}
+Because direct diffs are difficult to identify on this dataset, we heuristically approximate the
+extent to which one statement type appears to be ``replaced'' by another.
+For each modified file, we count the number of
 appearances of each statement type in the file pre- and post-commit.  We then
 compare the results to see how many of each statement type was removed, and how
 many inserted, to roughly characterize the types of replacement that happen at a
@@ -618,7 +618,8 @@ For each bug fixing revision $r$ and each statement kind $k$, we count how many
 statements of kind $k$ are there in revision $r$ and $r-1$ ($r-1$ means the
 revision before revision $r$), and then compare the two numbers. 
 
-\vspace{1ex}
+\subsection{Results}
+
 \noindent\textbf{Potential replacements.} Table~\ref{tab:likeliness} shows
 the replacement likelihood for our dataset 
 (each cell shows the percent of the time that the statement in the \emph{row}
@@ -655,31 +656,31 @@ flow of the program.
 
 \section{Discussion}
 
-There exist threats to the validity of our study. Since we are using a DSL
-provided by Boa to implement our analysis, the correctness of our analysis
-depends on our programs as well as Boa itself. To mitigate the risk of errors in
-implementation, we open source our implementation on
-Github~\footnote{\url{https://github.com/}}.\todo{FIX THIS NOW.}  Some threats
-to our study arise from limitations of Boa. For example, we rely on Boa to
+\noindent\textbf{Threats to validity.} Since we are using a DSL
+provided by Boa, the correctness of our analysis
+depends on both our programs and Boa itself. For example, we rely on Boa to
 identify bug fixing revisions; however, precisely accomplishing this is an open
-problem. Another big limitation is that Boa does not provide an easy mechanism
-to identify precise, statement-level diffs between revisions. Thus, our template
-matching and analysis of code changes (by counting each statement kind) could be
-inaccurate. However, our results should provide upper bounds.
+problem.  To mitigate the risk of errors in
+implementation, we open source our scripts~\footnote{\todo{FIX THIS NOW}}.
+Because Boa does not provide an easy mechanism
+to identify precise, statement-level diffs between revisions, our template
+matching and analysis of code changes (by counting each statement kind) only
+provide estimates of behavior; we consider our results as informative
+approximations. 
 
-We have characterized bug fixing changes in Java.
-The findings of our study provide a set of useful insights for automatic
-program repair tools in Java. It suggests that patterns proposed by the
-state-of-the-art in generate and validate bug report for Java are not enough to
-cover the entirety of bug fixes in Java. Adding more patterns is one solution,
-but may not be a permanent one. Our finding on Java bug fixes characteristic
-suggests that mutation based program repair may need to add new fields or
-methods to fix bugs in Java and achieve a human-like written patch. A deeper
-look suggests that it can also improve its search for a patch by having the knowledge of how
-likely it is to replace a faulty statement by the different kinds of statements
-available. Overall, our findings motivate additional study of the problem of
-repair in Java, as assumptions that underlie approaches that target C are
-unlikely to translate directly to this domain. 
+The findings of our study provide useful insights for automatic program repair
+tools in Java. It suggests that patterns proposed by the state-of-the-art in
+generate and validate bug report for Java are insufficient cover the extent of
+bug fixes in our dataset.  Adding more patterns is one solution, but may not be
+a general one.  Our findings further suggest that
+mutation based program repair may need to consider field or method insertion to
+achieve human-comparability in patches.  A deeper look suggests that such
+techniques may benefit from leveraging probabilistic knowledge of what types of
+statements are commonly inserted, deleted, or replaced in Java bug-fixing commits.
+Overall, our findings motivate additional study of 
+repair in Java, as assumptions that underlie approaches that target C seem
+unlikely to translate directly.
+
 % demonstrate that our knowledge of bug fixing
 % properties in Java is still lacking and therefore more research on it are
 % warranted.

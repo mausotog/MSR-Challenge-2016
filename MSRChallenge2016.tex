@@ -144,6 +144,7 @@ Mauricio Soto\\
        \email{ferdiant.2013@smu.edu.sg}
 % 2nd. author
 \alignauthor Chu-Pan Wong   \\
+       \affaddr{School of Computer Science}\\
        \affaddr{Carnegie Mellon University}\\
        \affaddr{Pittsburgh, PA}\\
        \email{chupanw@cs.cmu.edu}       
@@ -315,33 +316,28 @@ dataset~\cite{dyer2013}.
 \section{Dataset and Characteristics}
 
 We begin by broadly characterizing the bug-fixing changes to Java code in our
-dataset. 
-We perform our analysis on the \emph{2015 September/Github} dataset on Boa, 
-which includes $7,830,023$ Java projects with $23,229,406$ revisions. Among
+dataset.  We perform our analysis on the \emph{2015 September/Github} dataset on
+Boa, which includes $7,830,023$ Java projects with $23,229,406$ revisions. Among
 all the revisions, $4,590,679$ revisions are identified by Boa as bug fixing
 revisions.
 
-\paragraph{How many files are changed to fix a bug?}
-To answer this question, we identify all the bug fixing revisions in our dataset
-and count the number of changed files. A file was changed if (1) it was a new
-file; (2) or it was modified; (3) or it was deleted. In total, $52,052,571$
-files got changed. Thus, on average each bug fixing revision changes 11.3 files.
-This number is surprisingly high because most automatic program repair
-techniques assume that bugs are local in most cases. There could be several
-reasons behind this number. It could be the case that other software artifacts
-(e.g.  documentation) are updated after bug fixing. It could also be the case
-that bug fixing commit also contains changes that are not related to fixing bug
-(e.g. refactoring, adding new features by creating new files). To better
-understand why so many files are changed, we continue to ask:
+\subsubsection*{How many files are changed to fix a bug?} \vspace{-0.3em} 
 
-\paragraph{What are the file types of those changed files?}
-In Boa, each changed file is represented by a \emph{ChangedFile} node, and it
-has a field called \emph{FileKind}, describing the type of each file. As
-mentioned earlier, a \emph{ChangedFile} could be either a new file or an
-existing file (if the bug fixing revision modified or deleted the file).
-Table~\ref{tbl:fileType} shows the file types that Boa could identify. To answer
-this question, we iterate all the changed files in each bug fixing revision and
-count the total number for each file type. Results are shown in
+A file was changed if (1) it was a new file; (2) or it was modified; (3) or it
+was deleted. In total, $52,052,571$ files got changed. Thus, on average each bug
+fixing revision changes $11.3$ files.  This number is surprisingly high because
+most automatic program repair techniques assume that bugs are local in most
+cases. There could be several reasons behind this number. It could be the case
+that other software artifacts (e.g.  documentation) are updated after bug
+fixing. It could also be the case that bug fixing commit also contains changes
+that are not related to fixing bug (e.g. refactoring, adding new features by
+creating new files). To better understand why so many files are changed, we
+continue to ask:
+
+\subsubsection*{What are the file types of those changed files?} \vspace{-0.3em}
+
+To answer this question, we iterate all the changed files in each bug fixing
+revision and count the total number for each file type. Results are shown in
 Table~\ref{tbl:fileType}.
 
 \begin{table}
@@ -362,52 +358,46 @@ Table~\ref{tbl:fileType}.
   \label{tbl:fileType}
 \end{table}
 
-\emph{SOURCE\_JAVA\_ERROR} file kind represents files that Boa failed to parse.
-\emph{JLS2} refers to Java files that are written in all versions of Java
-languages up to and including J2SE 1.4. \emph{JLS3} refers to J2SE 1.5, and JLS4
-refers to J2SE 1.6 and 1.7. Boa documentation does not explicitly explain what
-is \emph{TEXT} and what is \emph{UNKNOWN}. Our assumption is that \emph{TEXT}
-refers to files whose file name ends with ``.txt'', and \emph{UNKNOWN} refers to
-all other kinds of files (e.g. .c file, .cpp files).
+SOURCE\_JAVA\_ERROR file kind represents files that Boa failed to parse. JLS2,
+JLS3, and JLS4 represent Java files written in different J2SE version. Boa
+documentation does not explicitly explain what is TEXT and what is UNKNOWN. From
+Table~\ref{tbl:fileType}, we can see that TEXT files and BINARY files are
+changed least frequently. This is not surprising because TEXT files are usually
+documentation files, and BINARY files should only be changed in rare case (e.g.
+milestone, new release, dependency update). If we consider all 4 kinds of Java
+files as one kind, then on average each bug fixing revision changes $4.47$ Java
+files. But still, it does not conform to our assumption of bug locality. XML
+files in Java projects usually represents build files, thus changing one build
+file after each bug fixing is not surprising.  What surprises us is that UNKNOWN
+files are changed most frequently. Note that all the projects in our dataset are
+Java projects, so it is reasonable to assume that these files are not source
+files that written in other programming languages.  One possible explanation is
+that they are test resources. However, due to the limitations of Boa, we can not
+look into the content of these files. 
 
-From Table~\ref{tbl:fileType}, we can see that \emph{TEXT} files and
-\emph{BINARY} files are changed least frequently. This is not surprising because
-\emph{TEXT} files are usually documentation files, and \emph{BINARY} files
-should only be changed in rare case (e.g.  milestone, new release, dependency
-update). If we consider all 4 kinds of Java files as one kind, then on average
-each bug fixing revision changes $4.47$ Java files. But still, it does not
-conform to our assumption of bug locality. \emph{XML} files in Java projects
-usually represents build files, thus changing one build file after each bug
-fixing is not surprising.  What surprises us is that \emph{UNKNOWN} files are
-changed most frequently. Note that all the projects in our dataset are Java
-projects, so it is reasonable to assume that these files are not source files
-that written in other programming languages.  One possible explanation is that
-they are test resources. However, due to the limitations of Boa, we can not look
-into the content of these \emph{UNKNOWN} files. 
+It could be the case that among those $4.47$ changed Java files, some of them
+are related to testing, such as modifying the test cases and creating new test
+classes. To better understand what changes are usually made to Java source code
+files, we continue to ask:
 
-Since Boa does not distinguish Java files that related to functionality and Java
-files that related to testing, it could be the case that among those $4.47$
-changed Java files, some of them are related to testing, such as modifying the
-test cases and creating new test classes. To better understand what changes are
-usually made to Java source code files, we continue to ask:
+\subsubsection*{How often do developers introduce new classes, methods, fields,
+	local variables in
+bug fixing commits?} \vspace{-0.3em}
 
-\paragraph{
-How often do developers introduce new classes, methods, fields, variables in
-	bug fixing commits?}
-This research question is interesting because most automatic program repair
-approaches often do not create new classes/methods/fields/variables to fix bugs.
+This question is interesting because most automatic program repair approaches
+often do not create new classes/methods/fields/local variables to fix bugs.
 Most approaches guess and synthesize the patches based on existing source code,
-and direct translations of approaching from C to Java do not naturally consider
+and direct translations of approaches from C to Java do not naturally consider
 object-oriented concerns, like fields or classes. 
 
-Table~\ref{tbl:new} shows our analysis results. This table shows that
-introducing new classes and new variables are rare. This is good news for
-automatic program repair approaches. On average, we still have $0.69$ new method
-per bug fix. If we consider the possibility of creating new test method (i.e.
-methods that annotated by @Test if JUnit is used), this number is not that
-scary. However, what surprises us is that $1.32$ fields are created per bug fix.
-This indicates that automatic program repair approaches should pay attention to
-the state of the class when fixing Java programs.
+Table~\ref{tbl:new} shows our analysis results. It shows that introducing new
+classes and new variables are rare, which is good news for automatic program
+repair approaches. On average, we still have $0.69$ new method per bug fix. If
+we consider the possibility of creating new test method (i.e.  methods that
+annotated by @Test if JUnit is used), this number is not that scary. However,
+what surprises us is that $1.32$ fields are created per bug fix.  This indicates
+that automatic program repair approaches should pay attention to the state of
+the class when fixing Java programs.
 
 \begin{table}
 \centering
@@ -419,7 +409,7 @@ the state of the class when fixing Java programs.
   Fields & 6,076,646 & 1.32 \\ \hline
   Variables & 924,259 & 0.2 \\ \hline
   \end{tabular}
-  \caption{Introducing new classes, methods, fields, variables to fix bugs}
+  \caption{Introducing new classes, methods, fields, local variables to fix bugs}
   \label{tbl:new}
 \end{table}
 
@@ -646,6 +636,7 @@ order to generate patches that make more sense to human developers, it would be
 beneficial to analyze how developers mutate source code to fix bugs. 
 
 \subsection{Replacements}
+
 Because direct diffs are difficult to identify, we heuristically approximate the
 extent to which one statement type appears to be ``replaced'' by another across
 this dataset.  To do this, for each modified file, we count the number of
@@ -653,93 +644,78 @@ appearances of each statement type in the file pre- and post-commit.  We then
 compare the results to see how many of each statement type was removed, and how
 many inserted, to roughly characterize the types of replacement that happen at a
 per-file level.  For each statement type (as tagged by the Boa infrastructure
-for Java), we process the results as follows: 
-if number of occurrences of one statement type decreased post-fix and the number of
-another type increased, we say that
-the first statement type was replaced by the second statement type for that
-file. 
+for Java), we process the results as follows: if number of occurrences of one
+statement type decreased post-fix and the number of another type increased, we
+say that the first statement type was replaced by the second statement type for
+that file. It is important to notice that this analysis doesn't distinguish the
+replacement of the same statement kind, since we are counting the amount of
+appearances of each statement kind.
 
-It is important to notice that this analysis doesn't consider replacing an
-statement kind for a different version of the same statement kind, since it is
-counting the amount of appearances of each statement kind. So, if for example,
-the developer modifies the condition inside of an if statement, the amount of if
-statements in the file will remain the same.
+The numbers in the slots of Table~\ref{tab:likeliness} \todo{shall we add \% in
+this table?}, represent the percentage rate at which the elements of the
+leftmost column were replaced by the elements of the top row. In the first
+column we have the list of statements that are being replaced (faulty statements
+that were removed), and on the top row we have the list of statements for which
+that statement was replaced for (the new statement put instead). For example, if
+we take the intersection of row 5 (DoStatement row) and column 2 (AsserStatement
+column) of the data, we have a 0.81, which means that Do statements were
+replaced by Assert statements 0.81\% of the times.
 
-The numbers in the slots of Table~\ref{tab:likeliness}, represent the percentage rate at which the
-elements of the leftmost column were replaced by the elements of the top row. In
-the first column we have the list of statements that are being replaced (faulty
-statements that were removed), and on the top row we have the list of statements
-for which that statement was replaced for (the new statement put instead). For
-example, if we take the intersection of row 5 (DoStatement row) and column 2
-(AsserStatement column) of the data, we have a 0.81, which means that Do statements were replaced by Assert statements 0.81\% of the times.
+Our results show that the most common replacement is replacing Return statement
+with If statement, which showed up in 30,489 files. The second most common
+replacement is replacing an If statement with a Return statement, which had
+28,536 appearances. We found that the most common \emph{Replacer} statement kind
+(the statement kind that most commonly replaces others) is the \textbf{If
+Statement} with 101,366 appearances; and the least common \emph{Replacer} is the
+\textbf{Type Declaration Statement} with 447 appearances.
 
-\subsubsection{Most common replacements}
-Our results show that the most common replacement is when developers remove a
-Return statement and insert an If statement. This showed up in 30,489 files in
-the code database. The second most common replacement is removing an If
-statement and insert a Return statement instead, which had 28,536 appearances in
-the code database. Third to that, is to remove a Return statement and insert a
-Throw statement.
+On the opposite side of the data, the least common replacement was an Assert
+statement replacing a Type Declaration statement, which had zero appearances.
+The second least common replacement were replacing a Do statement with a Type
+Declaration statement and replacing a Label with a Type Declaration, both of
+which had one appearance respectively in our search. The most common $Replacee$
+(the most likely statement kind to be replaced by another statement kind) is the
+\textbf{Return Statement} with 111,938 appearances; and the least common
+$Replacee$ is the \textbf{Type Declaration Statement} with 399 appearances.
 
-\subsubsection{Least common replacements}
-On the opposite side of the data, we can see that the least common replacement
-was an Assert statement replacing a Type Declaration statement, which has zero appearances. The second least common replacement was
-removing a Do statement and insert a Type Declaration statement, with one
-appearance in our search, and on third place, removing a Label and insert
-a Type Declaration Statement had one appearance in our search.
+\subsection{Deletions and Insertions}
 
+\begin{figure*}[!t] \centering \includegraphics[height=0.3\textheight,
+	width=0.8\textwidth]{StmtType} \caption{For each kind of statement, how many
+	bug fixing revisions add/delete statements of the same kind?}
+	\label{fig:StmtType} \end{figure*}
 
-\subsection{Deletions and insertions}
-
-
-\begin{figure*}[!t] \centering
-	\includegraphics[height=0.3\textheight, width=1\textwidth]{StmtType} \caption{For each kind
-	of statement, how many bug fixing revisions add/delete statements of the
-same kind?} \label{fig:StmtType} \end{figure*}
-\todo{I'm not sure the percentages in Figure~\ref{fig:StmtType} are visible, maybe moving the numbers so they don't overlap with the bars?}
 For each bug fixing revision $r$ and each statement kind $k$, we count how many
 statements of kind $k$ are there in revision $r$ and $r-1$ ($r-1$ means the
 revision before revision $r$), and then compare the two numbers. 
 
-From Figure~\ref{fig:StmtType} \todo{fix the small fonts in this graph}, we can
-see that expression, if, return, for and try catch statements are added most
-often. On the other hand, the same types of statements are also deleted most
-often. This finding indicates that most bugs were fixed by changing the control
-flow of the program using if, return, for, while, and try catch statements. 
+From Figure~\ref{fig:StmtType}, we can see that, expression, if, return, for and
+try catch statements are added most often. Meanwhile, the same types of
+statements are also deleted most often. This finding indicates that most bugs
+were fixed by changing the control flow of the program.
 
-For each bug fixing revision, the results discussed above consider both newly
-added files and existing files. Since most automatic program repair approaches
-do not generate new files to fix bugs, the rest of this section only considers
-files that were already in the repositories when developers fixed bugs. Our
-analysis shows that there are 46,301,429 of them.
 
-We found that the most common $Replacer$ statement kind (the statement
-kind that most commonly replaces others) is the \textbf{If Statement} with
-101,366 appearances; and the least common $Replacer$, is the \textbf{Type Declaration
-  Statement} with 447 appearances.
+\subsection{Applicability to Automatic Error Repair} 
 
-The most common $Replacee$ (the most likely statement kind to be replaced
-by another statement kind) is the \textbf{Return Statement} with 111,938
-appearances; and the least common $Replacee$ is the \textbf{Type Declaration Statement}
-with 399 appearances.
-
-\subsection{Applicability to Automatic Error Repair}
 This study is directly applicable to automatic software repair. Most common
-tools for automatic software repair~\cite{kim2013,weimer2009,legoues2012}
-first find a faulty statement using several different fault localization
+tools for automatic software repair~\cite{kim2013,weimer2009,legoues2012} first
+find a faulty statement using several different fault localization
 techniques~\cite{fry2010}, and once they have that faulty statement, they apply
 different kinds of edits to it, usually at random. Which makes it equally likely
 to replace an statement for another without looking at the kinds of statements
-being replaced.
-
-With this study, we are able to make a more accurate guess, when having a known
-faulty statement, of which statements more commonly replace that faulty one to build a successful patch based on the data from Table~\ref{tab:likeliness}. Similarly with Figure~\ref{fig:StmtType}, we can have an informed guess of how often programmers insert or delete that particular kind of statement.
+being replaced. With this study, we are able to make a more accurate guess based
+on the phenomenon we observed from Table~\ref{tab:likeliness} and
+Figure~\ref{fig:StmtType}.
 
 For example, if we are fixing a Java program, and we have a faulty statement
-that happens to be a For Statement. Then we can look for the most likely statements to replace a For Statement (row 6): If statement (22.89\% likeliness), Return statement (21.08\%), and a While statement (13.79\% of likeliness to replace a For Statement). We also know that there is a 7.9\% of cases in which human programmers deleted this kind of statement, and in 10.6\% of the cases, a For statement was added to patch a bug. This
-way we provide guidelines to
-the automatic bug repair approaches to consider this on their effort to find a
-patch.
+that happens to be a For Statement. Then we can look for the most likely
+statements to replace a For Statement (row 6): If statement (22.89\%
+likeliness), Return statement (21.08\%), and a While statement (13.79\% of
+likeliness to replace a For Statement). We also know that there is a 7.9\% of
+cases in which human programmers deleted this kind of statement, and in 10.6\%
+of the cases, a For statement was added to patch a bug. This way we provide
+guidelines to the automatic bug repair approaches to consider this on their
+effort to find a patch.
 
 \section{Threats to Validity} 
 
@@ -751,16 +727,12 @@ this}
 
 Some threats to our study are due to the limitation of Boa. For example, we rely
 on Boa to identify bug fixing revisions, but it is unclear whether those
-identified revisions are actually related to bug fixing. Chances are that there
-exist some other bug fixing revisions, but Boa could not identify them. It is
-also possible that bug fixing revisions identified by Boa actually include other
-code changes, such as implementing new features, refactoring the code base.
-After all, identifying bug fixing revisions from revision history is still an
-open problem. Another big limitation of Boa is that there is no easy to get a
-precise statement-level diff between two revisions. Thus, our template matching
-and analysis of code changes (by counting each statement kind) could be
-inaccurate. However, our results should provide upper bounds for the questions
-we investigated. 
+identified revisions are actually related to bug fixing. After all, identifying
+bug fixing revisions from revision history is still an open problem. Another big
+limitation of Boa is that there is no easy way to get a precise statement-level
+diff between two revisions. Thus, our template matching and analysis of code
+changes (by counting each statement kind) could be inaccurate. However, our
+results should provide upper bounds for the questions we investigated. 
 
 \section{Conclusions}
 We have characterized bug fixing changes in Java.

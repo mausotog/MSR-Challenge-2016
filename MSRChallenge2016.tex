@@ -216,7 +216,7 @@ Mauricio Soto$^1$, Ferdian Thung$^2$, Chu-Pan Wong$^1$, Claire Le Goues$^1$, and
 There has been considerable attention paid to the problem of automatic
 program repair in recent
 years~\cite{kim2013,legoues2012,pan2009,
-  Mechtaev15,prophet}, among many others),
+  Mechtaev15,Long2016}, among many others),
 %
 One broad class of techniques in this space take a generate-and-validate
 approach, which involves generating a large number of candidate patches using a
@@ -233,7 +233,7 @@ implemented for C~\cite{nopol,kim2013}. % Even PAR~\cite{kim2013}, perhaps the
 % from and is directly compared to a Java implementation of GenProg~\cite{genprog}, which
 % targets the C programming language.  
 %
-This is an oversight, because, frankly Java and C are very different languages.
+This is an oversight because Java and C are very different languages.
 Consider GenProg~\cite{legoues2012}, which
 combines statement-level mutations into patches to address a particular
 defect. Which ``Statements'' (a semantic unit in C) should be manipulated in Java?
@@ -345,10 +345,7 @@ files in Java projects usually represents build files; changing a build
 file is unsurprising.  Rather more surprising is how frequently UNKNOWN files
 are changed. Given that all the projects are Java projects, 
 it is unclear whether these are written in other proramming
-languages; One possibility is
-that they are test resources. However, due to the limitations of Boa, we can not
-look into the content of these files. 
-\todo{Possibly mention median.} 
+languages. We hypothesize they might be test resources.
 To better understand what changes are usually made to Java source code
 files, we next ask:
 
@@ -358,9 +355,7 @@ files, we next ask:
 bug fixing commits?} 
 %
 This question is interesting because most automatic program repair approaches
-often do not create new methods or variables to fix bugs in C.
-Most approaches guess and synthesize the patches based on existing source code,
-and direct translations of approaches from C to Java do not naturally consider
+target C, and do not consider
 object-oriented concerns, like fields or classes. 
 
 Table~\ref{tbl:new} shows that introducing new
@@ -416,7 +411,7 @@ dataset.
 
 \subsection{Detecting PAR patterns in Boa}
 
-Boa's capabilities are powerful, butlimited in the precision it enables in
+Boa's capabilities are powerful, but limited in the precision it enables in
 our detection of Par bug-fixing patterns. For example, it is unable to directly perform a
 diff between two file versions. Thus, rather than finding the exact count of
 bug fixing patterns, we find an approximate count by processing pre- and
@@ -505,13 +500,10 @@ post-fix version. If the count is different between pre- and post-fix
 version, we consider the COB pattern found.
 
 \vspace{1ex} The above patterns cover 8 out of 10 bug fixing patterns in
-PAR. The other two patterns are (1) checking that an object is an instance of a
-target class before casting it; and (2) replacing expression in an if condition
-by another expression in the same scope. Pattern (1) cannot be analyzed because
-Boa does not support the {\em instanceof} expression. Pattern (2)
-requires us to track scope between pre-fix and post-fix version, which is not
-easily supported by Boa.  Investigating 8 out of the
-10 patterns should still provide a good idea on how common the patterns actually are.
+PAR. The other two patterns are (1) Class Cast Checker (cannot be analyzed because
+Boa does not support the {\em instanceof} expression); and (2) Expression Changer (requires us to track scope between pre-fix and post-fix version; not
+easily supported by Boa). Investigating 8 out of
+10 patterns still shows us how common the patterns actually are.
 
 \subsection{Results} \label{sec:freqfixpattern}
 
@@ -545,16 +537,16 @@ cover 14.78\% of buggy files. Kim et al. mentioned that the patterns that they
 use cover almost 30\% of real patches~\cite{kim2013}. Although we only detect 8
 out of 10 bug fixing patterns, it is unlikely the final two will cover the
 difference. Moreover, our detection is imprecise, and likely represents an upper
-bound;  This suggests that common bug fixing patterns might not generalize
-beyond an initial dataset, and that more work remains to identify a sufficiently
-expressive set of mutations for high-quality automated repair of Java.
+bound.  This suggests that these fixing patterns might not generalize
+beyond an initial dataset, and that more work remains to categorize the programmer's fixing behavior.
 
 
 
 \section{Statement-level mutations}
 \begin{table*}
 	\centering
-	\resizebox{17cm}{!}{
+	\resizebox{15cm}{!}{
+	%\renewcommand{\arraystretch}{0.9}% Tighter
 		\begin{tabular}{|l|r|r|r|r|r|r|r|r|r|r|r|r|r|r|r|} \hline
 			&Assert&Break&Continue&Do& For&If&Label&Return&Case&Switch& Synch&Throw&Try&TypeDecl&While
 			\\ \hline
@@ -594,7 +586,7 @@ expressive set of mutations for high-quality automated repair of Java.
 		\caption{Likeliness to replace the statement in the first column for the statement in the top row, in Java}\label{tab:likeliness}
 \end{table*}
 
-\begin{figure*}[!t] \centering \includegraphics[height=0.25\textheight,
+\begin{figure*}[!t] \centering \includegraphics[height=0.23\textheight,
 	width=0.8\textwidth]{StmtType} \caption{For each kind of statement, how many
 	bug fixing revisions add/delete statements of the same kind?}
 	\label{fig:StmtType} \end{figure*}

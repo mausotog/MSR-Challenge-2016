@@ -177,21 +177,18 @@ David Lo\\
 
 \maketitle
 \begin{abstract}
-  Many implementations of recent work to automatically repair bugs in software
-  target programs written in C. Work that targets Java often begins from, or at
+  Many implementations of research techniques that automatically repair software
+  bugs target programs written in C. Work that targets Java often begins from, or at
   least compares to, direct translations of such techniques to a Java context.
   However, Java and C are very different languages, and these differences should be
   studied and understood if existing approaches are to be profitably translated
-  from one to another.  We conducted a large-scale study of bug-fixing commits
+  between them.  We conducted a large-scale study of bug-fixing commits
   to Java projects, focusing on assumptions underlying common
-  search-based repair approaches.  We make a number of observations that can be
-  leveraged to guide automatic software repair to target Java specifically,
+  search-based repair approaches.  We make observations that can be
+  leveraged to guide high quality automatic software repair to target Java specifically,
   including common and uncommon statement replacements as conducted by human
   developers and the applicability of previously-proposed patch construction
-  operators in the Java context.  We anticipate that these observations can
-  inform more effective patch construction techniques for Java, both in raw
-  numbers of bugs fixed and the usability and maintainability of the resulting
-  patches. 
+  operators in the Java context. 
 \end{abstract}
 
 
@@ -242,52 +239,46 @@ David Lo\\
 
 \section{Introduction}
 
-Research in automatic bug repair seeks to develop techniques that can
-automatically construct patches to repair software bugs, which are prevalent in
-practice. There has been considerable attention paid to this problem in recent
-years~\cite{kim2013,weimer2009,legoues2012,pan2009,so,many,more}.
-Mutation-based, or generate-and-validate approaches, typically operate by
-generating a large number of candidate patches using a pre-defined set of
-mutation operators, and then validating their correctness with respect to a set
-of test cases.  These mutation operators range from simple, coarse granularity
-statement-level mutations~\cite{examples} to human-constructed templates learned
-from a large corpus of previous human bug-fixing commits~\cite{kim2013}.
+There has been considerable attention paid to the problem of automatic
+program repair in recent
+years~\cite{kim2013,legoues2012,pan2009,Weimer13, Qi13,
+  Mechtaev15,prophet}, among many others),
+%
+One broad class of techniques in this space take a generate-and-validate
+approach, which involves generating a large number of candidate patches using a
+pre-defined set of mutation operators, and then validating correctness with
+respect to a set of test cases.  Mutation operators range from simple, coarse
+granularity statement-level mutations to human-constructed templates learned
+from a large corpus of previous human bug-fixing commits.
 
-A considerable proportion of this previous work is implemented to target
-programs written in C, with only limited attention paid to programs in other
-languages, like Java~\cite{kim2013}.  At least partially as a result,
-researchers targeting Java must either start from or at least compare against
-imperfect baselines, that is, Java-based implementations of techniques
-originally implemented for C~\cite{nopol}. %  Even PAR~\cite{kim2013}, perhaps the
+A considerable proportion of this works targets programs written in C.
+Researchers targeting Java often start from or compare against imperfect
+baselines, that is, Java-based implementations of techniques originally
+implemented for C~\cite{nopol,kim2013}. % Even PAR~\cite{kim2013}, perhaps the
 % best-known previously-proposed Java-based program repair technique, both starts
 % from and is directly compared to a Java implementation of GenProg~\cite{genprog}, which
 % targets the C programming language.  
-This C focus extends to empirical studies
-of bug fixing practice, used to inform research questions in automatic
-repair~\cite{zhong2015}. 
-
-This is an oversight, because, to put it simply: Java and C are very different
-languages.  Consider GenProg~\cite{genprog,cites}, a well-known technique in
-this space: GenProg uses a genetic programming heuristic to combine
-statement-level mutations into patches to address a particular defect.
-``Statement'' is a well-defined semantic unit in the C programming
-language~\cite{cspec}; to which semantic unit in Java does this concept map?
-Can we learn more
+%
+This is an oversight, because, frankly Java and C are very different languages.
+Consider GenProg~\cite{legoues2012}, which
+combines statement-level mutations into patches to address a particular
+defect. Which ``Statements'' (a semantic unit in C) should be manipulated in Java?
+Can we learn
 intelligent rules to inform candidate modifications
-(cf. Prophet~\cite{rinardPopl2016}, for C)?  What types of
-semantic scoping rules should be used to limit mutations, given the relative
-stringence of the Java compilers? 
+(cf. Prophet~\cite{Long2016}, for C)?  What types of semantic scoping
+should limit mutations, given the relative stringence of the Java
+compiler?
 
 In this paper, we study bug-fixing commits to Java programs, taking as a subject
 of study several million human-made bug fixes from Github. We study broad
-characteristics of changes to fix bugs; the applicability of previously-proposed
-templates to repairing defects in Java programs~\cite{kim2013}; and the nature
-of additions, replacements, of statements in bug-fixing commits. We make
-observations to directly guide future research in automatic repair to Java
+characteristics of these changes; the applicability of previously-proposed
+Java repair templates~\cite{kim2013}; and the nature
+of additions and replacements of Java statements in bug-fixing commits. We make
+observations to directly guide future research in automatic repair of Java
 programs, to increase the success rate of such techniques and the degree to
 which the patches are human-like and therefore more readable and maintainable by
-human developers; this is important, because patch quality is an important
-concern in this research area~\cite{Qi2013}.
+human developers. This is important, because patch quality is an important
+concern in this research area~\cite{Qi15}.
 
 % On the other hand, some approaches~\cite{kim2013} search for specific patterns
 % and modify source code according to predefined templates. A well known approach
@@ -303,15 +294,23 @@ concern in this research area~\cite{Qi2013}.
 % resembling patterns programmers use to patch bugs, and then performed an
 % empirical study to evaluate which patches do human programmers prefer.
 
-A good complement for this paper is~\cite{zhong2015}, where they look for
-additions and deletions in a smaller data set. In this paper, we focus more on
-the replacements, which have been left out of the analysis of~\cite{zhong2015},
-and expand their results of the deletions and additions in a broader
-dataset~\cite{dyer2013}.
-\todo{note to self (CLG) should mention the work from Earl, Yuriy, and others
-  that looked at the redundancy assumption.}
 
-\todo{roadmap}
+\noindent\textbf{Related work.} A good complement to this paper is~\cite{zhong2015}, which studies 
+a similar set of questions in C.  Beyond focusing on Java, we focus more on
+replacements, ommitted from that previous analysis, and otherwise target a
+larger dataset~\cite{dyer2013}.  Barr et al.~\cite{Barr14fse} studied changes to
+Java programs to understand the ``Plastic Surgery Hypothesis'' underlying
+certain types of program repair techniques, an important but orthogonal
+concern. Kim et al.~\cite{kim2013} manually analyze 
+changes to Java programs to inform an automated repair
+technique and show that doing so results in higher-quality repairs; 
+we attempt to validate their learned templates heuristically on
+a different dataset, and take their results as
+motivation for understanding human repairs (as it may result in better patches).
+Long and Rinard learn probabilistic models from bug fixes to C
+code~\cite{Long2016}. Our analysis is significantly less precise and does not
+inform a new repair technique.  Rather, it serves as a starting
+point for research investigating the repair of bugs in Java code.
 
 \section{Dataset and Characteristics}
 

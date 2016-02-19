@@ -302,8 +302,8 @@ fixing revision changes $11.3$ files.  This is surprisingly high:
 most automatic program repair techniques assume that bugs are local.
 We hypothesize several explanations. Other
 software artifacts (e.g.  documentation) may be updated after bug  
-fixing. It could also be the case that bug fixing commit also contains changes
-that are not related to fixing bug (e.g. refactoring, adding new features by
+fixing, or fixing commits may contain changes
+unrelated to fixing bug (e.g. refactoring, adding new features by
 creating new files). To better understand this
 phenomenon, we ask:
 
@@ -328,6 +328,7 @@ Table~\ref{tbl:fileType}.
   Text & 541,023 & 0.12 \\ 
   XML & 6,818,299 & 1.49 \\ 
   UNKNOWN & 23,426,568 & 5.10 \\ 
+\bottomrule
   \end{tabular}
   \caption{File Types of Changed Files}
   \label{tbl:fileType}
@@ -379,6 +380,7 @@ the class when fixing Java programs.
   Methods & 3,186,867 & 0.69 \\ 
   Fields & 6,076,646 & 1.32 \\ 
   Variables & 924,259 & 0.2 \\ 
+\bottomrule
   \end{tabular}
   \caption{Introducing new classes, methods, fields, local variables to fix bugs}
   \label{tbl:new}
@@ -387,18 +389,17 @@ the class when fixing Java programs.
 % \todo{Is there room/call to include any element of Chu Pan's replacement
 %   analysis in here?}
 
-\section{PAR Bug Fixing Patterns}\label{sec:method}
+\section{Bug Fixing Patterns}\label{sec:method}
 
-Par is a well-known technique for patch generation that 
-On the other hand, some approaches~\cite{kim2013} searches for specific patterns
+One of the best-known program repair techniques to target Java is
+PAR~\cite{kim2013}.  Par searches for specific patterns
 and modifies java code according to predefined templates, constructed by humans
-to cover a large set of bug fixes from an existing corpus.  As one of the only
-techniques to directly target Java, it is an important source of possible
+to cover a large set of bug fixes from an existing corpus.  Par serves as an
+important source of possible 
 mutations to study to inform future directions. 
 We therefore search for and analyze most of the bug fixing patterns proposed by
-Kim et al.~\cite{kim2013} and assess their prevalence on this distinct
-dataset by using Boa's language infrastructure~\cite{dyer2013} to identify the patterns
-in the commits in the dataset.
+Kim et al. and estimate their prevalence in this
+dataset.
 
 % A well known approach
 % is PAR~\cite{kim2013}, which creates 10 different repair templates and applies
@@ -415,81 +416,82 @@ in the commits in the dataset.
 
 \subsection{Detecting PAR patterns in Boa}
 
-Boa's capabilities are powerful, but are limited in the precision it enables in
-our detection of these patterns. For example, it is unable to directly perform a
+Boa's capabilities are powerful, butlimited in the precision it enables in
+our detection of Par bug-fixing patterns. For example, it is unable to directly perform a
 diff between two file versions. Thus, rather than finding the exact count of
-bug fixing patterns, we will find an approximate count by processing pre- and
+bug fixing patterns, we find an approximate count by processing pre- and
 post- fix files separately.  Additionally, there are
 two of the originally proposed 10 patterns that cannot be easily detected by
 Boa, as we describe below. 
-
+%
 The patterns we search for are as follows, including our mechanism for
 detecting them using Boa:
 
 \vspace{1ex}
-\noindent {\bf Altering method parameters (AMP)}.  This pattern changes the
-input for method parameters.  {\bf Example:} obj.method(v1,v2) $\rightarrow$
-obj.method(v1,v3). To detect this pattern, for both pre-fix and post-fix version
-of a buggy file, we create a custom method call signature. This signature
-contains method name, literal parameter, and variable parameter. we consider
-parameter containing custom expression as OTHER. This is due to inexistence of
-function that can print Abstract Syntax Tree (AST) back to source code in
-Boa. We discard method signatures that appear both in pre-fix and post-fix
-version. We then find whether there exists method with the same name and the
-same number of parameters, but different parameter signatures in pre-fix and
-post-fix version. If it exists, we consider that AMP pattern is found.
+\noindent {\bf Altering method parameters (AMP)}.  This pattern changes 
+input method parameters. %(\texttt{obj.method(v1,v2) $\rightarrow$
+%obj.method(v1,v3)}). 
+To detect this pattern, for both pre-fix and post-fix version
+of a buggy file, we create a custom method call signature that
+contains the name, literal parameters, and variable parameters (more complex
+expressions are listed as OTHER).
+%  This is due to inexistence of
+% function that can print Abstract Syntax Tree (AST) back to source code in
+% Boa. 
+We discard method signatures that appear both in pre-fix and post-fix
+versions, and then identify methods with the same name and the
+same number of parameters, but different parameter signatures in pre- and
+post-fix versions.% If it exists, we consider that AMP pattern is found.
 
 \vspace{1ex}
 \noindent {\bf Calling another method with the same parameters (MSM)}.  This
-pattern changes a method name.  {\bf Example:} obj.method1(param) $\rightarrow$
-obj.method2(param).  To detect this pattern, we create method signature similar
-like when detecting AMP pattern. This time, we find whether there exists method
-with the exact same parameter signature but different name in pre-fix and
-post-fix version. If it exists, we consider that MSM pattern is found.
+pattern changes a method name. % (\texttt{obj.method1(param) $\rightarrow$
+%obj.method2(param)}).  
+To detect this pattern, we create method signature similar
+to the above for the AMP pattern, looking for methods
+with the exact same parameter signature but different names in pre- and
+post-fix versions. %If it exists, we consider that MSM pattern is found.
 
 \vspace{1ex}
 \noindent
 {\bf Calling another overloaded method with one more parameter (COM)}. This
-pattern adds one more parameter to a method. 
-	{\bf Example:} obj.method(v1) $\rightarrow$ obj.method(v1,v2).
-  To detect COM pattern, we create method signature similar like when detecting
-  AMP and COM pattern. This time, we find whether there exists method with
-  the same name, but the number of parameters in pre-fix and post-fix version
-  differs by one. If it exists, we consider that COM pattern is found.
+pattern adds one more parameter to a method. %(\texttt{obj.method(v1) $\rightarrow$ obj.method(v1,v2)}).
+We create method signature similar to the above, seeking methods with
+  the same name, one more parameter in the post-fix version. 
 
 \vspace{1ex}
 \noindent
  {\bf Changing a branch condition (CBC)}. This pattern adds or removes a condition.
-	{\bf Example:} if(a != b) $\rightarrow$ if(a != b \&\& c == 0).
+%(e.g., \texttt{if(a != b) $\rightarrow$ if(a != b \&\& c == 0)}).
   To detect CBC pattern, we count the number of { \em logical and} and {\em
-    logical or} inside if conditional expression for both pre-fix and post-fix
-  version. we assume that the addition/removal of logical operators indicate
-  addition/removal of condition. If there is a larger count in post-fix version, we consider that CBC pattern is found.
+    logical or} inside if conditional expression sfor both pre-fix and post-fix
+  version. We assume that the addition/removal of logical operators indicate
+  addition/removal of condition. If there is a larger count in post-fix version,
+  we consider the CBC pattern is found. 
 
 \vspace{1ex}
 \noindent
- {\bf Initializing an object (IAO)}. This pattern adds a initialization to object declaration.
-  To detect IAO pattern, we count the number of NEW expression in variable
-  declaration for both pre-fix and post-fix version. If there is a larger count in post-fix version, we consider that IAO pattern
-  is found.
-	{\bf Example:} Type obj $\rightarrow$ Type obj = new Type(). 
+{\bf Initializing an object (IAO)}. This pattern adds a initialization to object
+declaration.  We count the number of NEW expressions in variable declarations
+for both pre- and post-fix versions. If there is a larger count in post-fix
+version, we consider that IAO pattern is found.
 
 \vspace{1ex}
 \noindent
  {\bf Adding a null checker (ANC)}.  This pattern inserts a condition to check whether an
-    object is null or not in order to prevent unexpected state.
-	{\bf Example:} obj.m1() $\rightarrow$ if(obj!=null){obj.m1()}
-  To detect ANC pattern, we count the number of if conditional expression that
+    object is null.
+%	{\bf Example:} obj.m1() $\rightarrow$ if(obj!=null){obj.m1()}
+  To detect ANC pattern, we count the number of if conditional expressions that
   contains {\em !=null} or {\em ==null} for both pre-fix and post-fix
   version. If there is a larger count in post-fix version,
-  we consider that ANC pattern is found.
+  we consider that ANC pattern found.
 
 \vspace{1ex}
 \noindent
  {\bf Adding an array out of bound checker (AOB)}. This pattern inserts a condition to check that an array
     index is within bound right before the index is used.
-	{\bf Example:} arr[idx]=0 $\rightarrow$ if(idx<arr.length){arr[idx]=0}.
-  To detect AOB pattern, we count the number of if conditional expression that
+%	{\bf Example:} arr[idx]=0 $\rightarrow$ if(idx<arr.length){arr[idx]=0}.
+ We count the number of if conditional expression that
   contains {\em expr<var.length} or {\em var.length>expr} for both pre-fix and
   post-fix version. If there is a larger count in post-fix version, we consider that AOB pattern is found.
 
@@ -497,21 +499,19 @@ pattern adds one more parameter to a method.
 \noindent
  {\bf Adding a collection out of bound checker (COB)}.  This pattern inserts a condition to check that a
     collection index is within bound before it is used.
-	{\bf Example:} x=col.get(idx) $\rightarrow$ if(idx<col.size()){x=col.get(idx)}\\
 To detect COB pattern, we count the number of if conditional expression that
 contains {\em expr<col.size()} or {\em col.size()>expr} for both pre-fix and
 post-fix version. If there are count differences between pre-fix and post-fix
-version, we consider that COB pattern is found.
+version, we consider the COB pattern found.
 
-\vspace{1ex} The above patterns only cover 8 out of 10 bug fixing patterns in
-PAR. The other two patterns are: (1) checking that an object is an instance of a
+\vspace{1ex} The above patterns cover 8 out of 10 bug fixing patterns in
+PAR. The other two patterns are (1) checking that an object is an instance of a
 target class before casting it; and (2) replacing expression in an if condition
 by another expression in the same scope. Pattern (1) cannot be analyzed because
-Boa does not support {\em instanceof} expression. Similarly, pattern (2)
+Boa does not support the {\em instanceof} expression. Pattern (2)
 requires us to track scope between pre-fix and post-fix version, which is not
-supported by Boa. Implementing them ourselves might be possible, but it might
-require too much effort than necessary. We speculate that investigating 8 out of
-10 patterns should give us a good idea on how common the patterns actually are.
+easily supported by Boa.  Investigating 8 out of the
+10 patterns should still provide a good idea on how common the patterns actually are.
 
 \subsection{Results} \label{sec:freqfixpattern}
 

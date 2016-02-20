@@ -88,7 +88,7 @@
 %\crdata{0-12345-67-8/90/01}  % Allows default copyright data (0-89791-88-6/97/05) to be over-ridden - IF NEED BE.
 % --- End of Author Metadata ---
 
-\title{A deeper look into bug fixes: Patterns, replacements, deletions, and additions}
+\title{A Deeper Look into Bug Fixes: Patterns, Replacements, Deletions, and Additions}
 
 %
 % You need the command \numberofauthors to handle the 'placement
@@ -216,7 +216,7 @@ Mauricio Soto$^1$, Ferdian Thung$^2$, Chu-Pan Wong$^1$, Claire Le Goues$^1$, and
 There has been considerable attention paid to automatic
 program repair in recent
 years~\cite{kim2013,legoues2012,pan2009,
-  Mechtaev15,Long2016}, among many others),
+  Mechtaev15,Long2016}.
 %
 One broad class of techniques in this space take a generate-and-validate
 approach: \emph{generating} a large number of candidate patches using a
@@ -225,7 +225,7 @@ respect to a set of test cases.  Mutation operators range from simple, coarse
 granularity statement-level mutations to human-constructed templates learned
 from a large corpus of previous human bug-fixing commits.
 
-A considerable proportion of this works targets programs written in C.
+A considerable proportion of these works target programs written in C.
 Indeed, researchers targeting Java often start from or compare against
 Java-based implementations of techniques originally
 implemented for C~\cite{nopol,kim2013}. % Even PAR~\cite{kim2013}, perhaps the
@@ -271,7 +271,7 @@ concern in this area~\cite{Qi15}.
 \vspace{1ex}
 \noindent\textbf{Related work.} Zhong and Su~\cite{zhong2015} study
 a similar set of questions as we do, for C.  Beyond focusing on Java in a larger dataset~\cite{dyer2013}, we also study
-replacements, ommitted from that analysis.  Barr et al.~\cite{Barr14fse} studied changes to
+replacements, omitted from that analysis.  Barr et al.~\cite{Barr14fse} studied changes to
 Java programs to understand the ``Plastic Surgery Hypothesis'' underlying
 certain types of program repair, an orthogonal
 concern. Kim et al.~\cite{kim2013} manually analyze 
@@ -288,7 +288,7 @@ point for research on the repair of Java bugs.
 \section{Dataset and Characteristics}
 
 First, we broadly characterize bug-fixing commits to Java code.  In this paper,
-we study the \emph{2015 September/Github} dataset on Boa, including $7,830,023$
+we study the \emph{September 2015/Github} dataset on Boa, including $7,830,023$
 Java projects with $23,229,406$ revisions. Boa identifies $4,590,679$ as bug
 fixing.
 
@@ -335,7 +335,7 @@ Table~\ref{tbl:fileType}.
 
 JAVA (ERROR) files are those that Boa failed to parse. JLS2, JLS3, and JLS4
 represent Java files written in different J2SE versions.  We see that text and
-Binary files are changed least frequently. This is unsurprising, since text
+binary files are changed least frequently. This is unsurprising, since text
 files are often documentation, and binaries should be changed rarely. If we
 consider all 4 kinds of Java files as one kind, on average, each bug fixing
 revision changes $4.47$ Java files. This does not conform to our assumption of
@@ -408,10 +408,10 @@ dataset.
 \subsection{Detecting PAR templates using Boa}
 
 Boa's capabilities are powerful, but limited in the precision it enables in
-our detection of Par bug-fixing patterns. For example, it cannot directly \texttt{diff}
+our detection of PAR bug-fixing patterns. For example, it cannot directly \texttt{diff}
 two files versions. Thus, rather than finding the exact count of
 bug fixing patterns, we approximate by processing pre- and
-post- fix files separately.  Additionally, there are
+post-fix files separately.  Additionally, there are
 two of the 10 patterns that cannot be easily detected by
 Boa, as we describe below. 
 %
@@ -422,14 +422,14 @@ detecting them:
 \noindent {\bf Altering method parameters (AMP)}.  This template changes 
 input method parameters. %(\texttt{obj.method(v1,v2) $\rightarrow$
 %obj.method(v1,v3)}). 
-To detect this pattern, for both pre-fix and post-fix versions
+To detect this pattern, for both pre- and post-fix versions
 of a buggy file, we create a custom method call signature that
-contains the name, literal parameters, and variable parameters (complex
-expressions are listed as OTHER).
+contains the name string, literal parameters string, and variable parameters string (complex
+expressions are listed as ``OTHER'' string).
 %  This is due to inexistence of
 % function that can print Abstract Syntax Tree (AST) back to source code in
 % Boa. 
-We discard method signatures that appear both in pre-fix and post-fix
+We discard method signatures that appear both in pre- and post-fix
 versions, and then identify methods with the same name and the
 same number of parameters, but different signatures between versions. 
 
@@ -447,24 +447,24 @@ post-fix versions. %If it exists, we consider that MSM pattern is found.
 {\bf Calling another overloaded method with one more parameter (COM)}. This
 template adds a parameter to a method. %(\texttt{obj.method(v1) $\rightarrow$ obj.method(v1,v2)}).
 We create a method signature similar to the above, seeking methods with
-  the same name, one more parameter in the post-fix version. 
+  the same name, but with one more parameter in the post-fix version. 
 
 \vspace{1ex}
 \noindent
- {\bf Changing a branch condition (CBC)}. This template adds or removes a condition.
+ {\bf Add or remove a branch condition (ABC)}. This template adds or removes a condition.
 %(e.g., \texttt{if(a != b) $\rightarrow$ if(a != b \&\& c == 0)}).
 We count the number of { \em logical and} and {\em
-    logical or} inside if conditional expression sfor both pre-fix and post-fix
+    logical or} inside if conditional expression for both pre- and post-fix
   version. We assume that the addition/removal of logical operators indicate
-  addition/removal of condition. If there is a larger count in post-fix version,
-  we consider the CBC pattern is found. 
+  addition/removal of condition. If there is a count difference between pre- and post-fix version,
+  we consider an instance of the ABC pattern is found. 
 
 \vspace{1ex}
 \noindent
 {\bf Initializing an object (IAO)}. This template adds a initialization to object
 declaration.  We count the number of NEW expressions in variable declarations
 for both pre- and post-fix versions. If there is a larger count in post-fix
-version, we consider that IAO pattern is found.
+version, we consider that an instance of the IAO pattern is found.
 
 \vspace{1ex}
 \noindent
@@ -472,9 +472,9 @@ version, we consider that IAO pattern is found.
     object is null.
 %	{\bf Example:} obj.m1() $\rightarrow$ if(obj!=null){obj.m1()}
   To detect ANC pattern, we count the number of if conditional expressions that
-  contains {\em !=null} or {\em ==null} for both pre-fix and post-fix
+  contains {\em !=null} or {\em ==null} for both pre- and post-fix
   version. If there is a larger count in post-fix version,
-  we consider that ANC pattern found.
+  we consider that an instance of the ANC pattern found.
 
 \vspace{1ex}
 \noindent
@@ -482,21 +482,21 @@ version, we consider that IAO pattern is found.
     index is within bound right before the index is used.
 %	{\bf Example:} arr[idx]=0 $\rightarrow$ if(idx<arr.length){arr[idx]=0}.
  We count the number of if conditional expression that
-  contains {\em expr<var.length} or {\em var.length>expr} for both pre-fix and
-  post-fix version. If there is a larger count in post-fix version, we consider that AOB pattern is found.
+  contains {\em expr<var.length} or {\em var.length>expr} for both pre- and
+  post-fix version. If there is a larger count in post-fix version, we consider that an instance of the AOB pattern is found.
 
 \vspace{1ex}
 \noindent
  {\bf Adding a collection out of bound checker (COB)}.  This pattern inserts a condition to check that a
     collection index is within bound before it is used.
 To detect COB pattern, we count the number of if conditional expression that
-contains {\em expr<col.size()} or {\em col.size()>expr} for both pre-fix and
-post-fix version. If the count is different between pre- and post-fix
-version, we consider the COB pattern found.
+contains {\em expr<col.size()} or {\em col.size()>expr} for both pre- and
+post-fix version. If the is a larger count in post-fix
+version, we consider that an instance of the COB pattern is found.
 
 \vspace{1ex} The above patterns cover 8 out of 10 bug fixing patterns in
 PAR. The other two patterns are (1) Class Cast Checker (cannot be analyzed because
-Boa does not support the {\em instanceof} expression); and (2) Expression Changer (requires us to track scope between pre-fix and post-fix version; not
+Boa does not support the {\em instanceof} expression); and (2) Expression Changer (requires us to track scope between pre- and post-fix version; not
 easily supported by Boa). Investigating 8 out of
 10 patterns still shows us how common the patterns actually are.
 
@@ -512,7 +512,7 @@ easily supported by Boa). Investigating 8 out of
 		AMP Pattern & 901,083 & 1.95\%\\
 		MSM Pattern & 783,073 & 1.69\%\\
 		COM Pattern & 270,128 & 0.58\%\\ 
-		CBC Pattern & 1,959,377 & 4.23\%\\  
+		ABC Pattern & 1,959,377 & 4.23\%\\  
 		IAO Pattern & 1,308,006 & 2.82\%\\  
 		ANC Pattern & 1,340,561 & 2.90\%\\  
 		AOB Pattern & 128,016 & 0.28\%\\  
@@ -525,12 +525,12 @@ easily supported by Boa). Investigating 8 out of
 
 
 Table~\ref{tab:freqpattern} estimates the prevelance of PAR templates in the
-Java dataset. The most common pattern we observed is CBC (changing a branch condition); and the least common
+Java dataset. The most common pattern we observed is ABC (add or remove a branch condition); and the least common
 pattern is AOB (adding an array out of bound checker). If we conservatively assume that these patterns never appear together, they
 cover 14.78\% of buggy files. In the dataset studied by Kim et al., the overall
 10 patterns cover almost 30\% of real patches~\cite{kim2013}. Although we only analyze 8
 out of 10 bug fixing patterns, it is unlikely the final two will cover the
-difference. Moreover, our detection is imprecise, and likely represents an upper
+difference. Moreover, our detection is imprecise, and might represent an upper
 bound.  This suggests that these fixing patterns might not generalize
 beyond an initial dataset, and that more work remains to expressively characterize human bug-fixing behavior.
 
@@ -581,7 +581,8 @@ beyond an initial dataset, and that more work remains to expressively characteri
           another type (column), for Java.}\label{tab:likeliness}
 \end{table*}
 
-\begin{figure*}[!t] \centering \includegraphics[width=\textwidth]{StmtType} \caption{For each kind of statement, how many
+\begin{figure*}[!t] \centering \includegraphics[width=\textwidth]{StmtType}
+	\vspace{-0.7cm} \caption{For each kind of statement, how many
 	bug fixing revisions add/delete statements of the same kind?}
 	\label{fig:StmtType} \end{figure*}
 
@@ -622,7 +623,7 @@ the replacement likelihood for our dataset
 (each cell shows the percent of the time that the statement in the \emph{row}
 was replaced by a statement of the type in the \emph{column}). For example, if
 the cell in the DoStatement row (row 5) and AssertStatement column (column 2)
-shows 0.81, meaning that Do statements were
+shows 0.81, it means that Do statements were
 replaced by Assert statements 0.81\% of the times.
 
 Additional results (raw numbers not shown) show that the most common replacement
@@ -658,7 +659,7 @@ provided by Boa, the correctness of our analysis
 depends on both our programs and Boa itself. For example, we rely on Boa to
 identify bug fixing revisions; however, precisely accomplishing this is an open
 problem.  To mitigate the risk of errors in
-implementation, we open source our scripts~\footnote{\url{https://github.com/chupanw/BoaChallenge}}.
+implementation, we open source our scripts\footnote{\url{https://github.com/chupanw/BoaChallenge}}.
 Because Boa does not provide an easy mechanism
 to identify precise, statement-level diffs between revisions, our template
 matching and analysis of code changes (by counting each statement kind) only

@@ -682,18 +682,21 @@ matching and analysis of code changes (by counting each statement kind) only
 provide estimates of behavior; we consider our results as informative
 approximations. 
 
-The findings of our study provide useful insights for automatic program repair
-tools in Java. It suggests that patterns proposed by the state-of-the-art in
-generate and validate bug report for Java are insufficient cover the extent of
-bug fixes in our dataset.  Adding more patterns is one solution, but may not be
-a general one.  Our findings further suggest that
-mutation based program repair may need to consider field or method insertion to
-achieve human-comparability in patches.  A deeper look suggests that such
-techniques may benefit from leveraging probabilistic knowledge of what types of
-statements are commonly inserted, deleted, or replaced in Java bug-fixing commits.
-Overall, our findings motivate additional study of 
-repair in Java, as assumptions that underlie approaches that target C seem
-unlikely to translate directly.
+\noindent\textbf{Lessons learned.} The findings of our study provide useful
+insights for automatic program repair tools in Java. It suggests that patterns
+proposed by the state-of-the-art approaches for Java are insufficient to cover
+the extent of bug fixes in our dataset.  Adding more patterns is one solution,
+but may not be a general one.  Our findings further suggest that mutation based
+program repair may need to consider field or method insertion to achieve
+human-comparability in patches. This finding indicates that direct translation
+of mutation based approaches from C to Java is not likely to succeed due to the
+different language constructs.  A deeper look suggests that such techniques may
+benefit from leveraging probabilistic knowledge of what types of statements are
+commonly inserted, deleted, or replaced in Java bug-fixing commits. Again, the
+probabilistic knowledge for C is not likely to work for Java program if
+different coding conventions are considered.  Overall, our findings motivate
+additional study of repair in Java, as assumptions that underlie approaches that
+target C seem unlikely to translate directly.
 
 % demonstrate that our knowledge of bug fixing
 % properties in Java is still lacking and therefore more research on it are

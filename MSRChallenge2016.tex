@@ -532,8 +532,9 @@ pattern is AOB (adding an array out of bound checker). If we conservatively assu
 cover 14.78\% of buggy files. In the dataset studied by Kim et al., the overall
 10 patterns cover almost 30\% of real patches~\cite{kim2013}. Although we only analyze 8
 out of 10 bug fixing patterns, it is unlikely the final two will cover the
-difference. Moreover, our detection is imprecise, and might represent an upper
-bound.  This suggests that these fixing patterns might not generalize
+difference. To even get close to 30\%, each of the patterns need to cover around 7\% of buggy files and we are still assuming that the patterns never appear together. 
+%Moreover, our detection is imprecise, and might represent an upper bound. 
+This suggests that these fixing patterns might not generalize
 beyond an initial dataset, and that more work remains to expressively characterize human bug-fixing behavior.
 
 

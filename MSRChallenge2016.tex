@@ -153,15 +153,15 @@ Mauricio Soto$^1$, Ferdian Thung$^2$, Chu-Pan Wong$^1$, Claire Le Goues$^1$, and
 \begin{abstract}
   Many implementations of research techniques that automatically repair software
   bugs target programs written in C. Work that targets Java often begins from or
-  compares to, direct translations of such techniques to a Java context.  
+  compares to direct translations of such techniques to a Java context.  
   However, Java and C are very different languages, and Java should be
-  studied to inform the translation of existing approaches to target it.
+  studied to inform the construction of repair approaches to target it.
   We conduct a large-scale study of bug-fixing commits
-  to Java projects, focusing on assumptions underlying common
+  in Java projects, focusing on assumptions underlying common
   search-based repair approaches.  We make observations that can be
   leveraged to guide high quality automatic software repair to target Java specifically,
-  including common and uncommon statement replacements as conducted by human
-  developers and the applicability of previously-proposed patch construction
+  including common and uncommon statement modifications in human patches and the
+  applicability of previously-proposed patch construction 
   operators in the Java context. 
 \end{abstract}
 
@@ -215,8 +215,8 @@ Mauricio Soto$^1$, Ferdian Thung$^2$, Chu-Pan Wong$^1$, Claire Le Goues$^1$, and
 
 There has been considerable attention paid to automatic
 program repair in recent
-years~\cite{kim2013,legoues2012,pan2009,
-  Mechtaev15,Long2016}.
+years (e.g.,~\cite{kim2013,legoues2012,
+  Mechtaev15,Long2016}).
 %
 One broad class of techniques in this space take a generate-and-validate
 approach: \emph{generating} a large number of candidate patches using a
@@ -297,13 +297,14 @@ fixing.
 \vspace{1ex}
 \noindent\textbf{How many files are changed to fix a bug?}
 %
-
-We consider a file changed if it is new, modified, or deleted in a commit. In
+Most
+program repair techniques assume that bugs are local to only one or two files.
+We consider a file \emph{changed} if it is new, modified, or deleted in a commit. In
 total, $52,052,571$ files were changed, an average of $11.3$ files per
-bug-fixing commit, and the median number is $2$.  Although the median number
-conforms to our intuition, the average is surprisingly high: most automatic
-program repair techniques assume that bugs are local.  We hypothesize several
-explanations: Other software artifacts (e.g.  documentation) may be updated
+bug-fixing commit. The median number of file changed is $2$.  Although the median
+conforms to our intuition, the average is surprisingly high, suggesting a long
+tailed distribution.   We hypothesize that
+other software artifacts (e.g.  documentation) may be updated
 after bug  fixing, or fixing commits may contain changes unrelated to fixing
 the bug (e.g.  refactoring, feature addition).  To better understand this
 phenomenon, we ask:
@@ -323,30 +324,37 @@ phenomenon, we ask:
   XML & 6,818,299 & 1.49 \\ 
   UNKNOWN & 23,426,568 & 5.10 \\ 
 \bottomrule
+  \toprule
+  Introducing & Total Number & Average \\ \midrule
+  Class & 729,201 & 0.16 \\ 
+  Methods & 3,186,867 & 0.69 \\ 
+  Fields & 6,076,646 & 1.32 \\ 
+  Variables & 924,259 & 0.2 \\ 
+\bottomrule
   \end{tabular}
-  \caption{File Types of Changed Files}
-  \label{tbl:fileType}
+  \caption{Top: File Types of Changed Files.  Bottom: Introduction of new
+    classes, methods, fields, local variables to fix bugs.   \label{tbl:fileType}\label{tbl:new}}
+\vspace{-0.5cm}
 \end{table}
 \vspace{1ex}
 \noindent\textbf{What are the types of those changed files?}
 %
-To answer this question, we iterate over all changed files in each bug fixing
-revision and count the total number for each file type. Results are shown in
-Table~\ref{tbl:fileType}.
+The top of Table~\ref{tbl:fileType} shows the types of the changed files in the
+Boa dataset. 
+Text and
+binary files are changed least frequently. This is unsurprising, since such
+files are often documentation, and binaries should be changed rarely. 
 %
-
-JAVA (ERROR) files are those that Boa failed to parse. JLS2, JLS3, and JLS4
-represent Java files written in different J2SE versions.  We see that text and
-binary files are changed least frequently. This is unsurprising, since text
-files are often documentation, and binaries should be changed rarely. If we
-consider all 4 kinds of Java files as one kind, on average, each bug fixing
-revision changes $4.47$ Java files. This does not conform to our assumption of
-bug locality. XML files in Java projects usually represent build files;
+XML files in Java projects usually represent build files;
 changing build files is unsurprising.  Rather more surprising is how frequently
 UNKNOWN files are changed. Given that all projects are Java projects, it is
 unclear whether these are written in other programming languages. We
-hypothesize they might be test resources.  To better understand what changes
-are usually made to Java files, we next ask:
+hypothesize they might be test resources.  JAVA (ERROR) files are those that Boa failed to parse. JLS2, JLS3, and JLS4 are
+Java files in different J2SE versions.  If we group
+all Java types, on average, each bug fixing
+revision changes $4.47$ Java files. This does not conform to our assumption of
+bug locality.  To better understand what changes
+are usually made to those Java files, we next ask:
 
 \vspace{1ex}
 \noindent\textbf{How often do developers introduce new classes, methods, fields,
@@ -356,30 +364,14 @@ bug fixing commits?}
 This question is interesting because most automatic program repair approaches
 do not create methods or variable declarations, nor do most explicitly consider
 object-oriented features, like fields or classes. 
-
+%
 Table~\ref{tbl:new} shows that introducing new
-classes and new variables is rare. On average, we still have $0.69$ new methods
-per bug fix. These methods naturally contain new test methods (annotated by
-@Test, for example), which is not too alarming. However,
-what surprises us is that $1.32$ fields are created per bug fix.  This indicates
+classes or variables is rare. On average, we still have $0.69$ new methods
+per bug fix. These methods include new test methods (annotated by
+@Test, for example), which is not too alarming. However, we note
+that $1.32$ fields are created per bug fix, suggesting
 that automatic program repair approaches should pay attention to the state of
 the class when fixing Java programs.
-
-\begin{table}
-\centering
-  \begin{tabular}{l | r  r }
-  \toprule
-  Introducing & Total Number & Average \\ \midrule
-  Class & 729,201 & 0.16 \\ 
-  Methods & 3,186,867 & 0.69 \\ 
-  Fields & 6,076,646 & 1.32 \\ 
-  Variables & 924,259 & 0.2 \\ 
-\bottomrule
-  \end{tabular}
-  \caption{Introducing new classes, methods, fields, local variables to fix bugs}
-  \label{tbl:new}
-\vspace{-0.5cm}
-\end{table}
 
 
 \section{Bug Fixing Patterns}\label{sec:method}
@@ -410,15 +402,14 @@ dataset.
 \subsection{Detecting PAR templates using Boa}
 
 Boa's capabilities are powerful, but limited in the precision it enables in
-our detection of PAR bug-fixing patterns. For example, it cannot directly \texttt{diff}
-two files versions. Thus, rather than finding the exact count of
+detection of PAR bug-fixing patterns. For example, it cannot directly \texttt{diff}
+two files. Rather than finding exact counts of
 bug fixing patterns, we approximate by processing pre- and
-post-fix files separately.  Additionally, there are
-two of the 10 patterns that cannot be easily detected by
+post-fix files separately.  Additionally, 
+two of the 10 patterns cannot be easily detected by
 Boa, as we describe below. 
 %
-The patterns we search for are as follows, including our mechanism for
-detecting them:
+We search for the following patterns:
 
 \vspace{1ex}
 \noindent {\bf Altering method parameters (AMP)}.  This template changes 

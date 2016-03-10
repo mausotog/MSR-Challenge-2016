@@ -270,8 +270,8 @@ concern in this area~\cite{Qi15}.
 
 \vspace{1ex}
 \noindent\textbf{Related work.} Zhong and Su~\cite{zhong2015} study
-a similar set of questions as we do, for C.  Beyond focusing on Java in a larger dataset~\cite{dyer2013}, we also study
-replacements, omitted from that analysis.  Barr et al.~\cite{Barr14fse} studied changes to
+a similar set of questions in 5 projects. In this paper we have studied a much larger dataset~\cite{dyer2013} with 380,125 repositories, and we also study
+replacements, omitted from Zhong and Su's analysis.  Barr et al.~\cite{Barr14fse} studied changes to
 Java programs to understand the ``Plastic Surgery Hypothesis'' underlying
 certain types of program repair, an orthogonal
 concern. Kim et al.~\cite{kim2013} manually analyze 
@@ -622,7 +622,7 @@ revision before revision $r$), and then compare the two numbers.
 the replacement likelihood for our dataset 
 (each cell shows the percent of the time that the statement in the \emph{row}
 was replaced by a statement of the type in the \emph{column}). For example, if
-the cell in the DoStatement row (row 5) and AssertStatement column (column 2)
+the cell in the Do statement row (row 5) and Assert statement column (column 2)
 shows 0.81, it means that Do statements were
 replaced by Assert statements 0.81\% of the times.
 
@@ -643,6 +643,8 @@ appearances.
 The most common \emph{replacee} was the
 \texttt{Return Statement} with 111,938 appearances; and the least common
 \emph{replacee} was the \texttt{Type Declaration}, with 399 appearances.
+
+An important study that works as a great complement for this study is~\cite{martinez2013}, in which they discuss a probability distribution for when to apply which kind of edit, meanwhile we go finer grain and discuss a probability distribution of each statement type, once the program has already chosen a kind of edit. It is also worth mentioning that this paper has studied 14 repositories with 89,993 versioning transactions, while our study studies 380,125 repositories with 23,229,406 revisions. 
 
 \vspace{1ex}
 \noindent \textbf{Potential deletions and insertions} From Figure~\ref{fig:StmtType}, we

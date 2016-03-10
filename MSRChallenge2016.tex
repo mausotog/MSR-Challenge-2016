@@ -268,21 +268,24 @@ concern in this area~\cite{Qi15}.
 % resembling patterns programmers use to patch bugs, and then performed an
 % empirical study to evaluate which patches do human programmers prefer.
 
-\vspace{1ex}
-\noindent\textbf{Related work.} Zhong and Su~\cite{zhong2015} study
-a similar set of questions in 5 projects. In this paper we have studied a much larger dataset~\cite{dyer2013} with 380,125 repositories; we have studied more statement types, and we have studied replacements, omitted from Zhong and Su's analysis.  Barr et al.~\cite{Barr14fse} studied changes to
-Java programs to understand the ``Plastic Surgery Hypothesis'' underlying
-certain types of program repair, an orthogonal
-concern. Kim et al.~\cite{kim2013} manually analyze 
-changes to Java programs to inform an automated repair
-technique, and show that doing so results in higher-quality repairs; 
-we study their templates heuristically on
-a different dataset. Their results motivate
-studies of human repairs, as it may result in better patches.
-Long and Rinard learn probabilistic models from bug fixes to C
-code~\cite{Long2016}. Our analysis is significantly less precise and does not
-inform a new technique.  Rather, it serves as a starting
-point for research on the repair of Java bugs.
+\vspace{1ex} \noindent\textbf{Related work.} Zhong and Su~\cite{zhong2015} study
+a similar set of questions in 5 projects. In this paper we have studied a much
+larger dataset~\cite{dyer2013} with 380,125 repositories; we have studied more
+statement types, and we have studied replacements, omitted from Zhong and Su's
+analysis. Similar to our study in Section~\ref{sec:stmtstudy}, researchers have
+studied AST-level changes~\cite{Martinez:2015ez} or line
+changes~\cite{Asaduzzaman:2013gu, Asaduzzaman:2013df} across bug fixing commits.
+Although granularity differs, our approach is novel with respect to scale of
+analysis. Barr et al.~\cite{Barr14fse} studied changes to Java programs to
+understand the ``Plastic Surgery Hypothesis'' underlying certain types of
+program repair, an orthogonal concern. Kim et al.~\cite{kim2013} manually
+analyze changes to Java programs to inform an automated repair technique, and
+show that doing so results in higher-quality repairs; we study their templates
+heuristically on a different dataset. Their results motivate studies of human
+repairs, as it may result in better patches.  Long and Rinard learn
+probabilistic models from bug fixes to C code~\cite{Long2016}. Our analysis is
+significantly less precise and does not inform a new technique.  Rather, it
+serves as a starting point for research on the repair of Java bugs.
 
 \section{Dataset and Characteristics}
 
@@ -535,7 +538,7 @@ beyond an initial dataset, and that more work remains to expressively characteri
 
 
 
-\section{Statement-level mutations}
+\section{Statement-level mutations}\label{sec:stmtstudy}
 \begin{table*}
 	\centering
 	\resizebox{\textwidth}{!}{
@@ -643,7 +646,6 @@ The most common \emph{replacee} was the
 \texttt{Return Statement} with 111,938 appearances; and the least common
 \emph{replacee} was the \texttt{Type Declaration}, with 399 appearances.
 
-An important study that works as a great complement for this study is~\cite{martinez2013}, in which they discuss a probability distribution for when to apply which kind of edit, meanwhile we go finer grain and discuss a probability distribution of each statement type, once the program has already chosen a kind of edit. It is also worth mentioning that this paper has studied 14 repositories with 89,993 versioning transactions, while our study studies 380,125 repositories with 23,229,406 revisions. 
 
 \vspace{1ex}
 \noindent \textbf{Potential deletions and insertions} From Figure~\ref{fig:StmtType}, we
@@ -652,6 +654,18 @@ most often. Meanwhile, the same types of statements are also deleted most
 often. This finding indicates that most bugs were fixed by changing the control
 flow of the program.
 
+An important study that complements for our study is the repair model approach
+proposed by Martinez and Monperrus~\cite{Martinez:2015ez}, in which they discuss
+a probability distribution for when to apply which kind of edit. Although their
+approach is able to trace more fine-grain AST-level changes, our results are
+consistent with their findings. For example, their empirical
+analysis~\cite{Martinez:2015ez} shows that method invocations, if statements,
+and variable declaration statements are added/deleted/updated most often, which
+is also illustrated in Figure~\ref{fig:StmtType} (In Boa, method invocation and
+variable declaration fall into the category of expression). It is also worth
+mentioning that their study covers 14 repositories with 89,993 versioning
+transactions, while our study studies 380,125 repositories with 23,229,406
+revisions. 
 
 \section{Discussion}
 

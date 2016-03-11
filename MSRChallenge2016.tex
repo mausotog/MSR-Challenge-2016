@@ -213,9 +213,8 @@ Mauricio Soto$^1$, Ferdian Thung$^2$, Chu-Pan Wong$^1$, Claire Le Goues$^1$, and
 
 \section{Introduction}
 
-There has been considerable attention paid to automatic
-program repair in recent
-years (e.g.,~\cite{kim2013,legoues2012,
+There has been considerable recent attention paid to automatic
+program repair (e.g.,~\cite{kim2013,legoues2012,
   Mechtaev15,Long2016}).
 %
 One broad class of techniques in this space take a generate-and-validate
@@ -274,7 +273,7 @@ larger dataset~\cite{dyer2013} with 380,125 repositories; and we look at more
 statement types, as well as replacements. Similar to our study in
 Section~\ref{sec:stmtstudy}, researchers have 
 studied AST-level~\cite{Martinez:2015ez} and line-level
-changes~\cite{Asaduzzaman:2013gu, Asaduzzaman:2013df} across bug fixing commits.
+changes~\cite{Asaduzzaman:2013gu} across bug fixing commits.
 Although the granularity differs, our approach is also novel with respect to scale of
 analysis. Barr et al.~\cite{Barr14fse} studied changes to Java programs to
 understand the ``Plastic Surgery Hypothesis'' underlying certain types of
@@ -325,11 +324,11 @@ phenomenon, we ask:
   UNKNOWN & 23,426,568 & 5.10 \\ 
 \bottomrule
   \toprule
-  Introducing & Total Number & Average \\ \midrule
+  Introducing & Total & Average \\ \midrule
   Class & 729,201 & 0.16 \\ 
   Methods & 3,186,867 & 0.69 \\ 
   Fields & 6,076,646 & 1.32 \\ 
-  Variables & 924,259 & 0.2 \\ 
+  Variables & 924,259 & 0.20 \\ 
 \bottomrule
   \end{tabular}
   \caption{Top: File Types of Changed Files.  Bottom: Introduction of new
@@ -411,22 +410,19 @@ Boa, as we describe below.
 %
 We search for the following patterns:
 
-\vspace{1ex}
+%\vspace{1ex}
 \noindent {\bf Altering method parameters (AMP)}.  This template changes 
 input method parameters. %(\texttt{obj.method(v1,v2) $\rightarrow$
 %obj.method(v1,v3)}). 
 To detect this pattern, for both pre- and post-fix versions
 of a buggy file, we create a custom method call signature that
-contains the name string, literal parameters string, and variable parameters string (complex
+contains the name, literal parameters, and variable parameters, all as string (complex
 expressions are listed as ``OTHER'' string).
-%  This is due to inexistence of
-% function that can print Abstract Syntax Tree (AST) back to source code in
-% Boa. 
-We discard method signatures that appear both in pre- and post-fix
-versions, and then identify methods with the same name and the
-same number of parameters, but different signatures between versions. 
+We discard signatures that appear both in pre- and post-fix
+versions, and then identify methods with the same name and 
+number of parameters, but different signatures between versions. 
 
-\vspace{1ex}
+%\vspace{1ex}
 \noindent {\bf Calling another method with the same parameters (MSM)}.  This
 template changes a method name. % (\texttt{obj.method1(param) $\rightarrow$
 %obj.method2(param)}).  
@@ -435,31 +431,31 @@ to the above for AMP, looking for methods
 with the exact same parameter signature but different names in pre- and
 post-fix versions. %If it exists, we consider that MSM pattern is found.
 
-\vspace{1ex}
+%\vspace{1ex}
 \noindent
 {\bf Calling another overloaded method with one more parameter (COM)}. This
 template adds a parameter to a method. %(\texttt{obj.method(v1) $\rightarrow$ obj.method(v1,v2)}).
 We create a method signature similar to the above, seeking methods with
   the same name, but with one more parameter in the post-fix version. 
 
-\vspace{1ex}
+%\vspace{1ex}
 \noindent
  {\bf Add or remove a branch condition (ABC)}. This template adds or removes a condition.
 %(e.g., \texttt{if(a != b) $\rightarrow$ if(a != b \&\& c == 0)}).
 We count the number of { \em logical and} and {\em
     logical or} inside if conditional expression for both pre- and post-fix
   version. We assume that the addition/removal of logical operators indicate
-  addition/removal of condition. If there is a count difference between pre- and post-fix version,
+  addition/removal of condition. If there is a difference in count between versions,
   we consider an instance of the ABC pattern is found. 
 
-\vspace{1ex}
+%\vspace{1ex}
 \noindent
 {\bf Initializing an object (IAO)}. This template adds a initialization to object
 declaration.  We count the number of NEW expressions in variable declarations
 for both pre- and post-fix versions. If there is a larger count in post-fix
 version, we consider that an instance of the IAO pattern is found.
 
-\vspace{1ex}
+%\vspace{1ex}
 \noindent
  {\bf Adding a null checker (ANC)}.  This template inserts a condition to check whether an
     object is null.
@@ -469,7 +465,7 @@ version, we consider that an instance of the IAO pattern is found.
   version. If there is a larger count in post-fix version,
   we consider that an instance of the ANC pattern found.
 
-\vspace{1ex}
+%\vspace{1ex}
 \noindent
  {\bf Adding an array out of bound checker (AOB)}. This pattern inserts a condition to check that an array
     index is within bound right before the index is used.
@@ -478,7 +474,7 @@ version, we consider that an instance of the IAO pattern is found.
   contains {\em expr<var.length} or {\em var.length>expr} for both pre- and
   post-fix version. If there is a larger count in post-fix version, we consider that an instance of the AOB pattern is found.
 
-\vspace{1ex}
+%\vspace{1ex}
 \noindent
  {\bf Adding a collection out of bound checker (COB)}.  This pattern inserts a condition to check that a
     collection index is within bound before it is used.
@@ -487,11 +483,11 @@ contains {\em expr<col.size()} or {\em col.size()>expr} for both pre- and
 post-fix version. If the is a larger count in post-fix
 version, we consider that an instance of the COB pattern is found.
 
-\vspace{1ex} The above patterns cover 8 out of 10 bug fixing patterns in
-PAR. The other two patterns are (1) Class Cast Checker (cannot be analyzed because
+These patterns cover 8 of the 10 bug fixing patterns in
+PAR. We do not investigate (1) Class Cast Checker (cannot be analyzed because
 Boa does not support the {\em instanceof} expression); and (2) Expression Changer (requires us to track scope between pre- and post-fix version; not
 easily supported by Boa). Investigating 8 out of
-10 patterns still shows us how common the patterns actually are.
+10 patterns provides an informative approximation of their prevalence.
 
 \subsection{Results} \label{sec:freqfixpattern}
 
@@ -581,10 +577,10 @@ beyond an initial dataset, and that more work remains to expressively characteri
 	\label{fig:StmtType} \end{figure*}
 
 
-Some automatic program repair approaches seek generality by using
+Some automatic repair approaches seek generality by using
 higher-granularity mutation operators such as statement-level addition, deletion and replacement. To
 support the generation of high-quality patches, we 
-next analyze how developers mutate source code to fix bugs at this granularity
+analyze how developers mutate source code to fix bugs at this granularity
 level. 
 
 \subsection{Detection Approach}
@@ -603,70 +599,67 @@ per-file level.
 Note that this analysis doesn't distinguish the
 replacement of the same statement kind, since we are counting the amount of
 appearances of each statement kind.
-
-We follow a similar approach to approximate a count of deletions and
+%
+We follow a similar approach to approximately count deletions and
 insertions. 
-For each bug fixing revision $r$ and each statement kind $k$, we count how many
-statements of kind $k$ are there in revision $r$ and $r-1$ ($r-1$ means the
-revision before revision $r$), and then compare the two numbers. 
+For each bug fixing revision $r$ and each statement kind $k$, we compare the
+count of statements of kind $k$ in revision $r$ and $r-1$.
 
 \subsection{Results}
 
 \noindent\textbf{Potential replacements.} Table~\ref{tab:likeliness} shows
 the replacement likelihood for our dataset 
 (each cell shows the percent of the time that the statement in the \emph{row}
-was replaced by a statement of the type in the \emph{column}). For example, if
-the cell in the Do statement row (row 5) and Assert statement column (column 2)
-shows 0.81, it means that Do statements were
-replaced by Assert statements 0.81\% of the times.
+was replaced by a statement of the type in the \emph{column}). For example, 
+the corresponding to the $\mathtt{Do}$ row (row 5) and $\mathtt{Assert}$ column (column 2)
+shows 0.81, indicating that $\mathtt{Do}$ statements were
+replaced by $\mathtt{Assert}$ statements 0.81\% of the times.
 
-Additional results (raw numbers not shown) show that the most common replacement
-is replacing Return statement with If statement (appearing in 30,489 files). The
-second most common replacement is replacing an If statement with a Return
-statement, which had 28,536 appearances. 
-By contrast, the least common replacement was an Assert
-statement replacing a Type Declaration statement, which we did not observe. 
-The second least common replacement was a Do statement for a Type
-Declaration or a Label with a Type; we observed these once each.  
+Additional analysis (raw numbers not shown) show that the most common replacement
+replaces $\mathtt{Return}$ statements with $\mathtt{If}$ statements (in 30,489 files). The
+second most common replacement replaces an $\mathtt{If}$ statement with a $\mathtt{Return}$
+(28,536 incidences). 
+By contrast, the least common replacement was an $\mathtt{Assert}$
+statement replacing a $\mathtt{TypeDecl}$, which we did not observe. 
+The second least common replacements were replacing $\mathtt{Do}$ statements or $\mathtt{Label}$s for a $\mathtt{TypeDecl}$; we observed these once each.  
 
 The most common
-\emph{replacer} statement kind (the statement kind that most commonly replaces
-others) is the \texttt{If Statement} (101,366 appearances). The least
-common \emph{replacer} is the \texttt{Type Declaration Statement} with 447
-appearances.
+\emph{replacement} statement (the statement kind that most commonly replaces
+others) is the $\mathtt{If}$ statement (101,366 appearances). The least
+common \emph{replacement} is the $\mathtt{TypeDecl}$ (447
+appearances).
 The most common \emph{replacee} was the
-\texttt{Return Statement} with 111,938 appearances; and the least common
-\emph{replacee} was the \texttt{Type Declaration}, with 399 appearances.
+$\mathtt{Return}$ (111,938 appearances); the least common
+\emph{replacee} was again the $\mathtt{TypeDecl}$ (399 appearances).
 
 
 \vspace{1ex}
 \noindent \textbf{Potential deletions and insertions} From Figure~\ref{fig:StmtType}, we
-can see that, expression, if, return, for and try catch statements are added
-most often. Meanwhile, the same types of statements are also deleted most
-often. This finding indicates that most bugs were fixed by changing the control
-flow of the program.
+can see that $\mathtt{expression}$, $\mathtt{If}$, $\mathtt{Return}$,
+$\mathtt{for}$ and $\mathtt{Try}$ statements are both added and deleted
+most often as compared to the other statement times. 
+These findings indicate that most bugs were fixed by changing control
+flow.
 
-An important study that complements for our study is the repair model approach
-proposed by Martinez and Monperrus~\cite{Martinez:2015ez}, in which they discuss
-a probability distribution for when to apply which kind of edit. Although their
+An important study that complements ours is the repair model approach
+proposed by Martinez and Monperrus~\cite{Martinez:2015ez}, which proposes
+a probability distribution suggesting when to apply which kind of edit. Although their
 approach is able to trace more fine-grain AST-level changes, our results are
 consistent with their findings. For example, their empirical
 analysis~\cite{Martinez:2015ez} shows that method invocations, if statements,
-and variable declaration statements are added/deleted/updated most often, which
-is also illustrated in Figure~\ref{fig:StmtType} (In Boa, method invocation and
-variable declaration fall into the category of expression). It is also worth
-mentioning that their study covers 14 repositories with 89,993 versioning
-transactions, while our study studies 380,125 repositories with 23,229,406
-revisions. 
+and variable declarations are added/deleted/updated most often, which
+is also illustrated in Figure~\ref{fig:StmtType} (Boa groups method invocations and
+variable declarations into the $\mathtt{Expression}$ category).  Our study
+complements there at a much larger scale (we study 380,125 repositories with 23,229,406
+revisions as compared to the 14 repositories in the prior work). 
 
 \section{Discussion}
 
-\noindent\textbf{Threats to validity.} Since we are using a DSL
-provided by Boa, the correctness of our analysis
-depends on both our programs and Boa itself. For example, we rely on Boa to
+\noindent\textbf{Threats to validity.} The correctness of our analysis
+depends on both our programs and Boa and its DSL. For example, we rely on Boa to
 identify bug fixing revisions; however, precisely accomplishing this is an open
-problem.  To mitigate the risk of errors in
-implementation, we open source our scripts\footnote{\url{https://github.com/chupanw/BoaChallenge}}.
+problem.  To mitigate the risk of implementation errors,
+we released our scripts\footnote{\url{https://github.com/chupanw/BoaChallenge}}.
 Because Boa does not provide an easy mechanism
 to identify precise, statement-level diffs between revisions, our template
 matching and analysis of code changes (by counting each statement kind) only

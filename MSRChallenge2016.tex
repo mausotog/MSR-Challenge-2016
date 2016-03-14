@@ -288,10 +288,10 @@ serves as a starting point for research on the repair of Java bugs.
 
 \section{Dataset and Characteristics}
 
-First, we broadly characterize bug-fixing commits to Java code.  In this paper,
-we study the \emph{September 2015/Github} dataset on Boa, including $554,864$
-Java projects with $23,229,406$ revisions. Boa identifies $4,590,679$ as bug
-fixing.
+First, we broadly characterize bug-fixing commits to Java code.  In this
+paper, we study the \emph{September 2015/Github} dataset offered by Boa, including
+$554,864$ Java projects with $23,229,406$ revisions. Boa identifies $4,590,679$
+as bug fixing.
 
 \vspace{1ex}
 \noindent\textbf{How many files are changed to fix a bug?}
@@ -467,12 +467,13 @@ version, we consider that an instance of the IAO pattern is found.
 
 %\vspace{1ex}
 \noindent
- {\bf Adding an array out of bound checker (AOB)}. This pattern inserts a condition to check that an array
+ {\bf Adding an array out of bound checker (AOB)}. This pattern inserts a
+ condition check to check that an array
     index is within bound right before the index is used.
 %	{\bf Example:} arr[idx]=0 $\rightarrow$ if(idx<arr.length){arr[idx]=0}.
  We count the number of if conditional expression that
   contains {\em expr<var.length} or {\em var.length>expr} for both pre- and
-  post-fix version. If there is a larger count in post-fix version, we consider that an instance of the AOB pattern is found.
+  post-fix versions. If there is a larger count in post-fix version, we consider that an instance of the AOB pattern is found.
 
 %\vspace{1ex}
 \noindent
@@ -641,17 +642,17 @@ most often as compared to the other statement times.
 These findings indicate that most bugs were fixed by changing control
 flow.
 
-An important study that complements ours is the repair model approach
-proposed by Martinez and Monperrus~\cite{Martinez:2015ez}, which proposes
-a probability distribution suggesting when to apply which kind of edit. Although their
-approach is able to trace more fine-grain AST-level changes, our results are
+An important study that complements ours is the repair model approach proposed
+by Martinez and Monperrus~\cite{Martinez:2015ez}, which proposes a probability
+distribution suggesting when to apply which kind of edit. Although their
+approach can trace more fine-grain AST-level changes, our results are
 consistent with their findings. For example, their empirical
 analysis~\cite{Martinez:2015ez} shows that method invocations, if statements,
-and variable declarations are added/deleted/updated most often, which
-is also illustrated in Figure~\ref{fig:StmtType} (Boa groups method invocations and
+and variable declarations are added/deleted/updated most often, which is also
+illustrated in Figure~\ref{fig:StmtType} (Boa groups method invocations and
 variable declarations into the $\mathtt{Expression}$ category).  Our study
-complements there at a much larger scale (we study 380,125 repositories with 23,229,406
-revisions as compared to the 14 repositories in the prior work). 
+complements there at a much larger scale (we study 380,125 repositories with
+23,229,406 revisions as compared to the 14 repositories in the prior work). 
 
 \section{Discussion}
 

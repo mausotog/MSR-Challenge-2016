@@ -583,7 +583,8 @@ support the generation of high-quality patches, we
 analyze how developers mutate source code to fix bugs at this granularity
 level. 
 
-\subsection{Detection Approach}
+\vspace{1ex}
+\noindent\textbf{Detection Approach}
 Because direct diffs are difficult to identify on this dataset, we heuristically approximate the
 extent to which one statement type appears to be ``replaced'' by another.
 For each modified file, we count the number of
@@ -605,8 +606,7 @@ insertions.
 For each bug fixing revision $r$ and each statement kind $k$, we compare the
 count of statements of kind $k$ in revision $r$ and $r-1$.
 
-\subsection{Results}
-
+\vspace{1ex}
 \noindent\textbf{Potential replacements.} Table~\ref{tab:likeliness} shows
 the replacement likelihood for our dataset 
 (each cell shows the percent of the time that the statement in the \emph{row}
@@ -720,6 +720,10 @@ target C are unlikely to translate directly.
 %\end{document}  % This is where a 'short' article might terminate
 
 
+\section{Acknowledgements}
+
+This work is partially supported by the US Department of Defense through the
+Systems Engineering Research Center (SERC), Contract H98230-08-D-0171.
 
 \bibliographystyle{abbrv}
 \bibliography{sigproc}  % sigproc.bib is the name of the Bibliography in this case
